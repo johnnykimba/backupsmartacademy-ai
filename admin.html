@@ -232,6 +232,15 @@ td{padding:10px 6px;border-bottom:1px solid rgba(255,255,255,0.04);}
       <button class="btn btn-ghost" onclick="loadItn()" style="margin-top:12px;">🔄 Refresh</button>
     </div>
 
+
+    <div class="card">
+      <div class="ctitle">🔐 Admin Password</div>
+      <div class="flabel">Change local admin password</div>
+      <div class="field-row">
+        <input class="field" type="password" id="new-pwd" placeholder="New password">
+        <button class="btn btn-teal" onclick="savePwd()" style="padding:10px 16px;">Save</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -249,16 +258,17 @@ setInterval(()=>{var e=document.getElementById('clock');if(e)e.textContent=new D
 // ── LOGIN ──────────────────────────────────────────
 
 function logout(){
-  window.location.href = 'index.html';
+  if(!confirm('Sign out of admin? You will need the admin password to log back in.')) return;
+  localStorage.removeItem('saa_admin_key_admin');
+  AK = '';
+  location.reload();
 }
 
 function showErr(id,msg){var e=document.getElementById(id);if(e){e.textContent=msg;e.style.display='block';setTimeout(()=>e.style.display='none',3000);}}
 
-// Auto-login — uses a SEPARATE password from the main admin panel
-// (intentionally different from Johnny22, so this page's exposure
-// doesn't compromise the main app's admin access)
+// Auto-login
 window.addEventListener('load',()=>{
-  AK = 'DrcPay7x29Q';
+  AK = localStorage.getItem('saa_admin_key_admin') || '';
   document.getElementById('main').style.display = 'block';
   onLoad();
 });
@@ -476,6 +486,12 @@ function saveWa(){
   if(!v){toast('Enter a number','err');return;}
   localStorage.setItem('saa_drc_contact',v);
   toast('Contact number saved','ok');
+}
+function savePwd(){
+  var v=document.getElementById('new-pwd').value.trim();
+  if(!v){toast('Enter a password','err');return;}
+  localStorage.setItem('saa_admin_key_admin',v);AK=v;
+  toast('Password saved','ok');
 }
 
 // ── REF KEYWORDS ──────────────────────────────────
