@@ -401,10 +401,45 @@ function pfStartPolling(clientId){
   setTimeout(function(){ clearInterval(poll); }, 3600000);
 }
 
+// Auto-resume PayFast code check — runs on every page load, non-blocking.
+// Fixes: if the client closed/left the tab after paying (so pfStartPolling's
+// in-memory interval died with it), this picks the pending payment back up
+// next time they visit the site, using the same pf_pending_client saved in
+// localStorage at checkout time. Mirrors the DRC auto-resume pattern above.
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    try{
+      var clientId = localStorage.getItem('pf_pending_client') || '';
+      if(!clientId) return;
+      var pendingTs = parseInt(localStorage.getItem('pf_pending_ts')||'0');
+      // Stop checking after 24 hours — payment is presumed abandoned/failed by then
+      if(Date.now() - pendingTs > 86400000){
+        localStorage.removeItem('pf_pending_client');
+        localStorage.removeItem('pf_pending_plan');
+        localStorage.removeItem('pf_pending_ts');
+        return;
+      }
+      fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({_appSecret:APP_SECRET,action:'payfast-poll',clientId:clientId})
+      }).then(function(r){return r.json();}).then(function(d){
+        if(d.status==='ready' && d.code){
+          localStorage.removeItem('pf_pending_client');
+          localStorage.removeItem('pf_pending_plan');
+          localStorage.removeItem('pf_pending_ts');
+          pfShowCodeModal(d.code, d.plan);
+        } else {
+          // Still pending — resume active polling on this page load too
+          pfStartPolling(clientId);
+        }
+      }).catch(function(){});
+    }catch(e){}
+  }, 1500);
+});
+
 function pfShowCodeModal(code, plan){
   savePurchasedCode(code, plan, 'payfast');
-  // Show toast instead of popup
-  toast('🎉 Payment confirmed! Code: ' + code + ' — check My Codes in Pricing', 'ok');
+  // Longer-duration, clearer toast — matches DRC's pattern (6s instead of default)
+  toast('🎉 Payment confirmed! Code: ' + code + ' — saved in My Codes (Pricing page)', 'ok', 6000);
   renderMyCodesTable();
   // Also show pricing page so learner sees the table
   setTimeout(function(){ showPage('page-pricing'); }, 500);

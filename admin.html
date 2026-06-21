@@ -257,7 +257,12 @@ setInterval(()=>{var e=document.getElementById('clock');if(e)e.textContent=new D
 
 // ── LOGIN ──────────────────────────────────────────
 
-
+function logout(){
+  if(!confirm('Sign out of admin? You will need the admin password to log back in.')) return;
+  localStorage.removeItem('saa_admin_key_admin');
+  AK = '';
+  location.reload();
+}
 
 function showErr(id,msg){var e=document.getElementById(id);if(e){e.textContent=msg;e.style.display='block';setTimeout(()=>e.style.display='none',3000);}}
 
