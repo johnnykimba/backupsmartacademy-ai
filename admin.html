@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Smart Academy AI — Admin (DRC Payments)</title>
+<title>Smart Academy AI — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -547,6 +547,8 @@ function saveRefKeywords(){
 }
 
 // ── CODES ──────────────────────────────────────────
+var _costsFromKV = {}; // populated from worker's get-all-costs — real cost data, not local-browser-only
+
 async function loadCodes(){
   var tbody=document.getElementById('codes-tbody');
   tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);">Loading...</td></tr>';
@@ -556,6 +558,17 @@ async function loadCodes(){
     var d=await res.json();
     _codes=d.codes||[];
     document.getElementById('s-total').textContent=_codes.length;
+
+    // Fetch real cost data from the worker's KV store (not localStorage — that's
+    // always empty for codes generated remotely, e.g. via PayFast or DRC SMS match,
+    // since those happen entirely server-side with no admin browser involved).
+    try{
+      var costRes = await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({_appSecret:S,action:'get-all-costs',adminKey:AK})});
+      var costData = await costRes.json();
+      _costsFromKV = costData.costs || {};
+    }catch(e2){ _costsFromKV = {}; }
+
     renderCodes();
   }catch(e){
     tbody.innerHTML='<tr><td colspan="6" style="color:#ef4444;padding:20px;text-align:center;">Error: '+e.message+'</td></tr>';
@@ -569,8 +582,8 @@ function filterCodes(f,el){
 }
 function renderCodes(){
   var tbody=document.getElementById('codes-tbody');
-  var om={'SA':'🇿🇦 SA','ZA':'🇿🇦 SA','DRC':'🇨🇩 DRC','CD':'🇨🇩 DRC','INTL':'🌍 Intl','PAYFAST':'💳 PayFast','ADMIN':'⚙️ Admin'};
-  var oc={'DRC':'#f59e0b','CD':'#f59e0b','SA':'#34d399','ZA':'#34d399','INTL':'#06b6d4','PAYFAST':'#a78bfa','ADMIN':'rgba(255,255,255,0.4)'};
+  var om={'SA':'🇿🇦 SA','ZA':'🇿🇦 SA','DRC':'🇨🇩 DRC','DRC-DIRECT':'🇨🇩 DRC','CD':'🇨🇩 DRC','INTL':'🌍 Intl','PAYFAST':'💳 PayFast','ADMIN':'⚙️ Admin'};
+  var oc={'DRC':'#f59e0b','DRC-DIRECT':'#f59e0b','CD':'#f59e0b','SA':'#34d399','ZA':'#34d399','INTL':'#06b6d4','PAYFAST':'#a78bfa','ADMIN':'rgba(255,255,255,0.4)'};
   var now=Date.now();
   var list=_codes.filter(c=>{
     if(_filter==='all') return true;
@@ -589,9 +602,18 @@ function renderCodes(){
     var origRaw=((c.origin||c.region||c.source||'admin')).toUpperCase();
     var ol=om[origRaw]||(c.origin||'—');
     var oc2=oc[origRaw]||'rgba(255,255,255,0.3)';
-    var costD=null;try{costD=JSON.parse(localStorage.getItem('saa_cost_'+c.code)||'null');}catch(e){}
+    // Prefer real KV cost data (covers PayFast/DRC codes generated server-side);
+    // fall back to localStorage for any legacy/local-only cost records.
+    var costD = _costsFromKV[c.code] || null;
+    if(!costD){ try{ costD=JSON.parse(localStorage.getItem('saa_cost_'+c.code)||'null'); }catch(e){} }
     var cost='—';
-    if(costD&&costD.calls>0){var cv=(costD.inputTokens*2.5/1e6)+(costD.outputTokens*10/1e6);cost='$'+cv.toFixed(4)+'<br><span style="font-size:9px;color:rgba(255,255,255,0.3);">'+costD.calls+' calls</span>';}
+    if(costD && costD.totalCost !== undefined && costD.totalCost === 0){
+      // Manual/no-AI-cost entry (DRC match, PayFast) — show $0.00 with its source label instead of "—"
+      cost='$0.00'+(costD.source?'<br><span style="font-size:9px;color:rgba(255,255,255,0.3);">'+costD.source+'</span>':'');
+    } else if(costD&&costD.calls>0){
+      var cv = costD.totalCost !== undefined ? costD.totalCost : ((costD.inputTokens||0)*2.5/1e6)+((costD.outputTokens||0)*10/1e6);
+      cost='$'+cv.toFixed(4)+'<br><span style="font-size:9px;color:rgba(255,255,255,0.3);">'+costD.calls+' calls</span>';
+    }
     return '<tr>'
       +'<td><span class="code-val">'+c.code+'</span></td>'
       +'<td style="font-size:11px;font-weight:700;color:'+oc2+';">'+ol+'</td>'
