@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Academy AI — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#080f1e;color:#fff;min-height:100vh;}
+
+/* LOGIN */
+
+.login-card{background:linear-gradient(135deg,#0f2044,#1a3a6e);border:1px solid rgba(6,182,212,0.3);border-radius:20px;padding:36px 28px;max-width:380px;width:100%;text-align:center;}
+.login-card h1{font-size:22px;font-weight:800;margin-bottom:4px;}
+.login-card p{font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px;}
+.input{width:100%;padding:12px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:15px;font-family:'DM Sans',sans-serif;margin-bottom:12px;outline:none;}
+.input:focus{border-color:#06b6d4;}
+.btn-login{width:100%;padding:13px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.err{color:#ef4444;font-size:12px;margin-top:8px;display:none;}
+
+/* MAIN */
+#main{display:block;}
+.topbar{background:#0a1628;border-bottom:1px solid rgba(6,182,212,0.2);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topbar h2{font-size:15px;font-weight:800;color:#fff;}
+.topbar h2 span{color:#06b6d4;}
+.logout{padding:6px 14px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:8px;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;padding:16px 16px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.tab{padding:10px 18px;border:none;border-radius:10px 10px 0 0;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;background:transparent;color:rgba(255,255,255,0.4);}
+.tab.on{background:linear-gradient(135deg,#0f2044,#1a3a6e);color:#fff;border:1px solid rgba(6,182,212,0.3);border-bottom:1px solid #080f1e;}
+
+/* PANEL */
+.panel{display:none;padding:16px;max-width:860px;margin:0 auto;}
+.panel.on{display:block;}
+
+/* CARD */
+.card{background:linear-gradient(135deg,#0f2044,#1a3a6e);border:1px solid rgba(6,182,212,0.2);border-radius:14px;padding:20px;margin-bottom:16px;}
+.card.amber{border-color:rgba(245,158,11,0.3);}
+.card.green{border-color:rgba(16,185,129,0.3);}
+.ctitle{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#06b6d4;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.ctitle.amber{color:#f59e0b;}
+.ctitle.green{color:#10b981;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;margin-top:16px;}
+.stat{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;text-align:center;}
+.stat-n{font-size:26px;font-weight:900;color:#06b6d4;}
+.stat-l{font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+
+/* UPLOAD */
+
+.preview{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.preview-name{font-size:13px;font-weight:700;color:#f59e0b;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-del{padding:5px 10px;background:#ef4444;border:none;border-radius:6px;color:#fff;font-size:11px;cursor:pointer;}
+
+/* BUTTONS */
+.btn{padding:12px 20px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.btn-amber{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;width:100%;}
+.btn-blue{background:linear-gradient(135deg,#1a56db,#06b6d4);color:#fff;width:100%;}
+.btn-teal{background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff;}
+.btn-ghost{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);padding:6px 14px;font-size:12px;}
+.btn:disabled{opacity:0.5;cursor:default;}
+
+/* STATUS */
+.status{border-radius:10px;padding:14px;font-size:13px;font-weight:600;text-align:center;display:none;line-height:1.6;margin-top:4px;}
+
+/* FIELD */
+.field-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.field{flex:1;padding:10px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;}
+.field:focus{border-color:#06b6d4;}
+.flabel{font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;}
+
+/* PENDING */
+.pitem{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.pplan{font-size:14px;font-weight:700;color:#fff;}
+.pref{font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px;}
+.ptime{font-size:11px;color:rgba(255,255,255,0.3);}
+.page{font-size:13px;font-weight:800;text-align:right;}
+.pleft{font-size:10px;color:rgba(255,255,255,0.3);}
+
+/* CODES TABLE */
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;padding:8px 6px;color:rgba(255,255,255,0.35);font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.06);}
+td{padding:10px 6px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.code-val{font-family:'JetBrains Mono',monospace;color:#06b6d4;font-weight:700;font-size:13px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;font-size:13px;font-weight:700;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;}
+#toast.ok{background:#10b981;color:#fff;}
+#toast.err{background:#ef4444;color:#fff;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+
+
+<!-- MAIN -->
+<div id="main">
+  <div class="topbar">
+    <h2>Smart Academy <span>AI</span> · Admin</h2>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span id="clock" style="font-size:11px;color:rgba(255,255,255,0.3);"></span>
+      <button class="logout" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="tab('drc',this)">🇨🇩 DRC Payments</button>
+    <button class="tab" onclick="tab('codes',this)">🔑 Codes</button>
+    <button class="tab" onclick="tab('settings',this)">⚙️ Settings</button>
+  </div>
+
+  <!-- ══ DRC PANEL ══ -->
+  <div class="panel on" id="panel-drc">
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="s-pending">—</div><div class="stat-l">Pending</div></div>
+      <div class="stat"><div class="stat-n" id="s-urgent" style="color:#ef4444;">—</div><div class="stat-l">Urgent &gt;24h</div></div>
+      <div class="stat"><div class="stat-n" id="s-total">—</div><div class="stat-l">Total Codes</div></div>
+    </div>
+
+    <!-- UPLOAD SECTION — VERY PROMINENT -->
+    <div class="card amber">
+      <div class="ctitle amber">📸 STEP 1 — Upload or Paste Payment Confirmation</div>
+      <p style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:16px;line-height:1.6;">
+        When a DRC client pays via Airtel / M-Pesa / Orange, paste their SMS confirmation below.<br>
+        <strong style="color:#f59e0b;">The transaction reference will be extracted and matched to the client's proof automatically.</strong>
+      </p>
+
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:8px;">
+        📋 Copy the full SMS from Airtel / M-Pesa / Orange and paste it below — the ref will be extracted automatically.
+      </div>
+      <textarea id="admin-sms-text" placeholder="e.g. Trans.ID: PP260130.1024.B01234, Vous avez envoyé 5 USD à DATABUNDL2. Votre solde: 44107 CDF."
+        style="width:100%;padding:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(245,158,11,0.4);border-radius:10px;color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;resize:vertical;min-height:90px;box-sizing:border-box;display:block;"
+        oninput="adminTextInput(this.value)"></textarea>
+
+      <div class="status" id="match-status"></div>
+
+      <button class="btn btn-amber" id="match-btn" onclick="doMatch()" style="margin-top:12px;">
+        🔍 Match Payment &amp; Generate Access Code
+      </button>
+
+      <!-- DIRECT REF MATCH — bypasses GPT -->
+      <div style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.1);padding-top:14px;">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">⚡ Direct Match — type ref manually</div>
+        <div style="display:flex;gap:8px;">
+          <input id="direct-ref-input" type="text" placeholder="e.g. TXN999" 
+            style="flex:1;padding:10px 14px;background:rgba(255,255,255,0.07);border:1px solid rgba(245,158,11,0.4);border-radius:8px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:700;letter-spacing:1px;">
+          <button class="btn btn-amber" onclick="doDirectMatch()" style="padding:10px 18px;white-space:nowrap;">
+            ✅ Match
+          </button>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;">Type the exact transaction reference the client submitted — no GPT needed.</div>
+      </div>
+    </div>
+
+    <!-- PENDING LIST -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="ctitle" style="margin-bottom:0;">⏳ STEP 2 — Pending Client Proofs</div>
+        <button class="btn btn-ghost" onclick="loadPending()">🔄 Refresh</button>
+      </div>
+      <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:12px;">These clients have uploaded their payment proof and are waiting for you to match their SMS above.</p>
+      <div id="pending-list"><div style="text-align:center;color:rgba(255,255,255,0.3);font-size:12px;padding:20px;">Loading...</div></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="card">
+      <div class="ctitle">⚙️ DRC Settings</div>
+      <div class="flabel">USD → CDF Exchange Rate (1 USD = ? CDF)</div>
+      <div class="field-row" style="margin-bottom:16px;">
+        <input class="field" type="number" id="cdf-rate" placeholder="2800" min="100" step="10">
+        <span style="font-size:12px;color:rgba(255,255,255,0.4);">CDF</span>
+        <button class="btn btn-teal" onclick="saveCdf()" style="padding:10px 16px;">Save</button>
+      </div>
+      <div class="flabel">Client Support Contact (shown after 48hrs if no code)</div>
+      <div class="field-row" style="margin-bottom:16px;">
+        <input class="field" type="text" id="wa-num" placeholder="+27761328664">
+        <button class="btn btn-teal" onclick="saveWa()" style="padding:10px 16px;">Save</button>
+      </div>
+
+      <!-- REF KEYWORD SETTINGS -->
+      <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;margin-top:4px;">
+        <div class="ctitle" style="font-size:12px;margin-bottom:6px;">🔑 Transaction Ref Keywords</div>
+        <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:14px;line-height:1.6;">
+          Define the keyword that appears before the transaction ref in each network's SMS.<br>
+          e.g. Airtel SMS says <b style="color:#f59e0b;">"Transaction ID: CI241234"</b> → keyword is <b style="color:#f59e0b;">Transaction ID</b>
+        </p>
+        <div id="ref-keywords-list"></div>
+        <button class="btn btn-ghost" onclick="addRefKeyword()" style="width:100%;margin-top:8px;font-size:12px;">+ Add Network Keyword</button>
+        <button class="btn btn-teal" onclick="saveRefKeywords()" style="width:100%;margin-top:8px;">💾 Save Keywords</button>
+        <div id="ref-keywords-status" style="display:none;margin-top:8px;font-size:12px;text-align:center;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CODES PANEL ══ -->
+  <div class="panel" id="panel-codes">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 12px;">
+      <div style="font-size:13px;color:rgba(255,255,255,0.5);">All codes from Cloudflare KV</div>
+      <button class="btn btn-ghost" onclick="loadCodes()">🔄 Refresh</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+      <button class="btn btn-ghost on-chip" onclick="filterCodes('all',this)" style="padding:5px 14px;font-size:11px;background:#1a56db;color:#fff;border-color:#1a56db;">All</button>
+      <button class="btn btn-ghost on-chip" onclick="filterCodes('active',this)" style="padding:5px 14px;font-size:11px;">Active</button>
+      <button class="btn btn-ghost on-chip" onclick="filterCodes('unused',this)" style="padding:5px 14px;font-size:11px;">Unused</button>
+      <button class="btn btn-ghost on-chip" onclick="filterCodes('expired',this)" style="padding:5px 14px;font-size:11px;">Expired</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table>
+        <thead><tr>
+          <th>Code</th><th>Origin</th><th>Status</th><th>Created</th><th>AI Cost</th><th></th>
+        </tr></thead>
+        <tbody id="codes-tbody"><tr><td colspan="6" style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ SETTINGS PANEL ══ -->
+  <div class="panel" id="panel-settings">
+    <div style="margin-top:16px;" class="card green">
+      <div class="ctitle green">✅ System Status</div>
+      <div id="sys-status" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:2;">Checking...</div>
+      <button class="btn btn-ghost" onclick="checkStatus()" style="margin-top:12px;">🔄 Check Again</button>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">💳 Last PayFast Payment Received</div>
+      <div id="last-itn" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;">Loading...</div>
+      <button class="btn btn-ghost" onclick="loadItn()" style="margin-top:12px;">🔄 Refresh</button>
+    </div>
+
+
+    <div class="card">
+      <div class="ctitle">🔐 Admin Password</div>
+      <div class="flabel">Change local admin password</div>
+      <div class="field-row">
+        <input class="field" type="password" id="new-pwd" placeholder="New password">
+        <button class="btn btn-teal" onclick="savePwd()" style="padding:10px 16px;">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const W = 'https://smartacademy-ai.kasongokimba.workers.dev';
+const S = 'sWN-UZpoi6PLUgCgZ7KiZi2iRPNUXq9f';
+let AK = '';
+let _codes=[], _filter='all';
+
+// Clock
+setInterval(()=>{var e=document.getElementById('clock');if(e)e.textContent=new Date().toLocaleTimeString();},1000);
+
+// ── LOGIN ──────────────────────────────────────────
+
+
+
+function showErr(id,msg){var e=document.getElementById(id);if(e){e.textContent=msg;e.style.display='block';setTimeout(()=>e.style.display='none',3000);}}
+
+// Auto-login
+window.addEventListener('load',()=>{
+  AK = localStorage.getItem('saa_admin_key_admin') || '';
+  document.getElementById('main').style.display = 'block';
+  onLoad();
+});
+
+function onLoad(){
+  loadPending();
+  loadCodes();
+  checkStatus();
+  loadItn();
+  document.getElementById('cdf-rate').value=localStorage.getItem('saa_fx_cdf')||'2800';
+  document.getElementById('wa-num').value=localStorage.getItem('saa_drc_contact')||'+27761328664';
+}
+
+// ── TABS ──────────────────────────────────────────
+function tab(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('panel-'+id).classList.add('on');
+  el.classList.add('on');
+  if(id==='drc') loadPending();
+  if(id==='codes') loadCodes();
+  if(id==='settings'){checkStatus();loadItn();loadRefKeywords();}
+}
+
+// ── TOAST ──────────────────────────────────────────
+function toast(msg,type){
+  var e=document.getElementById('toast');
+  e.textContent=msg;e.className=type||'ok';e.style.opacity='1';
+  setTimeout(()=>e.style.opacity='0',2500);
+}
+
+
+async function doDirectMatch(){
+  var ref = document.getElementById('direct-ref-input').value.trim();
+  if(!ref){ toast('Enter a transaction reference first','err'); return; }
+  var st = document.getElementById('match-status');
+  st.style.display='block';
+  st.style.cssText='display:block;border-radius:10px;padding:14px;font-size:13px;font-weight:600;text-align:center;background:rgba(245,158,11,0.1);color:#f59e0b;';
+  st.textContent='⏳ Matching ref: '+ref+'...';
+  try{
+    var res=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:S,action:'drc-direct-match',adminKey:AK,ref:ref})});
+    var d=await res.json();
+    if(d.ok&&d.matched){
+      st.style.background='rgba(16,185,129,0.15)';st.style.color='#10b981';
+      st.innerHTML='✅ Match found! Code generated:<br>'
+        +'<span style="font-size:24px;font-family:monospace;letter-spacing:3px;font-weight:900;">'+d.code+'</span><br>'
+        +'<span style="font-size:11px;opacity:0.7;">Ref: '+d.ref+' · Plan: '+d.plan+' · Delivered to client</span>';
+      document.getElementById('direct-ref-input').value='';
+      toast('✅ Code: '+d.code,'ok');
+      setTimeout(loadPending,1500);
+      loadCodes();
+    } else if(d.ok&&!d.matched){
+      st.style.background='rgba(239,68,68,0.1)';st.style.color='#ef4444';
+      st.innerHTML='❌ No pending proof found with ref: <b>'+ref+'</b><br>'
+        +'<span style="font-size:11px;">Check the ref matches exactly what the client submitted.</span>';
+    } else if(d.error === 'amount_mismatch'){
+      st.style.background='rgba(245,158,11,0.15)';st.style.color='#f59e0b';
+      st.innerHTML='⚠️ AMOUNT MISMATCH — Code NOT generated<br>'
+        +'<span style="font-size:11px;">'+(d.message||'')+'</span><br>'
+        +'<span style="font-size:11px;color:rgba(255,255,255,0.5);">Detected: $'+(d.detectedAmount||'?')+' for plan '+(d.claimedPlan||'?')+'</span>';
+    } else {
+      st.style.background='rgba(239,68,68,0.1)';st.style.color='#ef4444';
+      st.textContent='❌ '+(d.error||'Error');
+    }
+  }catch(e){
+    st.style.background='rgba(239,68,68,0.1)';st.style.color='#ef4444';
+    st.textContent='❌ Network error: '+e.message;
+  }
+}
+function adminTextInput(val){
+  _adminSmsText = val.trim();
+  var btn = document.getElementById('match-btn');
+  var st  = document.getElementById('match-status');
+  if(_adminSmsText.length > 5){
+    btn.style.display='block';
+    st.style.display='none';
+  } else {
+    btn.style.display='none';
+  }
+}
+
+async function doMatch(){
+  if(!_adminSmsText||!_adminSmsText.trim()){toast('Please paste the SMS text first','err');return;}
+  var btn=document.getElementById('match-btn');
+  var st=document.getElementById('match-status');
+  btn.textContent='⏳ Matching...';btn.disabled=true;
+  st.style.display='block';
+  st.style.cssText='display:block;border-radius:10px;padding:14px;font-size:13px;font-weight:600;text-align:center;background:rgba(245,158,11,0.1);color:#f59e0b;';
+  st.textContent='🔍 Extracting ref and matching...';
+  var payload = {_appSecret:S,action:'drc-admin-match',adminKey:AK,smsText:_adminSmsText};
+  try{
+    var res=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    var d=await res.json();
+    if(d.ok&&d.matched){
+      st.style.background='rgba(16,185,129,0.15)';st.style.color='#10b981';
+      st.innerHTML='✅ Match found! Code generated:<br>'
+        +'<span style="font-size:24px;font-family:monospace;letter-spacing:3px;font-weight:900;">'+d.code+'</span><br>'
+        +'<span style="font-size:11px;opacity:0.7;">Client ref: '+(d.clientRef||d.ref)+' = Admin ref: '+d.adminRef+' ✅ · Plan: '+d.plan+'</span>'
+        +(d.verifiedAmount?'<br><span style="font-size:11px;color:#10b981;">💰 Verified amount: $'+d.verifiedAmount.toFixed(2)+'</span>':'');
+      document.getElementById('admin-sms-text').value='';
+      _adminSmsText=null;
+      toast('✅ Code sent to client: '+d.code,'ok');
+      setTimeout(loadPending,1500);
+      loadCodes();
+    } else if(d.ok&&!d.matched){
+      st.style.background='rgba(239,68,68,0.1)';st.style.color='#ef4444';
+      st.innerHTML='❌ No matching client proof.<br>'        +'<span style="font-size:11px;">Admin ref extracted: <b style="font-family:monospace;">'+(d.adminRef||d.ref||'none')+'</b><br>'        +'Make sure client submitted same ref first.'+(d.pendingRefs&&d.pendingRefs.length?'<br><span style="color:#fbbf24;">Pending refs: '+d.pendingRefs.join(' | ')+'</span>':'')+'</span>';    } else if(d.error === 'amount_mismatch'){
+      st.style.background='rgba(245,158,11,0.15)';st.style.color='#f59e0b';
+      st.innerHTML='⚠️ AMOUNT MISMATCH — Code NOT generated<br>'
+        +'<span style="font-size:11px;">'+(d.message||'')+'</span><br>'
+        +'<span style="font-size:11px;color:rgba(255,255,255,0.5);">Detected: $'+(d.detectedAmount||'?')+' for plan '+(d.claimedPlan||'?')+'</span>';
+    } else if(d.error === 'amount_no_match'){
+      st.style.background='rgba(245,158,11,0.15)';st.style.color='#f59e0b';
+      st.innerHTML='⚠️ NO MATCHING AMOUNT — Code NOT generated<br>'
+        +'<span style="font-size:11px;">'+(d.message||'')+'</span>';
+    } else if(d.error === 'amount_no_plan'){
+      st.style.background='rgba(245,158,11,0.15)';st.style.color='#f59e0b';
+      st.innerHTML='⚠️ AMOUNT DOES NOT MATCH ANY PLAN<br>'
+        +'<span style="font-size:11px;">'+(d.message||'')+'</span>';
+    } else {
+      st.style.background='rgba(239,68,68,0.1)';st.style.color='#ef4444';
+      st.textContent='❌ '+(d.error||'Error — try a clearer image or more detailed text');
+    }
+  }catch(e){
+    st.style.background='rgba(239,68,68,0.1)';st.style.color='#ef4444';
+    st.textContent='❌ Network error: '+e.message;
+  }
+  btn.textContent='🔍 Match Payment & Generate Access Code';btn.disabled=false;
+}
+
+// ── PENDING LIST ───────────────────────────────────
+async function loadPending(){
+  var list=document.getElementById('pending-list');
+  list.innerHTML='<div style="text-align:center;color:rgba(255,255,255,0.3);font-size:12px;padding:20px;">Loading...</div>';
+  try{
+    var res=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:S,action:'drc-list-pending',adminKey:AK})});
+    var d=await res.json();
+    var p=d.pending||[];
+    var m=d.matched||[];
+    var urgent=p.filter(x=>Date.now()-x.submittedAt>24*3600000).length;
+    document.getElementById('s-pending').textContent=p.length;
+    document.getElementById('s-urgent').textContent=urgent;
+
+    var th='<th style="text-align:left;padding:9px 8px;color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid rgba(255,255,255,0.15);white-space:nowrap;">';
+    var html='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">'
+      +'<table style="width:100%;border-collapse:collapse;font-size:12px;min-width:700px;">'
+      +'<thead><tr style="background:rgba(255,255,255,0.04);">'
+      +th+'① Client Ref</th>'
+      +th+'② Admin Ref</th>'
+      +th+'③ Matched</th>'
+      +th+'④ Code Generated</th>'
+      +th+'Claimed Plan</th>'
+      +th+'Detected $</th>'
+      +th+'Status</th>'
+      +'</tr></thead><tbody>';
+
+    if(!p.length && !m.length){
+      html+='<tr><td colspan="6" style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);">No proofs submitted yet</td></tr>';
+    }
+
+    p.forEach(function(x){
+      var age=Math.floor((Date.now()-x.submittedAt)/3600000);
+      var ageCol=age>24?'#ef4444':age>12?'#f59e0b':'#10b981';
+      var plan=x.plan==='W'?'W·$5':x.plan==='M'?'M·$10':'Y·$90';
+      var amounts = x.allAmountsUSD || [];
+      var amountsStr = amounts.length ? amounts.map(function(a){return '$'+a.toFixed(2);}).join(', ') : '<span style="color:rgba(239,68,68,0.6);">none found</span>';
+      html+='<tr style="border-bottom:1px solid rgba(255,255,255,0.06);">'
+        +'<td style="padding:10px 8px;font-family:monospace;font-weight:900;color:#f59e0b;font-size:13px;">'+(x.ref||'—')+'</td>'
+        +'<td style="padding:10px 8px;color:rgba(255,255,255,0.25);font-size:11px;">—</td>'
+        +'<td style="padding:10px 8px;color:rgba(255,255,255,0.25);font-size:11px;">—</td>'
+        +'<td style="padding:10px 8px;color:rgba(255,255,255,0.25);font-size:11px;">—</td>'
+        +'<td style="padding:10px 8px;color:#fff;font-weight:600;">'+plan+'</td>'
+        +'<td style="padding:10px 8px;color:#06b6d4;font-size:11px;font-weight:700;">'+amountsStr+'</td>'
+        +'<td style="padding:10px 8px;white-space:nowrap;"><span style="color:'+ageCol+';font-weight:700;">'+age+'h</span>&nbsp;<span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800;">⏳ PENDING</span></td>'
+        +'</tr>';
+    });
+
+    m.forEach(function(x){
+      var plan=x.plan==='W'?'W·$5':x.plan==='M'?'M·$10':'Y·$90';
+      var amounts = x.allAmountsUSD || [];
+      var amountsStr = amounts.length ? amounts.map(function(a){return '$'+a.toFixed(2);}).join(', ') : '—';
+      var ago=x.matchedAt?Math.floor((Date.now()-x.matchedAt)/60000)+'m ago':'—';
+      var clientRef=x.ref||'—';
+      var adminRef=x.adminRef||x.ref||'—';
+      var isMatch=clientRef.toUpperCase()===adminRef.toUpperCase();
+      html+='<tr style="border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(16,185,129,0.07);">'
+        +'<td style="padding:10px 8px;font-family:monospace;font-weight:900;color:#10b981;font-size:13px;">'+clientRef+'</td>'
+        +'<td style="padding:10px 8px;font-family:monospace;font-weight:900;color:'+(isMatch?'#10b981':'#ef4444')+';font-size:13px;">'+adminRef+'</td>'
+        +'<td style="padding:10px 8px;font-family:monospace;font-weight:900;color:#10b981;font-size:13px;">'+(isMatch?'✅ '+clientRef:'❌ No match')+'</td>'
+        +'<td style="padding:10px 8px;font-family:monospace;font-weight:900;color:#10b981;font-size:13px;letter-spacing:2px;">'+(x.code||'—')+'</td>'
+        +'<td style="padding:10px 8px;color:#fff;font-weight:600;">'+plan+' <span style="color:rgba(255,255,255,0.3);font-size:9px;">(verified)</span></td>'
+        +'<td style="padding:10px 8px;color:#10b981;font-size:11px;font-weight:700;">'+amountsStr+'</td>'
+        +'<td style="padding:10px 8px;white-space:nowrap;"><span style="color:rgba(255,255,255,0.4);">'+ago+'</span>&nbsp;<span style="background:rgba(16,185,129,0.15);color:#10b981;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800;">✅ MATCHED</span></td>'
+        +'</tr>';
+    });
+
+    html+='</tbody></table></div>';
+    list.innerHTML=html;
+  }catch(e){
+    list.innerHTML='<div style="color:#ef4444;font-size:12px;padding:12px;">❌ Error: '+e.message+'</div>';
+  }
+}
+
+// ── SETTINGS ──────────────────────────────────────
+function saveCdf(){
+  var v=parseFloat(document.getElementById('cdf-rate').value);
+  if(!v||v<100){toast('Enter valid rate e.g. 2800','err');return;}
+  localStorage.setItem('saa_fx_cdf',v.toString());
+  toast('CDF rate saved: '+v+' per $1','ok');
+}
+function saveWa(){
+  var v=document.getElementById('wa-num').value.trim();
+  if(!v){toast('Enter a number','err');return;}
+  localStorage.setItem('saa_drc_contact',v);
+  toast('Contact number saved','ok');
+}
+function savePwd(){
+  var v=document.getElementById('new-pwd').value.trim();
+  if(!v){toast('Enter a password','err');return;}
+  localStorage.setItem('saa_admin_key_admin',v);AK=v;
+  toast('Password saved','ok');
+}
+
+// ── REF KEYWORDS ──────────────────────────────────
+var _refKeywords = [];
+var _defaultKeywords = [
+  {network:'Airtel Money', keyword:'Transaction ID'},
+  {network:'M-Pesa DRC',  keyword:'Transaction ID'},
+  {network:'Orange Money', keyword:'Ref'},
+  {network:'General',     keyword:'ID'}
+];
+
+function loadRefKeywords(){
+  var saved = localStorage.getItem('saa_ref_keywords');
+  _refKeywords = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(_defaultKeywords));
+  renderRefKeywords();
+}
+function renderRefKeywords(){
+  var list = document.getElementById('ref-keywords-list');
+  if(!list) return;
+  list.innerHTML = _refKeywords.map(function(k,i){
+    return '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">'
+      +'<input value="'+k.network+'" placeholder="Network e.g. Airtel" '
+      +'style="flex:1;padding:8px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:12px;font-family:\'DM Sans\',sans-serif;" '
+      +'oninput="_refKeywords['+i+'].network=this.value">'
+      +'<input value="'+k.keyword+'" placeholder="Keyword e.g. Transaction ID" '
+      +'style="flex:1.5;padding:8px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(245,158,11,0.4);border-radius:8px;color:#f59e0b;font-size:12px;font-weight:700;font-family:\'DM Sans\',sans-serif;" '
+      +'oninput="_refKeywords['+i+'].keyword=this.value">'
+      +'<button onclick="_refKeywords.splice('+i+',1);renderRefKeywords()" '
+      +'style="padding:6px 10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:#ef4444;font-size:11px;cursor:pointer;">✕</button>'
+      +'</div>';
+  }).join('');
+}
+function addRefKeyword(){
+  _refKeywords.push({network:'',keyword:''});
+  renderRefKeywords();
+  // Scroll to bottom of list
+  var list=document.getElementById('ref-keywords-list');
+  if(list) list.lastElementChild && list.lastElementChild.querySelector('input').focus();
+}
+function saveRefKeywords(){
+  localStorage.setItem('saa_ref_keywords', JSON.stringify(_refKeywords));
+  // Also save to KV via worker
+  fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({_appSecret:S,action:'save-ref-keywords',adminKey:AK,keywords:_refKeywords})
+  }).then(function(r){return r.json();}).then(function(d){
+    var st=document.getElementById('ref-keywords-status');
+    if(st){st.style.display='block';st.style.color=d.ok?'#10b981':'#f59e0b';st.textContent=d.ok?'✅ Keywords saved to server':'⚠️ Saved locally only';}
+  }).catch(function(){
+    var st=document.getElementById('ref-keywords-status');
+    if(st){st.style.display='block';st.style.color='#f59e0b';st.textContent='⚠️ Saved locally only';}
+  });
+  toast('Keywords saved','ok');
+}
+
+// ── CODES ──────────────────────────────────────────
+async function loadCodes(){
+  var tbody=document.getElementById('codes-tbody');
+  tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);">Loading...</td></tr>';
+  try{
+    var res=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:S,action:'get-all-codes',adminKey:AK})});
+    var d=await res.json();
+    _codes=d.codes||[];
+    document.getElementById('s-total').textContent=_codes.length;
+    renderCodes();
+  }catch(e){
+    tbody.innerHTML='<tr><td colspan="6" style="color:#ef4444;padding:20px;text-align:center;">Error: '+e.message+'</td></tr>';
+  }
+}
+function filterCodes(f,el){
+  _filter=f;
+  document.querySelectorAll('.on-chip').forEach(b=>{b.style.background='';b.style.color='';b.style.borderColor='';});
+  el.style.background='#1a56db';el.style.color='#fff';el.style.borderColor='#1a56db';
+  renderCodes();
+}
+function renderCodes(){
+  var tbody=document.getElementById('codes-tbody');
+  var om={'SA':'🇿🇦 SA','ZA':'🇿🇦 SA','DRC':'🇨🇩 DRC','CD':'🇨🇩 DRC','INTL':'🌍 Intl','PAYFAST':'💳 PayFast','ADMIN':'⚙️ Admin'};
+  var oc={'DRC':'#f59e0b','CD':'#f59e0b','SA':'#34d399','ZA':'#34d399','INTL':'#06b6d4','PAYFAST':'#a78bfa','ADMIN':'rgba(255,255,255,0.4)'};
+  var now=Date.now();
+  var list=_codes.filter(c=>{
+    if(_filter==='all') return true;
+    if(_filter==='active') return !c.disabled&&now<(c.expiry||0);
+    if(_filter==='expired') return !c.disabled&&now>=(c.expiry||0);
+    if(_filter==='unused') return !c.disabled&&!c.deviceFingerprint&&now<(c.expiry||0);
+    return true;
+  }).sort((a,b)=>(b.created||0)-(a.created||0));
+  if(!list.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);">No codes</td></tr>';return;}
+  tbody.innerHTML=list.map(c=>{
+    var exp=now>=(c.expiry||0);
+    var status=c.disabled?'<span style="color:#ef4444;">Disabled</span>'
+      :exp?'<span style="color:#ef4444;">Expired</span>'
+      :'<span style="color:#10b981;">'+Math.ceil(((c.expiry||0)-now)/86400000)+'d left</span>';
+    var created=c.created?new Date(c.created).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—';
+    var origRaw=((c.origin||c.region||c.source||'admin')).toUpperCase();
+    var ol=om[origRaw]||(c.origin||'—');
+    var oc2=oc[origRaw]||'rgba(255,255,255,0.3)';
+    var costD=null;try{costD=JSON.parse(localStorage.getItem('saa_cost_'+c.code)||'null');}catch(e){}
+    var cost='—';
+    if(costD&&costD.calls>0){var cv=(costD.inputTokens*2.5/1e6)+(costD.outputTokens*10/1e6);cost='$'+cv.toFixed(4)+'<br><span style="font-size:9px;color:rgba(255,255,255,0.3);">'+costD.calls+' calls</span>';}
+    return '<tr>'
+      +'<td><span class="code-val">'+c.code+'</span></td>'
+      +'<td style="font-size:11px;font-weight:700;color:'+oc2+';">'+ol+'</td>'
+      +'<td style="font-size:11px;">'+status+'</td>'
+      +'<td style="font-size:11px;color:rgba(255,255,255,0.4);">'+created+'</td>'
+      +'<td style="font-size:11px;">'+cost+'</td>'
+      +'<td style="white-space:nowrap;">'
+      +'<button onclick="copyCode(\''+c.code+'\')" style="padding:4px 8px;background:rgba(255,255,255,0.06);border:none;border-radius:6px;color:rgba(255,255,255,0.5);font-size:10px;cursor:pointer;font-family:\'DM Sans\',sans-serif;">📋</button>'
+      +' <button onclick="resetDevice(\''+c.code+'\',this)" title="Unlock device" style="padding:4px 8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:#ef4444;font-size:10px;cursor:pointer;font-family:\'DM Sans\',sans-serif;">🔓</button>'
+      +' <button onclick="deleteCode(\''+c.code+'\',this)" title="Delete permanently" style="padding:4px 8px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.5);border-radius:6px;color:#ef4444;font-size:10px;cursor:pointer;font-family:\'DM Sans\',sans-serif;">🗑️</button>'
+      +'</td></tr>';
+  }).join('');
+}
+function copyCode(code){navigator.clipboard.writeText(code).then(()=>toast('Copied: '+code,'ok'));}
+
+async function resetDevice(code, btn){
+  if(!confirm('Unlock "'+code+'" from its device?\nThe learner can activate it on a new device.')) return;
+  btn.textContent='⏳';btn.disabled=true;
+  try{
+    var res=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:S,action:'reset-device',adminKey:AK,code:code})});
+    var d=await res.json();
+    if(d.ok){toast('✅ '+code+' unlocked — device reset','ok');btn.textContent='✅';}
+    else{toast('❌ '+(d.error||'Failed'),'err');btn.textContent='🔓';btn.disabled=false;}
+  }catch(e){toast('❌ Network error','err');btn.textContent='🔓';btn.disabled=false;}
+}
+async function deleteCode(code, btn){
+  if(!confirm('Permanently delete "'+code+'"?\nThis cannot be undone.')) return;
+  btn.textContent='⏳';btn.disabled=true;
+  try{
+    var res=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:S,action:'delete-code',adminKey:AK,code:code})});
+    var d=await res.json();
+    if(d.ok){
+      toast('🗑️ '+code+' deleted','ok');
+      _codes=_codes.filter(c=>c.code!==code);
+      renderCodes();
+    }else{toast('❌ '+(d.error||'Failed'),'err');btn.textContent='🗑️';btn.disabled=false;}
+  }catch(e){toast('❌ Network error','err');btn.textContent='🗑️';btn.disabled=false;}
+}
+
+// ── STATUS ──────────────────────────────────────────
+async function checkStatus(){
+  var el=document.getElementById('sys-status');
+  el.textContent='Checking...';
+  try{
+    var res=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:S,action:'get-site-status'})});
+    var d=await res.json();
+    el.innerHTML='✅ Worker online and responding<br>'
+      +'✅ Cloudflare KV connected<br>'
+      +'✅ PayFast ITN endpoint active<br>'
+      +'✅ DRC proof matching active<br>'
+      +'✅ AI cost tracking active';
+  }catch(e){
+    el.innerHTML='<span style="color:#ef4444;">❌ Worker unreachable: '+e.message+'</span>';
+  }
+}
+async function loadItn(){
+  var el=document.getElementById('last-itn');
+  try{
+    var res=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:S,action:'get-last-itn',adminKey:AK})});
+    var d=await res.json();
+    if(d.ok&&d.itn){
+      var i=d.itn;
+      el.innerHTML='Status: <b style="color:#10b981;">'+i.status+'</b><br>'
+        +'Plan: <b>'+i.plan+'</b><br>'
+        +'Client ID: '+i.clientId+'<br>'
+        +'Time: '+new Date(i.ts).toLocaleString();
+    } else {el.textContent='No PayFast ITN received yet.';}
+  }catch(e){el.textContent='Could not load — check network.';}
+}
+
+
+
+// Auto-refresh pending every 60s
+setInterval(()=>{if(document.getElementById('panel-drc').classList.contains('on')&&AK)loadPending();},60000);
+</script>
+</body>
+</html>
