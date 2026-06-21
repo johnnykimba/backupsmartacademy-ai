@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help — Smart Academy AI</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#0f1a2e;height:100vh;max-height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+  .header{background:linear-gradient(135deg,#0f2044,#1a3a6e);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(6,182,212,0.2);}
+  .header-left{display:flex;align-items:center;gap:10px;}
+  .header a{color:#06b6d4;text-decoration:none;font-size:20px;font-weight:700;}
+  .header h1{color:#fff;font-size:16px;font-weight:800;}
+  .help-badge{background:#ef4444;color:#fff;font-size:12px;font-weight:900;padding:3px 9px;border-radius:6px;}
+  .lang-select{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:5px 8px;border-radius:8px;font-size:12px;cursor:pointer;}
+  .lang-select option{background:#0f2044;color:#fff;}
+  .topics{padding:10px 14px 0;display:flex;gap:6px;flex-wrap:wrap;}
+  .topic-btn{background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);color:#06b6d4;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  .topic-btn:active{background:rgba(6,182,212,0.3);}
+  .chat-wrap{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;padding-bottom:130px;}
+  .msg{display:flex;gap:8px;align-items:flex-start;}
+  .msg.user{flex-direction:row-reverse;}
+  .avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .avatar.ai{background:linear-gradient(135deg,#1a56db,#06b6d4);}
+  .avatar.user{background:linear-gradient(135deg,#7c3aed,#a855f7);}
+  .bubble{max-width:88%;padding:11px 14px;border-radius:14px;font-size:14px;line-height:1.7;}
+  .bubble.ai{background:#162036;border:1px solid rgba(6,182,212,0.15);color:#e2e8f0;border-radius:4px 14px 14px 14px;}
+  .bubble.user{background:linear-gradient(135deg,#1a56db,#1d4ed8);color:#fff;border-radius:14px 4px 14px 14px;}
+  .bubble strong{color:#06b6d4;}
+  .bubble .step{background:rgba(6,182,212,0.1);border-left:3px solid #06b6d4;padding:6px 10px;margin:5px 0;border-radius:0 6px 6px 0;font-size:13px;}
+  .speak-btn{background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:12px;margin-top:6px;padding:2px 6px;border-radius:4px;display:block;}
+  .speak-btn:hover{color:#06b6d4;}
+  .typing{display:flex;align-items:center;gap:4px;padding:8px 12px;}
+  .typing span{width:7px;height:7px;border-radius:50%;background:#06b6d4;animation:bounce 1.2s infinite;}
+  .typing span:nth-child(2){animation-delay:0.2s;}
+  .typing span:nth-child(3){animation-delay:0.4s;}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
+  .input-bar{position:fixed;bottom:0;left:0;right:0;background:#0f1a2e;border-top:1px solid rgba(255,255,255,0.08);padding:10px 12px;display:flex;gap:8px;align-items:center;}
+  .input-bar textarea{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#fff;font-size:14px;padding:10px 13px;resize:none;font-family:inherit;max-height:90px;min-height:42px;line-height:1.5;}
+  .input-bar textarea:focus{outline:none;border-color:#06b6d4;}
+  .input-bar textarea::placeholder{color:rgba(255,255,255,0.35);}
+  .btn-send{width:42px;height:42px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:12px;color:#fff;font-size:18px;cursor:pointer;flex-shrink:0;}
+  .btn-mic{width:42px;height:42px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#fff;font-size:18px;cursor:pointer;flex-shrink:0;transition:all 0.2s;}
+  .btn-mic.active{background:rgba(239,68,68,0.2);border-color:#ef4444;color:#ef4444;}
+  .btn-ar{height:42px;padding:0 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap;}
+  .btn-ar.on{background:rgba(16,185,129,0.2);border-color:#10b981;color:#10b981;}
+  .welcome{text-align:center;padding:24px 16px;}
+  .welcome-icon{font-size:44px;margin-bottom:10px;}
+  .welcome h2{color:#fff;font-size:18px;font-weight:800;margin-bottom:6px;}
+  .welcome p{color:rgba(255,255,255,0.5);font-size:13px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <a href="https://www.smartacademy-ai.com">←</a>
+    <h1>Smart Academy AI</h1>
+    <div class="help-badge">❓ HELP</div>
+  </div>
+  <select class="lang-select" id="help-lang" onchange="setHelpLang(this.value)">
+    <option value="en">🇬🇧 English</option>
+    <option value="fr">🇫🇷 Français</option>
+    <option value="pt">🇵🇹 Português</option>
+    <option value="es">🇪🇸 Español</option>
+    <option value="sw">🇰🇪 Kiswahili</option>
+    <option value="ha">🇳🇬 Hausa</option>
+    <option value="yo">🇳🇬 Yorùbá</option>
+    <option value="ig">🇳🇬 Igbo</option>
+    <option value="zu">🇿🇦 isiZulu</option>
+    <option value="af">🇿🇦 Afrikaans</option>
+    <option value="hi">🇮🇳 हिन्दी</option>
+    <option value="zh">🇨🇳 中文</option>
+    <option value="ru">🇷🇺 Русский</option>
+    <option value="de">🇩🇪 Deutsch</option>
+    <option value="it">🇮🇹 Italiano</option>
+    <option value="id">🇮🇩 Bahasa Indonesia</option>
+    <option value="tr">🇹🇷 Türkçe</option>
+    <option value="bn">🇧🇩 বাংলা</option>
+    <option value="tl">🇵🇭 Filipino</option>
+    <option value="ar">🇸🇦 العربية</option>
+  </select>
+</div>
+
+<div class="topics" id="help-topics"></div>
+
+<div class="chat-wrap" id="chat-wrap">
+  <div class="welcome">
+    <div class="welcome-icon">🎓</div>
+    <h2 id="welcome-title">Hi! I'm your Smart Academy AI assistant.</h2>
+    <p id="welcome-sub">Ask me anything — payments, access codes, uploading, quizzes. Type or use 🎤</p>
+  </div>
+</div>
+
+<div class="input-bar">
+  <button class="btn-ar" id="btn-ar" onclick="toggleAR()">🔇 Auto</button>
+  <button class="btn-mic" id="btn-mic" onclick="toggleMic()">🎤</button>
+  <textarea id="help-input" rows="1"
+    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendHelp();}"></textarea>
+  <button class="btn-send" onclick="sendHelp()">➤</button>
+</div>
+
+<script>
+const WORKER_URL = 'https://smartacademy-ai.kasongokimba.workers.dev';
+const APP_SECRET = 'saa-app-2024';
+
+var _autoRead = false;
+var _micActive = false;
+var _recognition = null;
+var _msgTexts = {};
+var _msgId = 0;
+var _helpLang = 'en';
+
+// ── TRANSLATIONS ──────────────────────────────────────────────
+var T = {
+  en:{
+    welcome:'Hi! I\'m your Smart Academy AI assistant.',
+    sub:'Ask me anything — payments, access codes, uploading, quizzes. Type or use 🎤',
+    placeholder:'Ask anything about the app...',
+    listen:'🔊 Listen',
+    topics:['💳 How to Pay','🔑 Access Code','📄 Upload Document','📝 How Quiz Works','🧑‍🏫 AI Tutor','🌍 Languages','⚠️ Code Problem','⏱ Access Duration'],
+    topicQ:['How do I pay for access?','How do I enter my access code?','How do I upload my document?','How does the quiz work?','How do I use the AI Tutor?','What languages are supported?','My code is not working, what should I do?','How long does my access last?']
+  },
+  fr:{
+    welcome:'Bonjour ! Je suis votre assistant Smart Academy AI.',
+    sub:'Posez-moi des questions sur l\'application. Tapez ou utilisez 🎤',
+    placeholder:'Posez une question sur l\'application...',
+    listen:'🔊 Écouter',
+    topics:['💳 Comment Payer','🔑 Code d\'Accès','📄 Télécharger Document','📝 Comment fonctionne le Quiz','🧑‍🏫 Tuteur IA','🌍 Langues','⚠️ Problème de Code','⏱ Durée d\'Accès'],
+    topicQ:['Comment payer pour l\'accès ?','Comment entrer mon code d\'accès ?','Comment télécharger mon document ?','Comment fonctionne le quiz ?','Comment utiliser le tuteur IA ?','Quelles langues sont supportées ?','Mon code ne fonctionne pas, que faire ?','Combien de temps dure mon accès ?']
+  },
+  pt:{
+    welcome:'Olá! Sou seu assistente Smart Academy AI.',
+    sub:'Pergunte-me qualquer coisa sobre o aplicativo. Digite ou use 🎤',
+    placeholder:'Pergunte sobre o aplicativo...',
+    listen:'🔊 Ouvir',
+    topics:['💳 Como Pagar','🔑 Código de Acesso','📄 Carregar Documento','📝 Como funciona o Quiz','🧑‍🏫 Tutor IA','🌍 Idiomas','⚠️ Problema de Código','⏱ Duração do Acesso'],
+    topicQ:['Como pagar pelo acesso?','Como inserir meu código de acesso?','Como carregar meu documento?','Como funciona o quiz?','Como usar o tutor de IA?','Quais idiomas são suportados?','Meu código não funciona, o que devo fazer?','Quanto tempo dura meu acesso?']
+  },
+  sw:{
+    welcome:'Habari! Mimi ni msaidizi wako wa Smart Academy AI.',
+    sub:'Niulize chochote kuhusu programu. Andika au tumia 🎤',
+    placeholder:'Uliza chochote kuhusu programu...',
+    listen:'🔊 Sikiliza',
+    topics:['💳 Jinsi ya Kulipa','🔑 Nambari ya Ufikiaji','📄 Pakia Hati','📝 Jinsi ya Kufanya Quiz','🧑‍🏫 Mwalimu wa AI','🌍 Lugha','⚠️ Tatizo la Nambari','⏱ Muda wa Ufikiaji'],
+    topicQ:['Ninalipiaje ufikiaji?','Naingiaje nambari yangu ya ufikiaji?','Ninapakiaje hati yangu?','Quiz inafanya kazije?','Ninatumiaje mwalimu wa AI?','Lugha gani zinasaidiwa?','Nambari yangu haifanyi kazi, nifanye nini?','Ufikiaji wangu hudumu muda gani?']
+  },
+  zu:{
+    welcome:'Sawubona! Ngingumsizi wakho we-Smart Academy AI.',
+    sub:'Ngibuze noma yini mayelana nohlelo. Bhala noma usebenzise 🎤',
+    placeholder:'Buza noma yini...',
+    listen:'🔊 Lalela',
+    topics:['💳 Ukubhala','🔑 Ikhodi Yokufinyelela','📄 Layisha Idokhument','📝 Ukusebenza Kwe-Quiz','🧑‍🏫 Umfundisi we-AI','🌍 Izilimi','⚠️ Inkinga Yekhodi','⏱ Ubude Bokufinyelela'],
+    topicQ:['Ngibhadalela kanjani okufinyelela?','Ngifaka kanjani ikhodi yami?','Ngiyilayisha kanjani idokhument?','I-quiz isebenza kanjani?','Ngisebenzisa kanjani umfundisi we-AI?','Yiziphi izilimi ezisekelwayo?','Ikhodi yami ayisebenzi, ngenzeni?','Okufinyelela kwami kuhlala isikhathi esingakanani?']
+  },
+  af:{
+    welcome:'Hallo! Ek is jou Smart Academy AI-assistent.',
+    sub:'Vra my enigiets oor die toepassing. Tik of gebruik 🎤',
+    placeholder:'Vra enigiets oor die toepassing...',
+    listen:'🔊 Luister',
+    topics:['💳 Hoe om te Betaal','🔑 Toegangskode','📄 Laai Dokument Op','📝 Hoe die Vasvra Werk','🧑‍🏫 AI Tutor','🌍 Tale','⚠️ Kode Probleem','⏱ Toegang Duur'],
+    topicQ:['Hoe betaal ek vir toegang?','Hoe voer ek my toegangskode in?','Hoe laai ek my dokument op?','Hoe werk die vasvra?','Hoe gebruik ek die AI-tutor?','Watter tale word ondersteun?','My kode werk nie, wat moet ek doen?','Hoe lank hou my toegang?']
+  },
+  ar:{
+    welcome:'مرحباً! أنا مساعدك في Smart Academy AI.',
+    sub:'اسألني أي شيء عن التطبيق. اكتب أو استخدم 🎤',
+    placeholder:'اسأل أي شيء عن التطبيق...',
+    listen:'🔊 استمع',
+    topics:['💳 كيفية الدفع','🔑 رمز الوصول','📄 رفع المستند','📝 كيف يعمل الاختبار','🧑‍🏫 المعلم الذكي','🌍 اللغات','⚠️ مشكلة الرمز','⏱ مدة الوصول'],
+    topicQ:['كيف أدفع للوصول؟','كيف أدخل رمز الوصول؟','كيف أرفع مستندي؟','كيف يعمل الاختبار؟','كيف أستخدم المعلم الذكي؟','ما اللغات المدعومة؟','رمزي لا يعمل، ماذا أفعل؟','كم مدة وصولي؟']
+  },
+  es:{
+    welcome:'¡Hola! Soy tu asistente de Smart Academy AI.',
+    sub:'Pregúntame cualquier cosa sobre la aplicación. Escribe o usa 🎤',
+    placeholder:'Pregunta sobre la aplicación...',
+    listen:'🔊 Escuchar',
+    topics:['💳 Cómo Pagar','🔑 Código de Acceso','📄 Subir Documento','📝 Cómo Funciona el Quiz','🧑‍🏫 Tutor de IA','🌍 Idiomas','⚠️ Problema de Código','⏱ Duración del Acceso'],
+    topicQ:['¿Cómo pago el acceso?','¿Cómo ingreso mi código de acceso?','¿Cómo subo mi documento?','¿Cómo funciona el quiz?','¿Cómo uso el tutor de IA?','¿Qué idiomas están soportados?','Mi código no funciona, ¿qué hago?','¿Cuánto dura mi acceso?']
+  },
+  zh:{
+    welcome:'你好！我是你的 Smart Academy AI 助手。',
+    sub:'问我任何关于应用程序的问题。输入或使用 🎤',
+    placeholder:'问任何关于应用程序的问题...',
+    listen:'🔊 听',
+    topics:['💳 如何付款','🔑 访问码','📄 上传文件','📝 测验如何工作','🧑‍🏫 AI 导师','🌍 语言','⚠️ 代码问题','⏱ 访问时长'],
+    topicQ:['如何付费获得访问权限？','如何输入我的访问码？','如何上传我的文件？','测验如何工作？','如何使用AI导师？','支持哪些语言？','我的代码不起作用，我该怎么办？','我的访问权限持续多长时间？']
+  },
+  hi:{
+    welcome:'नमस्ते! मैं आपका Smart Academy AI सहायक हूं।',
+    sub:'ऐप के बारे में कुछ भी पूछें। टाइप करें या 🎤 का उपयोग करें',
+    placeholder:'ऐप के बारे में कुछ भी पूछें...',
+    listen:'🔊 सुनें',
+    topics:['💳 भुगतान कैसे करें','🔑 एक्सेस कोड','📄 दस्तावेज़ अपलोड','📝 क्विज़ कैसे काम करता है','🧑‍🏫 AI ट्यूटर','🌍 भाषाएं','⚠️ कोड समस्या','⏱ एक्सेस अवधि'],
+    topicQ:['एक्सेस के लिए भुगतान कैसे करें?','अपना एक्सेस कोड कैसे दर्ज करें?','अपना दस्तावेज़ कैसे अपलोड करें?','क्विज़ कैसे काम करता है?','AI ट्यूटर का उपयोग कैसे करें?','कौन सी भाषाएं समर्थित हैं?','मेरा कोड काम नहीं कर रहा, क्या करें?','मेरा एक्सेस कब तक चलता है?']
+  },
+  ha:{
+    welcome:'Sannu! Ni ne mataimakin Smart Academy AI naka.',
+    sub:'Tambaye ni komai game da app. Rubuta ko yi amfani da 🎤',
+    placeholder:'Tambaya game da app...',listen:'🔊 Saurara',
+    topics:['💳 Yadda Ake Biya','🔑 Lambar Shiga','📄 Loda Takarda','📝 Yadda Jarrabawa Ke Aiki','🧑‍🏫 Malamin AI','🌍 Harsuna','⚠️ Matsalar Lamba','⏱ Tsawon Shiga'],
+    topicQ:['Yadda ake biyan kuɗi?','Yadda ake shigar da lambar shiga?','Yadda ake lodawa?','Yadda jarrabawa ke aiki?','Yadda ake amfani da malamin AI?','Waɗanne harsuna ake goyan baya?','Lambar ta ba ta aiki, me zan yi?','Damar shiga ta dawwama tsawon lokaci nawa?']
+  },
+  yo:{
+    welcome:'Ẹ káàbọ̀! Mo jẹ olùrànlọ́wọ́ Smart Academy AI rẹ.',
+    sub:'Béèrè ohunkóhun nípa ètò náà. Tẹ tàbí lo 🎤',
+    placeholder:'Béèrè nípa ètò náà...',listen:'🔊 Gbọ',
+    topics:['💳 Bí a ṣe n Sanwó','🔑 Kóòdù Àṣeyọrí','📄 Gbé Ìwé Sókè','📝 Bí Ìdánwò Ṣe Ń Ṣiṣẹ','🧑‍🏫 Olùkọ AI','🌍 Àwọn Èdè','⚠️ Ìṣòro Kóòdù','⏱ Ìyè Àṣeyọrí'],
+    topicQ:['Bí a ṣe n sanwó?','Bí a ṣe n tẹ kóòdù?','Bí a ṣe n gbé ìwé sókè?','Bí ìdánwò ṣe ń ṣiṣẹ?','Bí a ṣe n lo olùkọ AI?','Àwọn èdè wo ni a ń ṣètìlẹyìn?','Kóòdù mi kò ń ṣiṣẹ, kí ni mo ṣe?','Iye àkókò wo ni àṣeyọrí mi yóò wà?']
+  },
+  ig:{
+    welcome:'Nnọọ! Abụ m onye inyeaka gị nke Smart Academy AI.',
+    sub:'Jụọ m ihe ọ bụla maka ngwa ahụ. Pịnye ma ọ bụ jiri 🎤',
+    placeholder:'Jụọ ihe ọ bụla...',listen:'🔊 Nụ',
+    topics:['💳 Otu esi akwụ ụgwọ','🔑 Koodu Nnabata','📄 Bulite Akwụkwọ','📝 Otu Quiz si arụ ọrụ','🧑‍🏫 Onye nkuzi AI','🌍 Asụsụ','⚠️ Nsogbu Koodu','⏱ Ogologo Oge Nnabata'],
+    topicQ:['Kedu otu esi akwụ ụgwọ?','Kedu otu esi etinye koodu?','Kedu otu esi bulite akwụkwọ?','Kedu otu quiz si arụ ọrụ?','Kedu otu esi eji onye nkuzi AI?','Asụsụ ole ka a na-akwado?','Koodu m anaghị arụ ọrụ, gịnị ka m ga-eme?','Ogologo oge ole ka nnabata m ga-adịrị?']
+  },
+  st:{welcome:'Lumela! Ke motsehetsi wa hao wa Smart Academy AI.',sub:'Nkotsa eng kapa eng ka app. Ngola kapa sebelisa 🎤',placeholder:'Botsa eng kapa eng...',listen:'🔊 Utlwa',topics:['💳 Ho Lefa','🔑 Khoutu ya Phihlello','📄 Kenya Tokomane','📝 Quiz e Sebetsa Joang','🧑‍🏫 Mosuwe wa AI','🌍 Dipuo','⚠️ Bothata ba Khoutu','⏱ Paka ya Phihlello'],topicQ:['Ke lefa joang?','Ke kenya joang khoutu?','Ke kenya joang tokomane?','Quiz e sebetsa joang?','Ke sebelisa joang mosuwe wa AI?','Dipuo dife tse tsheheditswang?','Khoutu ya ka ha e sebetse, ke ets\'a eng?','Phihlello ya ka e dura nako e kae?']},
+  tn:{welcome:'Dumela! Ke motlhankedi wa gago wa Smart Academy AI.',sub:'Nkotse sengwe le sengwe ka app. Kwala kgotsa dirisa 🎤',placeholder:'Botsa sengwe le sengwe...',listen:'🔊 Utlwa',topics:['💳 Go Duela','🔑 Khoutu ya Phitlhelelo','📄 Naya Tokomane','📝 Quiz e Dira Jang','🧑‍🏫 Morutabana wa AI','🌍 Dipuo','⚠️ Bothata jwa Khoutu','⏱ Nako ya Phitlhelelo'],topicQ:['Ke duela jang?','Ke naya jang khoutu?','Ke naya jang tokomane?','Quiz e dira jang?','Ke dirisa jang morutabana wa AI?','Ke dipuo dife tse di tshegetswang?','Khoutu ya me ga e dire, ke dira eng?','Phitlhelelo ya me e nna nako e kae?']},
+  xh:{welcome:'Molo! NdingumseBenzi wakho we-Smart Academy AI.',sub:'Ndibuze nantoni na malunga nohlelo. Bhala okanye usebenzise 🎤',placeholder:'Buza nantoni na...',listen:'🔊 Phulaphula',topics:['💳 Indlela yokuhlawula','🔑 Ikhowudi yokungena','📄 Layisha Uxwebhu','📝 Ukusebenza kweKwiz','🧑‍🏫 Utitshala we-AI','🌍 Iilwimi','⚠️ Ingxaki yeKhowudi','⏱ Ubude bokungena'],topicQ:['Ndiyahlawula njani?','Ndiyifaka njani ikhowudi yam?','Ndilayisha njani uxwebhu lwam?','IKwiz isebenza njani?','Ndisebenzisa njani utitshala we-AI?','Zeziphi iilwimi ezixhaswayo?','Ikhowudi yam ayisebenzi, ndenzeni?','Ukungena kwam kuhlala ixesha elingakanani?']},
+  ln:{welcome:'Mbote! Nazali assistant na yo ya Smart Academy AI.',sub:'Tuna motuna nionso na app. Koma to pesa 🎤',placeholder:'Tuna motuna...',listen:'🔊 Yoka',topics:['💳 Ndenge ya Kobiya','🔑 Code ya Kotikela','📄 Tinda Mokanda','📝 Quiz Esalelaka Ndenge Nini','🧑‍🏫 Molakisi ya AI','🌍 Minoko','⚠️ Problème ya Code','⏱ Ntango ya Kotikela'],topicQ:['Nabiya ndenge nini?','Natiela ndenge nini code na ngai?','Natinda ndenge nini mokanda na ngai?','Quiz esalelaka ndenge nini?','Nasalela ndenge nini molakisi ya AI?','Minoko nini esalemi?','Code na ngai esalaka te, nasala nini?','Kotikela na ngai ekokanga ntango boni?']},
+  ru:{welcome:'Привет! Я ваш помощник Smart Academy AI.',sub:'Задайте мне любой вопрос о приложении. Введите или используйте 🎤',placeholder:'Задайте вопрос...',listen:'🔊 Слушать',topics:['💳 Как оплатить','🔑 Код доступа','📄 Загрузить документ','📝 Как работает тест','🧑‍🏫 ИИ репетитор','🌍 Языки','⚠️ Проблема с кодом','⏱ Длительность доступа'],topicQ:['Как оплатить доступ?','Как ввести код доступа?','Как загрузить документ?','Как работает тест?','Как использовать ИИ репетитора?','Какие языки поддерживаются?','Мой код не работает, что делать?','Сколько длится мой доступ?']},
+  de:{welcome:'Hallo! Ich bin Ihr Smart Academy AI Assistent.',sub:'Fragen Sie mich alles über die App. Tippen oder nutzen Sie 🎤',placeholder:'Fragen Sie alles über die App...',listen:'🔊 Anhören',topics:['💳 Wie zu zahlen','🔑 Zugangscode','📄 Dokument hochladen','📝 Wie das Quiz funktioniert','🧑‍🏫 KI-Tutor','🌍 Sprachen','⚠️ Code-Problem','⏱ Zugriffsdauer'],topicQ:['Wie bezahle ich den Zugang?','Wie gebe ich meinen Zugangscode ein?','Wie lade ich mein Dokument hoch?','Wie funktioniert das Quiz?','Wie benutze ich den KI-Tutor?','Welche Sprachen werden unterstützt?','Mein Code funktioniert nicht, was soll ich tun?','Wie lange dauert mein Zugang?']},
+  it:{welcome:'Ciao! Sono il tuo assistente Smart Academy AI.',sub:'Chiedimi qualsiasi cosa sull\'app. Digita o usa 🎤',placeholder:'Chiedi qualsiasi cosa...',listen:'🔊 Ascolta',topics:['💳 Come pagare','🔑 Codice di accesso','📄 Carica documento','📝 Come funziona il Quiz','🧑‍🏫 Tutor AI','🌍 Lingue','⚠️ Problema codice','⏱ Durata accesso'],topicQ:['Come pago l\'accesso?','Come inserisco il codice?','Come carico il documento?','Come funziona il quiz?','Come uso il tutor AI?','Quali lingue sono supportate?','Il mio codice non funziona, cosa faccio?','Quanto dura il mio accesso?']},
+  id:{welcome:'Halo! Saya asisten Smart Academy AI Anda.',sub:'Tanyakan apa saja tentang aplikasi. Ketik atau gunakan 🎤',placeholder:'Tanyakan apa saja...',listen:'🔊 Dengarkan',topics:['💳 Cara Membayar','🔑 Kode Akses','📄 Unggah Dokumen','📝 Cara Kerja Kuis','🧑‍🏫 Tutor AI','🌍 Bahasa','⚠️ Masalah Kode','⏱ Durasi Akses'],topicQ:['Bagaimana cara membayar akses?','Bagaimana cara memasukkan kode akses?','Bagaimana cara mengunggah dokumen?','Bagaimana cara kerja kuis?','Bagaimana cara menggunakan tutor AI?','Bahasa apa yang didukung?','Kode saya tidak berfungsi, apa yang harus saya lakukan?','Berapa lama akses saya berlaku?']},
+  tr:{welcome:'Merhaba! Ben sizin Smart Academy AI asistanınızım.',sub:'Uygulama hakkında her şeyi sorabilirsiniz. Yazın veya 🎤 kullanın',placeholder:'Uygulama hakkında sor...',listen:'🔊 Dinle',topics:['💳 Nasıl ödeme yapılır','🔑 Erişim Kodu','📄 Belge Yükle','📝 Quiz Nasıl Çalışır','🧑‍🏫 AI Öğretmeni','🌍 Diller','⚠️ Kod Sorunu','⏱ Erişim Süresi'],topicQ:['Erişim için nasıl ödeme yaparım?','Erişim kodumu nasıl girerim?','Belgeimi nasıl yüklerim?','Quiz nasıl çalışır?','AI öğretmenini nasıl kullanırım?','Hangi diller destekleniyor?','Kodum çalışmıyor, ne yapmalıyım?','Erişimim ne kadar sürer?']},
+  bn:{welcome:'হ্যালো! আমি আপনার Smart Academy AI সহকারী।',sub:'অ্যাপ সম্পর্কে যেকোনো কিছু জিজ্ঞেস করুন। টাইপ করুন বা 🎤 ব্যবহার করুন',placeholder:'যেকোনো কিছু জিজ্ঞেস করুন...',listen:'🔊 শুনুন',topics:['💳 কীভাবে পেমেন্ট করবেন','🔑 অ্যাক্সেস কোড','📄 ডকুমেন্ট আপলোড','📝 কুইজ কীভাবে কাজ করে','🧑‍🏫 AI টিউটর','🌍 ভাষা','⚠️ কোড সমস্যা','⏱ অ্যাক্সেস সময়কাল'],topicQ:['অ্যাক্সেসের জন্য কীভাবে পেমেন্ট করব?','আমার অ্যাক্সেস কোড কীভাবে প্রবেশ করাব?','আমার ডকুমেন্ট কীভাবে আপলোড করব?','কুইজ কীভাবে কাজ করে?','AI টিউটর কীভাবে ব্যবহার করব?','কোন ভাষাগুলি সমর্থিত?','আমার কোড কাজ করছে না, কী করব?','আমার অ্যাক্সেস কতক্ষণ থাকে?']},
+  tl:{welcome:'Kamusta! Ako ang iyong Smart Academy AI assistant.',sub:'Magtanong ng anumang bagay tungkol sa app. Mag-type o gumamit ng 🎤',placeholder:'Magtanong ng anumang bagay...',listen:'🔊 Pakinggan',topics:['💳 Paano Magbayad','🔑 Access Code','📄 Mag-upload ng Dokumento','📝 Paano Gumagana ang Quiz','🧑‍🏫 AI Tutor','🌍 Mga Wika','⚠️ Problema sa Code','⏱ Tagal ng Access'],topicQ:['Paano ako magbabayad para sa access?','Paano ko ilalagay ang aking access code?','Paano ko ia-upload ang aking dokumento?','Paano gumagana ang quiz?','Paano ko gagamitin ang AI tutor?','Anong mga wika ang sinusuportahan?','Hindi gumagana ang aking code, ano ang gagawin ko?','Gaano katagal ang aking access?']}
+};
+
+var LANG_VOICE_CODE = {en:'en-GB',fr:'fr-FR',pt:'pt-PT',es:'es-ES',sw:'sw-KE',ha:'ha-NG',yo:'yo-NG',ig:'ig-NG',zu:'zu-ZA',af:'af-ZA',hi:'hi-IN',zh:'zh-CN',ru:'ru-RU',de:'de-DE',it:'it-IT',id:'id-ID',tr:'tr-TR',bn:'bn-BD',tl:'fil-PH',ar:'ar-SA'};
+
+function setHelpLang(lang){
+  _helpLang = lang;
+  var L = T[lang] || T.en;
+  document.getElementById('welcome-title').textContent = L.welcome;
+  document.getElementById('welcome-sub').textContent = L.sub;
+  document.getElementById('help-input').placeholder = L.placeholder;
+  // Rebuild topic buttons
+  var topicsEl = document.getElementById('help-topics');
+  topicsEl.innerHTML = '';
+  L.topics.forEach(function(label, i){
+    var btn = document.createElement('button');
+    btn.className = 'topic-btn';
+    btn.textContent = label;
+    btn.onclick = function(){
+      sendHelp(L.topicQ[i]);
+      setTimeout(function(){
+        var wrap = document.getElementById('chat-wrap');
+        if(wrap) wrap.scrollTop = wrap.scrollHeight;
+      }, 100);
+    };
+    topicsEl.appendChild(btn);
+  });
+  // Update mic lang
+  if(_recognition) _recognition.lang = LANG_VOICE_CODE[lang]||'en-GB';
+  // Update select
+  document.getElementById('help-lang').value = lang;
+}
+
+// Auto-detect language from main app localStorage
+(function(){
+  try{
+    var saved = localStorage.getItem('sa_lang') || localStorage.getItem('saa_lang') || 'en';
+    // Map main app lang codes to help lang codes
+    var map = {en:'en',fr:'fr',pt:'pt',es:'es',sw:'sw',ha:'ha',yo:'yo',ig:'ig',zu:'zu',af:'af',hi:'hi',zh:'zh',ru:'ru',de:'de',it:'it',id:'id',tr:'tr',bn:'bn',tl:'tl',ar:'ar'};
+    var lang = map[saved] || 'en';
+    setHelpLang(lang);
+  }catch(e){ setHelpLang('en'); }
+})();
+
+// ── AUTO-READ ─────────────────────────────────────────────────
+function toggleAR(){
+  _autoRead = !_autoRead;
+  var btn = document.getElementById('btn-ar');
+  btn.textContent = _autoRead ? '🔊 Auto' : '🔇 Auto';
+  btn.classList.toggle('on', _autoRead);
+  if(!_autoRead && window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+function speakNow(text){
+  if(!text || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  var clean = text
+    .replace(/<[^>]*>/g,'')
+    .replace(/\*\*/g,'').replace(/\*/g,'').replace(/#+\s*/g,'')
+    .replace(/[\u{1F300}-\u{1FFFF}]/gu,'')
+    .replace(/[\u{2600}-\u{27BF}]/gu,'')
+    .replace(/[💳📱📚🎓👤✅❌⚠️🔑📄🌍⏱🧑‍🏫→←↓↑★☆•·]/g,'')
+    .replace(/\s{2,}/g,' ')
+    .trim();
+  if(!clean) return;
+  var utt = new SpeechSynthesisUtterance(clean);
+  utt.lang = LANG_VOICE_CODE[_helpLang] || 'en-GB';
+  utt.rate = 0.92; utt.pitch = 1; utt.volume = 1;
+  var voices = window.speechSynthesis.getVoices();
+  var code = (LANG_VOICE_CODE[_helpLang]||'en-GB').toLowerCase();
+  var pick = voices.find(function(v){return v.lang.toLowerCase()===code&&v.localService;})
+          || voices.find(function(v){return v.lang.toLowerCase().startsWith(code.split('-')[0])&&v.localService;})
+          || voices.find(function(v){return v.lang.toLowerCase().startsWith(code.split('-')[0]);})
+          || voices.find(function(v){return v.lang.startsWith('en');});
+  if(pick) utt.voice = pick;
+  window.speechSynthesis.speak(utt);
+}
+
+// ── SCROLL HELPERS ───────────────────────────────────────────
+function scrollToChat(){
+  var wrap = document.getElementById('chat-wrap');
+  if(wrap) wrap.scrollTop = wrap.scrollHeight;
+}
+function scrollToBottom(){
+  var wrap = document.getElementById('chat-wrap');
+  if(wrap) wrap.scrollTop = wrap.scrollHeight;
+}
+
+// ── SEND ─────────────────────────────────────────────────────
+async function sendHelp(text){
+  var input = document.getElementById('help-input');
+  var q = (text || input.value).trim();
+  if(!q) return;
+  // Hide welcome message on first interaction
+  var welcome = document.querySelector('.welcome');
+  if(welcome) welcome.style.display = 'none';
+  hideTyping();
+  input.value = '';
+  autoResize(input);
+  addMsg('user', q);
+  var wrap = document.getElementById('chat-wrap');
+  if(wrap) wrap.scrollTop = wrap.scrollHeight;
+  showTyping();
+  try{
+    var res = await fetch(WORKER_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:APP_SECRET, action:'help-chat', question:q, lang:_helpLang})
+    });
+    var data = await res.json();
+    hideTyping();
+    var answer = (data.answer||'').trim() || 'Please WhatsApp +27761328664 for help.';
+    var id = addMsg('ai', answer);
+    scrollToBottom();
+    if(_autoRead) speakNow(_msgTexts[id]);
+  }catch(e){
+    hideTyping();
+    var L = T[_helpLang]||T.en;
+    addMsg('ai','Could not connect. WhatsApp +27761328664 📱');
+    scrollToBottom();
+  }
+}
+
+// ── ADD MESSAGE ──────────────────────────────────────────────
+function addMsg(role, text){
+  var wrap = document.getElementById('chat-wrap');
+  var id = 'msg-'+(++_msgId);
+  _msgTexts[id] = text.replace(/<[^>]*>/g,'').replace(/\*\*/g,'').replace(/\*/g,'').replace(/[\u{1F300}-\u{1FFFF}]/gu,'').replace(/[\u{2600}-\u{27BF}]/gu,'').replace(/[💳📱📚🎓👤✅❌⚠️🔑📄🌍⏱→←]/g,'').trim();
+  var html = text
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^(\d+)\.\s+(.+)$/gm,'<div class="step"><b>$1.</b> $2</div>')
+    .replace(/\n/g,'<br>');
+  var L = T[_helpLang]||T.en;
+  var div = document.createElement('div');
+  div.className = 'msg '+role;
+  div.innerHTML =
+    '<div class="avatar '+role+'">'+(role==='ai'?'🎓':'👤')+'</div>'
+    +'<div class="bubble '+role+'" id="'+id+'">'
+      +html
+      +(role==='ai'?'<button class="speak-btn" onclick="speakNow(_msgTexts[\''+id+'\'])">'+L.listen+'</button>':'')
+    +'</div>';
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  return id;
+}
+
+function showTyping(){
+  var wrap=document.getElementById('chat-wrap');
+  var el=document.createElement('div');
+  el.id='typing';el.className='msg ai';
+  el.innerHTML='<div class="avatar ai">🎓</div><div class="bubble ai"><div class="typing"><span></span><span></span><span></span></div></div>';
+  wrap.appendChild(el);wrap.scrollTop=wrap.scrollHeight;
+}
+function hideTyping(){var el=document.getElementById('typing');if(el)el.remove();}
+
+// ── MIC ──────────────────────────────────────────────────────
+function toggleMic(){
+  var btn=document.getElementById('btn-mic');
+  if(_micActive){_micActive=false;btn.classList.remove('active');btn.textContent='🎤';if(_recognition)try{_recognition.stop();}catch(e){}return;}
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert('Please use Chrome for microphone.');return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  _recognition=new SR();
+  _recognition.lang=LANG_VOICE_CODE[_helpLang]||'en-GB';
+  _recognition.continuous=false;_recognition.interimResults=true;
+  _recognition.onstart=function(){_micActive=true;btn.classList.add('active');btn.textContent='⏹';};
+  _recognition.onresult=function(e){var t='';for(var i=e.resultIndex;i<e.results.length;i++)t+=e.results[i][0].transcript;document.getElementById('help-input').value=t;};
+  _recognition.onend=function(){_micActive=false;btn.classList.remove('active');btn.textContent='🎤';var v=document.getElementById('help-input').value.trim();if(v)sendHelp();};
+  _recognition.onerror=function(){_micActive=false;btn.classList.remove('active');btn.textContent='🎤';};
+  _recognition.start();
+}
+
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,90)+'px';}
+document.getElementById('help-input').addEventListener('input',function(){autoResize(this);});
+</script>
+</body>
+</html>
