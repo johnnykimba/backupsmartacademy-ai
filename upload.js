@@ -709,7 +709,7 @@ function clearAllUploads(){
   if(status){ status.textContent = ''; }
   // Reset counter
   var counter = document.getElementById('upload-counter');
-  if(counter){ counter.textContent = '0 / 10 ' + (saT('pages_uploaded')||'pages uploaded'); counter.style.color = '#1a56db'; }
+  if(counter){ counter.textContent = ''; counter.style.color = '#1a56db'; }
   // Hide reset button
   var resetBtn = document.getElementById('btn-reset-uploads');
   if(resetBtn) resetBtn.style.display = 'none';

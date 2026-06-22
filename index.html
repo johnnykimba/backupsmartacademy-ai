@@ -3437,7 +3437,7 @@ window.addEventListener('load', function(){
             <span class="uz-icon">📄</span>
             <div class="uz-title" data-t="upload_drag">Drag & drop files here (PNG, JPG, PDF, Excel) — multiple supported</div>
             <div class="uz-sub" data-t="upload_browse">Or use the buttons below to browse</div>
-            <div id="upload-counter" style="margin-top:8px;font-size:13px;font-weight:700;color:#1a56db;" data-t="upload_counter_zero">0 / 10 pages uploaded</div>
+            <div id="upload-counter" style="margin-top:8px;font-size:13px;font-weight:700;color:#1a56db;" data-t="upload_counter_zero"></div>
             <div id="pdf-status" style="margin-top:4px;font-size:13px;font-weight:700;color:#1a56db;"></div>
           </div>
 
@@ -6016,7 +6016,7 @@ function clearAllUploads(){
   if(status){ status.textContent = ''; }
   // Reset counter
   var counter = document.getElementById('upload-counter');
-  if(counter){ counter.textContent = '0 / 10 ' + (saT('pages_uploaded')||'pages uploaded'); counter.style.color = '#1a56db'; }
+  if(counter){ counter.textContent = ''; counter.style.color = '#1a56db'; }
   // Hide reset button
   var resetBtn = document.getElementById('btn-reset-uploads');
   if(resetBtn) resetBtn.style.display = 'none';
@@ -9236,7 +9236,7 @@ function resetQuiz(){
   // Reset upload UI
   renderThumbs();
   const counter = document.getElementById('upload-counter');
-  if(counter){ counter.textContent = '0 / 10 ' + (saT('pages_uploaded')||'pages uploaded'); counter.style.color = '#1a56db'; }
+  if(counter){ counter.textContent = ''; counter.style.color = '#1a56db'; }
 
   // Reset PDF UI
   const pdfStatus = document.getElementById('pdf-status');
@@ -9395,7 +9395,7 @@ function restartFull(){
   // Reset uploads
   renderThumbs();
   const counter = document.getElementById('upload-counter');
-  if(counter){ counter.textContent = '0 / 10 ' + (saT('pages_uploaded')||'pages uploaded'); counter.style.color = '#1a56db'; }
+  if(counter){ counter.textContent = ''; counter.style.color = '#1a56db'; }
   const pdfStatus = document.getElementById('pdf-status');
   if(pdfStatus) pdfStatus.textContent = '';
   const pdfRange = document.getElementById('pdf-range-section');
