@@ -4381,7 +4381,7 @@ function copyProofCode(){
                 </div>
                 <div>
                   <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:6px;">To Page</label>
-                  <input type="number" id="pdf-to" min="1" value="10"
+                  <input type="number" id="pdf-to" min="1" value="30"
                     style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#1a56db;background:white;outline:none;"
                     oninput="validatePageRange()">
                 </div>
@@ -5636,7 +5636,7 @@ async function handlePDF(file){
     // Only reset from/to on first PDF load
     if(prevCount === 0){
       document.getElementById('pdf-from').value = 1;
-      document.getElementById('pdf-to').value = Math.min(10, pdfTotalPages);
+      document.getElementById('pdf-to').value = Math.min(30, pdfTotalPages);
     } else {
       // Extend 'to' to cover new pages too
       document.getElementById('pdf-to').value = Math.min(pdfTotalPages, parseInt(document.getElementById('pdf-to').value) + newPages);
@@ -5694,7 +5694,7 @@ function toggleThumbSelect(pageNum){
 
 function validatePageRange(){
   let from = parseInt(document.getElementById('pdf-from').value) || 1;
-  let to   = parseInt(document.getElementById('pdf-to').value) || 10;
+  let to   = parseInt(document.getElementById('pdf-to').value) || 30;
 
   // Clamp values
   from = Math.max(1, Math.min(from, pdfTotalPages));
@@ -6849,7 +6849,11 @@ function handleDropAuto(event){
 function handleFiles(files){
   const MAX_IMAGES = 10;
   const MAX_SESSION_TOTAL = 30; // combined cap across photos + PDF pages + Excel files
-  const remainingByType = MAX_IMAGES - S.images.length;
+  // Count only actual photo items (not PDF pages or Excel placeholders,
+  // which share the same S.images array but shouldn't count against the
+  // photo-specific limit).
+  const photoCount = S.images.filter(function(img){ return img.pdfPage === undefined && img.type !== 'excel'; }).length;
+  const remainingByType = MAX_IMAGES - photoCount;
   const remainingBySession = MAX_SESSION_TOTAL - S.images.length;
   const remaining = Math.min(remainingByType, remainingBySession);
 
