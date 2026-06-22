@@ -6839,10 +6839,14 @@ function handleDropAuto(event){
 
 function handleFiles(files){
   const MAX_IMAGES = 10;
-  const remaining = MAX_IMAGES - S.images.length;
+  const MAX_SESSION_TOTAL = 30; // combined cap across photos + PDF pages + Excel files
+  const remainingByType = MAX_IMAGES - S.images.length;
+  const remainingBySession = MAX_SESSION_TOTAL - S.images.length;
+  const remaining = Math.min(remainingByType, remainingBySession);
 
   if(remaining <= 0){
-    toast('Maximum 10 pages allowed per session','err');
+    var reason = remainingBySession <= 0 ? 'Maximum 30 items allowed per session (combined)' : 'Maximum 10 photos allowed per session';
+    toast(reason,'err');
     return;
   }
 
