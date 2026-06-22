@@ -5373,7 +5373,7 @@ async function handlePDF(file){
         });
         saPages = [{b64:b64, type:'excel', name:file.name}];
         var ctr = document.getElementById('upload-counter');
-        if(ctr) ctr.textContent = '1 / 10 ' + (saT('pages_uploaded')||'pages uploaded');
+        if(ctr) ctr.textContent = '1 / 30 ' + (saT('pages_uploaded')||'pages uploaded');
         var useBtn = document.getElementById('use-pages-btn');
         if(useBtn) useBtn.style.display = 'block';
       }
