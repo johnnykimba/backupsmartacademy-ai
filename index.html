@@ -7637,14 +7637,6 @@ function buildSystem(){
 }
 
 function buildUserMsg(){
-  // If Excel/PDF text is loaded, use text only (no images)
-  if(saPDFText){
-    return [{
-      type:'text',
-      text:'The following is data from an Excel spreadsheet.\n\n[EXCEL DATA]\n' + saPDFText
-    }];
-  }
-
   const diffInstructions = {
     'hard': `YOU MUST FOLLOW THIS RULE: Do NOT ask any question that can be answered from the document images. Read the document ONLY to identify the subject/topic. Then generate ${S.qCount} completely NEW questions on that topic from your own knowledge that are NOT in the document. If a student reads only this document, they should NOT be able to answer these questions without additional study. Every question must come from OUTSIDE the document.`,
     'complex': `YOU MUST FOLLOW THIS RULE: Read the document to identify the base concepts only. Then generate ${S.qCount} HARDER multi-step questions that go significantly BEYOND what is shown in the document. Combine two or more concepts, add extra calculation steps, use real-world application scenarios. Do NOT copy or paraphrase any question from the document.`,
@@ -7665,19 +7657,35 @@ function buildUserMsg(){
 • Never use *dx — write dx with a space: ∫f(x) dx
 • For ALL fractions in answers and questions use \\(\\frac{numerator}{denominator}\\)`;
 
+  // Count real images (excluding the Excel placeholder entry)
+  const realImages = S.images.filter(function(img){ return img.type !== 'excel'; });
+  const hasImages = realImages.length > 0;
+  const hasExcel  = !!saPDFText;
+
+  var sourceDescription;
+  if(hasImages && hasExcel) sourceDescription = `${realImages.length} document image(s) AND an Excel spreadsheet (provided as text below)`;
+  else if(hasExcel)         sourceDescription = `an Excel spreadsheet (provided as text below)`;
+  else                      sourceDescription = `${realImages.length} document image(s)`;
+
   // OpenAI vision format — content array with text and image_url blocks
   const content = [
     {
       type:'text',
-      text:`Read these ${S.images.length} document image(s). ${mathSymbolInstruction} Each question must test a DIFFERENT aspect. Vary question types, vary values, vary what is unknown. Session ID: ${Date.now()}-${Math.random().toString(36).slice(2,10)}. CRITICAL INSTRUCTION: ${diffInstruction} Return ONLY valid JSON as specified.`
+      text:`Read ${sourceDescription}. ${mathSymbolInstruction} Each question must test a DIFFERENT aspect, drawing from ALL the material provided (images and/or spreadsheet data — do not favor one source over another). Vary question types, vary values, vary what is unknown. Session ID: ${Date.now()}-${Math.random().toString(36).slice(2,10)}. CRITICAL INSTRUCTION: ${diffInstruction} Return ONLY valid JSON as specified.`
     }
   ];
 
-  S.images.forEach((img,i)=>{
-    if(img.type === 'excel') return; // skip Excel placeholder
+  if(hasExcel){
     content.push({
       type:'text',
-      text:`--- Page ${i+1} of ${S.images.length} ---`
+      text:'[EXCEL DATA]\n' + saPDFText
+    });
+  }
+
+  realImages.forEach((img,i)=>{
+    content.push({
+      type:'text',
+      text:`--- Page ${i+1} of ${realImages.length} ---`
     });
     content.push({
       type:'image_url',
