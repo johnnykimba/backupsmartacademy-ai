@@ -5353,14 +5353,22 @@ async function handlePDF(file){
         // Store as text document pages
         saPages = [{b64: btoa(unescape(encodeURIComponent(allText))), type:'text', name:file.name}];
         saPDFText = allText;
-        // Set S.images with a text placeholder so sessions unlock
-        S.images = [{data: 'data:text/plain;base64,' + btoa(unescape(encodeURIComponent(allText.substring(0,100)))), type:'excel'}];
+        // Append to existing session content (PDF pages/photos already
+        // uploaded) instead of wiping S.images — only add an Excel
+        // placeholder if there's nothing else in the session yet.
+        if(!S.images || !S.images.length){
+          S.images = [{data: 'data:text/plain;base64,' + btoa(unescape(encodeURIComponent(allText.substring(0,100)))), type:'excel'}];
+        }
         var ctr = document.getElementById('upload-counter');
         if(ctr){ ctr.textContent = '✅ Excel · ' + wb.SheetNames.length + ' sheet(s) loaded'; ctr.style.color='#10b981'; }
         toast('✅ Excel file read: ' + wb.SheetNames.length + ' sheet(s) loaded','ok');
-        // Hide PDF controls, show session section directly
-        var pdfSec = document.getElementById('upload-pdf-section');
-        if(pdfSec) pdfSec.style.display = 'none';
+        // Only hide PDF controls if no PDF pages are already in the session —
+        // otherwise this would wipe out an already-loaded PDF's range picker.
+        var hasPdfPages = S.images.some(function(img){ return img.pdfPage !== undefined; });
+        if(!hasPdfPages){
+          var pdfSec = document.getElementById('upload-pdf-section');
+          if(pdfSec) pdfSec.style.display = 'none';
+        }
         var sessionSec = document.getElementById('session-section');
         if(sessionSec) sessionSec.style.display = 'block';
       } else {
