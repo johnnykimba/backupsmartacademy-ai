@@ -5726,27 +5726,36 @@ function validatePageRange(){
 
 async function extractPDFPages(){
   const from  = parseInt(document.getElementById('pdf-from').value);
-  const to    = parseInt(document.getElementById('pdf-to').value);
-  const count = to - from + 1;
+  let to      = parseInt(document.getElementById('pdf-to').value);
+  let count = to - from + 1;
 
   if(count < 1){
     toast('Please select at least 1 page','err');
     return;
   }
 
-  // Cap at 30 pages for Learning mode
-  if(count > 30){
-    to = from + 29;
+  // Respect the combined 30-item session cap (shared across photos/PDF/Excel)
+  const existingCount = S.images.length;
+  const sessionRemaining = Math.max(1, 30 - existingCount);
+  const effectiveMax = Math.min(30, sessionRemaining);
+  if(count > effectiveMax){
+    to = from + effectiveMax - 1;
+    count = effectiveMax;
     const toEl = document.getElementById('pdf-to');
     if(toEl) toEl.value = to;
-    alert('⚠️ Learning mode is limited to 30 pages.\n\nYour PDF has ' + count + ' pages. Only pages ' + from + ' to ' + to + ' will be used.\n\nTip: Upload 3–5 focused pages for best results.');
+    if(existingCount > 0){
+      alert('⚠️ Session limit is 30 items total (combined photos/PDF/Excel).\n\nYou already have ' + existingCount + ' item(s) in this session. Only pages ' + from + ' to ' + to + ' will be added.');
+    } else {
+      alert('⚠️ Learning mode is limited to 30 pages.\n\nYour PDF has ' + count + ' pages. Only pages ' + from + ' to ' + to + ' will be used.\n\nTip: Upload 3–5 focused pages for best results.');
+    }
   }
   const info = document.getElementById('pdf-range-info');
   info.textContent = `⏳ Extracting pages ${from} to ${to}...`;
   info.style.color = '#1a56db';
 
-  // Reset images — only use the selected pages
-  S.images = [];
+  // Remove any previously-extracted PDF pages (re-extraction with a new
+  // range) while preserving photos/Excel content already in the session.
+  S.images = S.images.filter(function(img){ return img.pdfPage === undefined; });
 
   const pageCount = (to - from + 1);
   // Scale down resolution/quality when many pages are selected, to keep total payload reasonable
