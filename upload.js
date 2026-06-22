@@ -380,9 +380,15 @@ async function handlePDF(file){
       const totalHeight = body.scrollHeight;
       const pageHeight = 1020;
       const numPages = Math.ceil(totalHeight / pageHeight);
-      const capPages = Math.min(numPages, 30);
 
-      S.images = [];
+      const existingCount = S.images.length;
+      const sessionRemaining = Math.max(0, 30 - existingCount);
+      const capPages = Math.min(numPages, sessionRemaining);
+      if(capPages < numPages){
+        toast('⚠️ Only ' + capPages + ' of ' + numPages + ' page(s) added — 30 item combined session limit reached', 'err');
+      }
+      // Append to existing session content (photos/PDF/Excel already added)
+      // instead of wiping it — respects the combined 30-item session cap.
       for(let pg = 0; pg < capPages; pg++){
         const canvas = document.createElement('canvas');
         canvas.width = 800; canvas.height = pageHeight;
@@ -413,7 +419,7 @@ async function handlePDF(file){
       status.style.color = '#10b981';
       renderThumbs();
       const counter = document.getElementById('upload-counter');
-      if(counter){ counter.textContent = S.images.length + ' / 10 ' + (saT('pages_uploaded')||'pages uploaded'); counter.style.color='#10b981'; }
+      if(counter){ counter.textContent = S.images.length + ' / 30 ' + (saT('pages_uploaded')||'pages uploaded'); counter.style.color='#10b981'; }
       toast(`✅ Word document processed — ${S.images.length} pages ready`,'ok');
     } catch(err){
       console.error('Word error:', err);
@@ -555,27 +561,39 @@ function validatePageRange(){
 // ── EXTRACT SELECTED PDF PAGES (adaptive resolution by page count) ──
 async function extractPDFPages(){
   const from  = parseInt(document.getElementById('pdf-from').value);
-  const to    = parseInt(document.getElementById('pdf-to').value);
-  const count = to - from + 1;
+  let to      = parseInt(document.getElementById('pdf-to').value);
+  let count = to - from + 1;
 
   if(count < 1){
     toast('Please select at least 1 page','err');
     return;
   }
 
-  // Cap at 30 pages for Learning mode
-  if(count > 30){
-    to = from + 29;
+  // Respect the combined 30-item session cap (shared across photos/PDF/Excel)
+  const existingCount = S.images.length;
+  const sessionRemaining = Math.max(1, 30 - existingCount);
+  const effectiveMax = Math.min(30, sessionRemaining);
+  if(count > effectiveMax){
+    to = from + effectiveMax - 1;
+    count = effectiveMax;
     const toEl = document.getElementById('pdf-to');
     if(toEl) toEl.value = to;
-    alert('⚠️ Learning mode is limited to 30 pages.\n\nYour PDF has ' + count + ' pages. Only pages ' + from + ' to ' + to + ' will be used.\n\nTip: Upload 3–5 focused pages for best results.');
+    if(existingCount > 0){
+      alert('⚠️ Session limit is 30 items total (combined photos/PDF/Excel).\n\nYou already have ' + existingCount + ' item(s) in this session. Only pages ' + from + ' to ' + to + ' will be added.');
+    } else {
+      alert('⚠️ Learning mode is limited to 30 pages.\n\nYour PDF has ' + count + ' pages. Only pages ' + from + ' to ' + to + ' will be used.\n\nTip: Upload 3–5 focused pages for best results.');
+    }
   }
   const info = document.getElementById('pdf-range-info');
   info.textContent = `⏳ Extracting pages ${from} to ${to}...`;
   info.style.color = '#1a56db';
 
-  // Reset images — only use the selected pages
-  S.images = [];
+  // Append to existing session content (photos/Excel already added) instead
+  // of wiping it — respects the combined 30-item session cap.
+
+  // Remove any previously-extracted PDF pages (re-extraction with a new
+  // range) while preserving photos/Excel content already in the session.
+  S.images = S.images.filter(function(img){ return img.pdfPage === undefined; });
 
   const pageCount = (to - from + 1);
   // Scale down resolution/quality when many pages are selected, to keep total payload reasonable
@@ -618,10 +636,14 @@ async function extractPDFPages(){
 // ── HANDLE IMAGE FILES (drag-drop or file picker, PNG/JPG/HEIC etc) ──
 function handleFiles(files){
   const MAX_IMAGES = 10;
-  const remaining = MAX_IMAGES - S.images.length;
+  const MAX_SESSION_TOTAL = 30; // combined cap across photos + PDF pages + Excel files
+  const remainingByType = MAX_IMAGES - S.images.length;
+  const remainingBySession = MAX_SESSION_TOTAL - S.images.length;
+  const remaining = Math.min(remainingByType, remainingBySession);
 
   if(remaining <= 0){
-    toast('Maximum 10 pages allowed per session','err');
+    var reason = remainingBySession <= 0 ? 'Maximum 30 items allowed per session (combined)' : 'Maximum 10 photos allowed per session';
+    toast(reason,'err');
     return;
   }
 
@@ -663,7 +685,8 @@ function handleFiles(files){
         var parts = [];
         if(S.images.filter(function(i){ return i.type!=='excel'; }).length) parts.push(S.images.filter(function(i){ return i.type!=='excel'; }).length + ' image(s)');
         if(saPDFText) parts.push('Excel');
-        counter.textContent = parts.length ? '✅ ' + parts.join(' + ') + ' attached' : S.images.length + ' / 10 ' + (saT('pages_uploaded')||'pages uploaded');
+        var maxForDisplay2 = saPDFText ? 30 : 10;
+        counter.textContent = parts.length ? '✅ ' + parts.join(' + ') + ' attached' : S.images.length + ' / ' + maxForDisplay2 + ' ' + (saT('pages_uploaded')||'pages uploaded');
         counter.style.color = S.images.length > 0 ? '#10b981' : '#1a56db';
       }
     };
@@ -715,8 +738,9 @@ function renderThumbs(){
   // Update counter
   const counter = document.getElementById('upload-counter');
   if(counter){
-    counter.textContent = S.images.length + ' / 10 ' + (saT('pages_uploaded')||'pages uploaded');
-    counter.style.color = S.images.length >= 10 ? '#ef4444' : '#1a56db';
+    var maxForDisplay = saPDFText ? 30 : 10;
+    counter.textContent = S.images.length + ' / ' + maxForDisplay + ' ' + (saT('pages_uploaded')||'pages uploaded');
+    counter.style.color = S.images.length >= maxForDisplay ? '#ef4444' : '#1a56db';
   }
 }
 
