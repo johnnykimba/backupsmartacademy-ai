@@ -5929,6 +5929,9 @@ function showPage(id){
   if(id === 'page-progress' && typeof renderProgressPage === 'function'){
     setTimeout(renderProgressPage, 50);
   }
+  if(id === 'page-professional' && typeof profRestoreStateOnShow === 'function'){
+    setTimeout(profRestoreStateOnShow, 30);
+  }
   // Recover results if they show 0/0
   if(id === 'page-results' && window._lastResults){
     setTimeout(function(){
@@ -17270,11 +17273,11 @@ async function adminLoadDrcPending(){
      by the main Smart Academy worker (existing verifyResearchGate
      logic) — only the experience AFTER the gate is different.
 ════════════════════════════════════════════════════════════════ -->
-<div class="page" id="page-professional">
-  <div style="min-height:100vh;background:linear-gradient(160deg,#0f2044,#1a3460);padding:30px 20px 60px;">
+<div class="page" id="page-professional" style="width:100%;min-height:100vh;">
+  <div style="min-height:100vh;width:100%;background:linear-gradient(160deg,#0f2044,#1a3460);padding:30px 20px 60px;box-sizing:border-box;">
 
     <!-- ACCESS GATE — shown until a valid RM-/RS-/RY- code is entered -->
-    <div id="prof-gate" style="max-width:420px;margin:60px auto;text-align:center;">
+    <div id="prof-gate" style="max-width:420px;margin:60px auto;text-align:center;width:100%;">
       <div style="font-size:40px;margin-bottom:10px;">🔬</div>
       <h2 style="color:#fff;font-size:22px;font-weight:800;margin-bottom:8px;">Research / Professional Access</h2>
       <p style="color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:24px;">
@@ -17440,18 +17443,28 @@ async function profVerifyGate(){
   }
 }
 
-// Auto-resume if already unlocked this session
-window.addEventListener('load', function(){
+// Re-applies the unlocked state every time this page is shown —
+// fixes a bug where window 'load' only fires once ever in this
+// single-page app, so navigating away and back previously left
+// the page in whatever state it happened to be in (sometimes
+// blank) instead of correctly re-showing the unlocked content.
+function profRestoreStateOnShow(){
+  var gate = document.getElementById('prof-gate');
+  var main = document.getElementById('prof-main-content');
+  var zone = document.getElementById('prof-upload-zone');
   if(sessionStorage.getItem('saa_prof_unlocked') === '1'){
-    var gate = document.getElementById('prof-gate');
-    var main = document.getElementById('prof-main-content');
-    var zone = document.getElementById('prof-upload-zone');
     if(gate) gate.style.display = 'none';
     if(main) main.style.display = 'block';
     if(zone) zone.style.display = 'block';
+  } else {
+    if(gate) gate.style.display = 'block';
+    if(main) main.style.display = 'none';
   }
-});
+}
+window.addEventListener('load', profRestoreStateOnShow);
 </script>
+
+<!-- /page-professional -->
 
 </body>
 </html>
