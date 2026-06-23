@@ -3809,12 +3809,24 @@ window.addEventListener('load', function(){
               <div id="mob-cdf-Y" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
             </div>
           </label>
+          <div style="height:1px;background:rgba(255,255,255,0.15);margin:8px 0;"></div>
+          <div style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">🔬 Research / Professional</div>
+          <label onclick="mobSelectPlan('RM',20)" id="mob-plan-RM" style="display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.15);border:2px solid rgba(167,139,250,0.4);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div id="mob-radio-RM" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
+              <span style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🔬 Research Monthly</span>
+            </div>
+            <div style="text-align:right;min-width:90px;">
+              <div style="font-size:16px;font-weight:900;color:#fbbf24;">$20</div>
+              <div id="mob-cdf-RM" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
+            </div>
+          </label>
         </div>
         <script>
         function mobUpdateCdfPrices(){
           var rate = parseFloat(localStorage.getItem('saa_fx_cdf')||'2800');
-          var prices = {W:5,M:10,Y:90};
-          ['W','M','Y'].forEach(function(p){
+          var prices = {W:5,M:10,Y:90,RM:20};
+          ['W','M','Y','RM'].forEach(function(p){
             var el = document.getElementById('mob-cdf-'+p);
             if(el) el.textContent = '≈ CDF '+Math.round(prices[p]*rate).toLocaleString();
           });
@@ -3954,9 +3966,9 @@ window.addEventListener('load', function(){
       </div>
       <div style="background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;">
         <div style="font-size:11px;font-weight:700;color:#0891b2;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;" data-t="p_grp_title">🏫 Group / Classroom Code</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5;" data-t="p_grp_desc">Multiple devices, one code. <strong>250m radius only.</strong> <strong>(30 persons maximum)</strong></div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5;">For a group of <strong>30 people maximum</strong>, contact admin for promotional tariffs. <strong>Code works only within a 250m radius of where it was first activated.</strong></div>
         <div id="p-grp-rows"></div>
-        <button onclick="showPage('page-access')" style="width:100%;padding:10px;margin-top:12px;background:linear-gradient(135deg,#0891b2,#0e7490);border:none;border-radius:10px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🎓 Learner / Student — Group / Class Tariff</button>
+        <button onclick="window.open('mailto:info@smartacademy-ai.com?subject=Group%2FClassroom%20Code%20Inquiry','_blank')" style="width:100%;padding:10px;margin-top:12px;background:linear-gradient(135deg,#0891b2,#0e7490);border:none;border-radius:10px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">✉️ Contact Admin for Group Pricing</button>
       </div>
     </div>
 
@@ -12543,21 +12555,8 @@ function renderPricingPage(){
     }
     indHtml += '<div class="p-row"><div class="p-row-label">'+saT(row[0])+'</div><div><div class="p-row-main">'+main+'</div>'+(sub?'<div class="p-row-sub">'+sub+'</div>':'')+'</div></div>';
   });
-  // Render group rows
-  var grpHtml = '';
-  _pricingData.grp.forEach(function(row){
-    var main2, sub2='';
-    if(c==='intl'){
-      main2 = '$'+row[1];
-    } else if(c==='za'){
-      main2 = formatLocal(row[1],c);
-    } else if(c==='drc'){
-      main2 = 'FC '+roundLocal(row[1]*d.rate,'FC').toLocaleString();
-      sub2  = '= $'+row[1];
-    }
-    grpHtml += '<div class="p-row"><div class="p-row-label">'+saT(row[0])+'</div><div><div class="p-row-main">'+main2+'</div>'+(sub2?'<div class="p-row-sub">'+sub2+'</div>':'')+'</div></div>';
-  });
-  document.getElementById('p-grp-rows').innerHTML = grpHtml;
+  // Group/Classroom: no displayed tariff — promotional pricing via admin contact only
+  document.getElementById('p-grp-rows').innerHTML = '';
 
   // Render research rows (USD only, with local equivalent for ZA/DRC)
   var resHtml = '';
@@ -12881,11 +12880,12 @@ function mobSelectPlan(plan, price){
   _mobRegion = 'DRC';
   _uaPlan = plan;
   _uaRegion = 'DRC';
-  ['W','M','Y'].forEach(function(p){
+  ['W','M','Y','RM'].forEach(function(p){
     var el = document.getElementById('mob-plan-'+p);
     var radio = document.getElementById('mob-radio-'+p);
-    if(el) el.style.borderColor = p===plan ? '#06b6d4' : 'rgba(255,255,255,0.15)';
-    if(radio) radio.style.background = p===plan ? '#06b6d4' : 'transparent';
+    var activeColor = p==='RM' ? '#a78bfa' : '#06b6d4';
+    if(el) el.style.borderColor = p===plan ? activeColor : 'rgba(255,255,255,0.15)';
+    if(radio) radio.style.background = p===plan ? activeColor : 'transparent';
   });
   mobCheckProceed();
 }
