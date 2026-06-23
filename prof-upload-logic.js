@@ -15,19 +15,29 @@ var profPdfConfirmed = false;
 var profSelectedPages = {from: 1, to: 1};
 
 // ── ATTACH FILES ───────────────────────────────────────────
-document.getElementById('prof-attach-btn').addEventListener('click', function(){
-  document.getElementById('prof-attach-input').click();
-});
-
-document.getElementById('prof-attach-input').addEventListener('change', function(e){
-  var rawFiles = Array.from(e.target.files);
-  var hasPdf = rawFiles.some(function(f){ return f.name.toLowerCase().endsWith('.pdf'); });
-  rawFiles.forEach(function(f){ profAttachedFiles.push(f); });
-  profRenderFilesPreview();
-  e.target.value = '';
-  if(hasPdf){
-    var pdfFile = rawFiles.find(function(f){ return f.name.toLowerCase().endsWith('.pdf'); });
-    if(pdfFile) profShowPdfSelector(pdfFile);
+// Wrapped in DOMContentLoaded: this script may load before the
+// Professional page's HTML (inserted near the end of the body)
+// exists in the DOM yet. Attaching listeners immediately at
+// script-load time would crash with "Cannot read properties of
+// null" since the buttons wouldn't exist at that point.
+document.addEventListener('DOMContentLoaded', function(){
+  var attachBtn = document.getElementById('prof-attach-btn');
+  var attachInput = document.getElementById('prof-attach-input');
+  if(attachBtn && attachInput){
+    attachBtn.addEventListener('click', function(){
+      attachInput.click();
+    });
+    attachInput.addEventListener('change', function(e){
+      var rawFiles = Array.from(e.target.files);
+      var hasPdf = rawFiles.some(function(f){ return f.name.toLowerCase().endsWith('.pdf'); });
+      rawFiles.forEach(function(f){ profAttachedFiles.push(f); });
+      profRenderFilesPreview();
+      e.target.value = '';
+      if(hasPdf){
+        var pdfFile = rawFiles.find(function(f){ return f.name.toLowerCase().endsWith('.pdf'); });
+        if(pdfFile) profShowPdfSelector(pdfFile);
+      }
+    });
   }
 });
 
