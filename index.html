@@ -3610,6 +3610,14 @@ window.addEventListener('load', function(){
     </div>
     <script>
     function savedCodeUse(code){
+      // Research codes (RM-/RS-/RY-) belong on the standalone research.html
+      // gate, not the Learner/Student access page — without this check,
+      // every saved code was being sent to page-access regardless of type.
+      if(/^(RM|RS|RY)-/i.test(code)){
+        sessionStorage.setItem('prof_pending_code', code);
+        window.location.href = 'research.html?code=' + encodeURIComponent(code);
+        return;
+      }
       showPage('page-access');
       setTimeout(function(){
         var inp = document.getElementById('access-code-input');

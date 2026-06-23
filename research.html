@@ -218,6 +218,21 @@ window.addEventListener('load', function(){
     document.getElementById('access-gate').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
     initUploadHandlers();
+    return;
+  }
+
+  // Auto-fill and verify a code passed from the Learner page's "Use" button
+  // (savedCodeUse) for saved Research codes — either via URL param or the
+  // sessionStorage fallback it sets just before navigating here.
+  var urlParams = new URLSearchParams(window.location.search);
+  var pendingCode = urlParams.get('code') || sessionStorage.getItem('prof_pending_code');
+  if(pendingCode){
+    sessionStorage.removeItem('prof_pending_code');
+    var inp = document.getElementById('gate-code-input');
+    if(inp){
+      inp.value = pendingCode.toUpperCase();
+      setTimeout(function(){ verifyGate(); }, 200);
+    }
   }
 });
 
