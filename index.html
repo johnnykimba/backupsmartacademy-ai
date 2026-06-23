@@ -2290,7 +2290,7 @@ function showLegalTab(tab){
     <a href="#contact" onclick="closeMenu()" data-i18n="nav_contact" class="nav-marketing">Contact</a>
     <button class="nav-adm nav-non-research" id="nav-admin-btn" onclick="document.getElementById('admin-overlay').style.display='flex';document.getElementById('admin-overlay').style.zIndex='99999';setTimeout(function(){if(typeof adminCheckLayout==='function')adminCheckLayout();if(typeof adminRenderCodesTable==='function')adminRenderCodesTable();if(typeof adminLoadDmStats==='function')adminLoadDmStats();},50);">⚙️ Admin</button>
     <a href="#" id="nav-cta-btn" class="nav-cta" onclick="showPage('page-access');closeMenu();return false;" data-i18n="nav_start">🚀 Learner / Student</a>
-    <a href="#" id="nav-cta-prof-btn" class="nav-cta" onclick="showPage('page-professional');closeMenu();return false;" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Research / Professional</a>
+    <a href="#" id="nav-cta-prof-btn" class="nav-cta" onclick="console.log('[DEBUG] Research button clicked, calling showPage'); showPage('page-professional');closeMenu();return false;" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Research / Professional</a>
   </div>
   <div style="display:flex;align-items:center;gap:6px;">
     <span style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:500;white-space:nowrap;" data-t="select_lang_lbl">Select Language</span>
@@ -16324,7 +16324,7 @@ window.openGuide = function(tab){
 };
 
 </script>
-<div class="admin-overlay" id="admin-overlay" style="position:fixed;inset:0;z-index:999999;background:rgba(8,15,30,0.97);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 16px 40px;">
+<div class="admin-overlay" id="admin-overlay" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:999999;background:rgba(8,15,30,0.97);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 16px 40px;box-sizing:border-box;">
   <div class="admin-box" style="max-width:1200px;padding:28px;width:100%;position:relative;">
     <button class="admin-close" onclick="document.getElementById('admin-overlay').style.display='none';">✕</button>
     <div class="admin-logo">🎓 Smart Academy AI</div>
