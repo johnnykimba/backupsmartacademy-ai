@@ -67,6 +67,15 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
 .analyze-btn:disabled{opacity:0.6;cursor:not-allowed;}
 
 #results{margin-top:20px;display:none;}
+@keyframes aiPulse{0%,80%,100%{transform:scale(0.6);opacity:0.4;}40%{transform:scale(1.2);opacity:1;}}
+@keyframes shimmer{0%{background-position:200% center;}100%{background-position:-200% center;}}
+.loading-state{text-align:center;padding:30px 20px;}
+.loading-dots{display:flex;justify-content:center;gap:8px;margin-bottom:18px;}
+.loading-dot{width:14px;height:14px;border-radius:50%;background:var(--cyan);}
+.loading-text{color:#cbd5e1;font-size:14px;font-weight:600;margin-bottom:4px;}
+.loading-subtext{color:var(--muted);font-size:12px;}
+.loading-bar-track{margin:18px auto 0;width:220px;height:4px;background:rgba(255,255,255,0.1);border-radius:999px;overflow:hidden;}
+.loading-bar-fill{height:100%;width:100%;background:linear-gradient(90deg,#1a56db,#06b6d4,#1a56db);background-size:200% auto;border-radius:999px;animation:shimmer 1.5s ease infinite;}
 .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 @media(max-width:640px){.result-grid{grid-template-columns:1fr;}}
 .result-panel{border-radius:10px;padding:16px;font-size:13px;line-height:1.6;}
@@ -329,7 +338,17 @@ async function runAnalysis(){
 
   btn.disabled = true; btn.textContent = '⏳ Analyzing...';
   resultsEl.style.display = 'block';
-  resultsEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">⏳ Running GPT-4o and Claude, then verifying — may take 20-40s...</div>';
+  resultsEl.innerHTML =
+    '<div class="loading-state">' +
+      '<div class="loading-dots">' +
+        '<div class="loading-dot" style="animation:aiPulse 1.2s ease infinite;"></div>' +
+        '<div class="loading-dot" style="animation:aiPulse 1.2s ease infinite 0.2s;"></div>' +
+        '<div class="loading-dot" style="animation:aiPulse 1.2s ease infinite 0.4s;"></div>' +
+      '</div>' +
+      '<div class="loading-text">🔬 Analyzing your document...</div>' +
+      '<div class="loading-subtext">Running GPT-4o and Claude in parallel, then verifying — usually 20-40 seconds</div>' +
+      '<div class="loading-bar-track"><div class="loading-bar-fill"></div></div>' +
+    '</div>';
 
   try{
     var images = []; var docText = '';
