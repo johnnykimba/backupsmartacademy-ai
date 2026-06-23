@@ -357,12 +357,21 @@ function simpleMarkdown(text){
 
 function renderResults(data){
   var resultsEl = document.getElementById('results');
+  var confidenceHtml = '';
+  if(typeof data.confidence === 'number'){
+    var c = data.confidence;
+    var color = c >= 80 ? '#10b981' : (c >= 60 ? '#f59e0b' : '#ef4444');
+    confidenceHtml = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">' +
+      '<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">Confidence Score</div>' +
+      '<div style="font-size:18px;font-weight:800;color:' + color + ';">' + c + '%</div>' +
+      '</div>';
+  }
   resultsEl.innerHTML =
     '<div class="result-grid">' +
       '<div class="result-panel gpt"><div class="result-panel-title" style="color:#1a56db;">🤖 GPT-4o</div>' + simpleMarkdown(data.gptAnswer) + '</div>' +
       '<div class="result-panel claude"><div class="result-panel-title" style="color:#a78bfa;">🧠 Claude</div>' + simpleMarkdown(data.claudeAnswer) + '</div>' +
     '</div>' +
-    '<div class="result-merged"><div class="result-merged-title">📋 Verified Final Result</div>' +
+    '<div class="result-merged">' + confidenceHtml + '<div class="result-merged-title">📋 Verified Final Result</div>' +
     '<div class="result-merged-body">' + simpleMarkdown(data.mergedAnswer) + '</div></div>';
   if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([resultsEl]).catch(function(){});
 }
