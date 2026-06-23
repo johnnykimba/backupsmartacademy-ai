@@ -12861,7 +12861,7 @@ var _mobPlan = null, _mobRegion = 'DRC'; // DRC only
 function mobCheckProceed(){
   var btn = document.getElementById('mob-proceed-btn');
   if(_mobPlan){
-    var planLabel = _mobPlan==='W'?'1 Week — $5':_mobPlan==='M'?'1 Month — $10':'1 Year — $90';
+    var planLabel = _mobPlan==='W'?'1 Week — $5':_mobPlan==='M'?'1 Month — $10':_mobPlan==='RM'?'Research Monthly — $20':'1 Year — $90';
     btn.textContent = '🇨🇩 Continue — ' + planLabel;
     btn.style.background = 'linear-gradient(135deg,#0891b2,#0e7490)';
     btn.style.color = '#fff';
@@ -12896,7 +12896,7 @@ function mobProceed(){
 
   var fxZar = parseFloat(localStorage.getItem('saa_fx_zar'))||18.5;
   var fxCdf = parseFloat(localStorage.getItem('saa_fx_cdf'))||2800;
-  var prices = {W:5, M:10, Y:90};
+  var prices = {W:5, M:10, Y:90, RM:20};
   var price = prices[_mobPlan] || 5;
 
   if(_mobRegion === 'DRC'){
@@ -12975,7 +12975,7 @@ async function uaGetAmount(){
   }
 
   // ── FIXED PRICES for SA and DRC (no unique amount needed) ──────
-  var fixedPrices = {W:5, M:10, Y:90};
+  var fixedPrices = {W:5, M:10, Y:90, RM:20};
   var fxZar = parseFloat(localStorage.getItem('saa_fx_zar'))||18.5;
   var fxCdf = parseFloat(localStorage.getItem('saa_fx_cdf'))||2800;
 
@@ -17192,7 +17192,7 @@ function drcPoll(){
         document.getElementById('drc-modal-code-val').textContent=d.code;
         try{
           var sv=JSON.parse(localStorage.getItem('saa_saved_codes')||'[]');
-          sv.push({code:d.code,plan:({W:'1 Week',M:'1 Month',Y:'1 Year'})[d.plan]||d.plan,savedAt:Date.now(),origin:'DRC'});
+          sv.push({code:d.code,plan:({W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Monthly'})[d.plan]||d.plan,savedAt:Date.now(),origin:'DRC'});
           localStorage.setItem('saa_saved_codes',JSON.stringify(sv));
         }catch(ex){}
         localStorage.removeItem('saa_drc_pending');
