@@ -217,8 +217,8 @@ function profValidateAndConfirmPages(showToastMsg){
 // worker — no access codes, no payments, no student data involved.
 // ════════════════════════════════════════════════════════════
 
-var PROF_WORKER_URL = 'https://smartacademy-ai.kasongokimba.workers.dev'; // consolidated: now uses the main, existing worker
-// PROF_APP_SECRET removed — uses the page's existing global APP_SECRET variable instead (see profRunAnalysis below)
+var PROF_WORKER_URL = 'https://prof-research.kasongokimba.workers.dev'; // dedicated, separate worker
+var PROF_APP_SECRET = 'Prof2026Secret'; // matches PROF_APP_SECRET set in the dedicated worker's environment variables
 
 async function profRunAnalysis(){
   var input = document.getElementById('prof-question-input');
@@ -274,7 +274,7 @@ async function profRunAnalysis(){
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        _appSecret: APP_SECRET,
+        _appSecret: PROF_APP_SECRET,
         action: 'analyze-document',
         question: question,
         images: images,
