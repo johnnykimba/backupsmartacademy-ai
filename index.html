@@ -3718,12 +3718,12 @@ window.addEventListener('load', function(){
             </div>
             <div id="pf-price-M" style="font-size:16px;font-weight:900;color:#60a5fa;">$11</div>
           </label>
-          <label onclick="pfSelectPlan('Y',99)" id="pf-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+          <label onclick="pfSelectPlan('Y',110)" id="pf-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-Y" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🏆 1 Year</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 365 days · Best value</div></div>
             </div>
-            <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#60a5fa;">$99</div>
+            <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#60a5fa;">$110</div>
           </label>
           <div style="height:1px;background:rgba(255,255,255,0.1);margin:14px 0;"></div>
           <div style="font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">🔬 Research / Professional</div>
@@ -3799,13 +3799,13 @@ window.addEventListener('load', function(){
               <div id="mob-cdf-M" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
             </div>
           </label>
-          <label onclick="mobSelectPlan('Y',90)" id="mob-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.4);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
+          <label onclick="mobSelectPlan('Y',100)" id="mob-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.4);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:8px;">
               <div id="mob-radio-Y" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
               <span style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🏆 1 Year</span>
             </div>
             <div style="text-align:right;min-width:90px;">
-              <div style="font-size:16px;font-weight:900;color:#fbbf24;">$90</div>
+              <div style="font-size:16px;font-weight:900;color:#fbbf24;">$100</div>
               <div id="mob-cdf-Y" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
             </div>
           </label>
@@ -3825,7 +3825,7 @@ window.addEventListener('load', function(){
         <script>
         function mobUpdateCdfPrices(){
           var rate = parseFloat(localStorage.getItem('saa_fx_cdf')||'2800');
-          var prices = {W:5,M:10,Y:90,RM:20};
+          var prices = {W:5,M:10,Y:100,RM:20};
           ['W','M','Y','RM'].forEach(function(p){
             var el = document.getElementById('mob-cdf-'+p);
             if(el) el.textContent = '≈ CDF '+Math.round(prices[p]*rate).toLocaleString();
@@ -12683,6 +12683,13 @@ function togglePayPanel(type){
     // Auto-select 1 Week plan so button shows immediately
     setTimeout(function(){ if(!_mobPlan && typeof mobSelectPlan==='function') mobSelectPlan('W', 5); }, 150);
   }
+
+  // Auto-scroll so the plan cards are immediately visible — avoids the
+  // person having to realize on their own that they need to scroll down.
+  setTimeout(function(){
+    var targetPanel = isCard ? cardPanel : mobilePanel;
+    if(targetPanel) targetPanel.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 100);
 
   // Highlight active button
   cardBtn.style.border   = isCard  ? '2px solid #60a5fa' : '2px solid transparent';
