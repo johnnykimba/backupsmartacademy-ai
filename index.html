@@ -3704,26 +3704,26 @@ window.addEventListener('load', function(){
         <!-- Plan selector -->
         <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Select Plan</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
-          <label onclick="pfSelectPlan('W',5)" id="pf-plan-W" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+          <label onclick="pfSelectPlan('W',5.50)" id="pf-plan-W" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-W" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">📅 1 Week</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 7 days</div></div>
             </div>
-            <div id="pf-price-W" style="font-size:16px;font-weight:900;color:#60a5fa;">$5</div>
+            <div id="pf-price-W" style="font-size:16px;font-weight:900;color:#60a5fa;">$5.50</div>
           </label>
-          <label onclick="pfSelectPlan('M',10)" id="pf-plan-M" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+          <label onclick="pfSelectPlan('M',11)" id="pf-plan-M" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-M" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🗓 1 Month</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 30 days</div></div>
             </div>
-            <div id="pf-price-M" style="font-size:16px;font-weight:900;color:#60a5fa;">$10</div>
+            <div id="pf-price-M" style="font-size:16px;font-weight:900;color:#60a5fa;">$11</div>
           </label>
-          <label onclick="pfSelectPlan('Y',90)" id="pf-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+          <label onclick="pfSelectPlan('Y',99)" id="pf-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-Y" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🏆 1 Year</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 365 days · Best value</div></div>
             </div>
-            <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#60a5fa;">$90</div>
+            <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#60a5fa;">$99</div>
           </label>
           </label>
         </div>
@@ -4768,11 +4768,11 @@ var COST_OUT = 10.00 / 1000000; // per output token
 
 // ── PRICE MAP (USD) — base price paid by student ──
 var CODE_PRICE_MAP = {
-  W: 5,    // Weekly individual
-  M: 10,   // Monthly individual
+  W: 5.50,    // Weekly individual
+  M: 11,   // Monthly individual
   WC: 110, WG: 110,
   MC: 220, MG: 220,
-  RM: 20,  // Research Monthly
+  RM: 22,  // Research Monthly
 };
 
 function saaCodePrice(code){
@@ -12435,9 +12435,9 @@ var _pricingData = {
     intl:{ currency:'USD', rate:1, method:'Mobile Payment', phone:'+27761328664', note:'Pay to our DRC number above, then upload receipt for instant code.' }
   },
   ind: [ // key, usd
-    ['p_1week',  5],
-    ['p_1month', 10],
-    ['p_1year',  90],
+    ['p_1week',  5.50],
+    ['p_1month', 11],
+    ['p_1year',  99],
   ],
   grp: [
     ['p_1hour',  60],
@@ -12446,7 +12446,7 @@ var _pricingData = {
     ['p_1year',  1700]
   ],
   research: [ // label, usd, code_prefix, description
-    ['⏱ Standard (RM-)', 20,  'RM', '30-day access · Best for occasional analysis']
+    ['⏱ Standard (RM-)', 22,  'RM', '30-day access · Best for occasional analysis']
   ]
 };
 var _pricingCountry = 'intl';
@@ -13395,7 +13395,7 @@ function runComparison(){
 function adminUpdateLimitPreview(){
   var pct = parseFloat(document.getElementById('cost-limit-pct').value) || 70;
   document.getElementById('cost-limit-slider').value = pct;
-  var prices = {'W (Week)':5,'M (Month)':10,'RM- Research':20};
+  var prices = {'W (Week)':5.50,'M (Month)':11,'RM- Research':22};
   try {
     var ind = JSON.parse(localStorage.getItem('saa_tariffs')||'{}');
     if(ind.w) prices['W (Week)'] = parseFloat(ind.w);
