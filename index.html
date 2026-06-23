@@ -2289,8 +2289,8 @@ function showLegalTab(tab){
     <a href="#" onclick="closeMenu();showPage('page-pricing');" data-i18n="nav_pricing">Pricing</a>
     <a href="#contact" onclick="closeMenu()" data-i18n="nav_contact" class="nav-marketing">Contact</a>
     <button class="nav-adm nav-non-research" id="nav-admin-btn" onclick="document.querySelectorAll('.page').forEach(function(p){p.style.display='none';});document.getElementById('admin-overlay').style.display='flex';document.getElementById('admin-overlay').style.zIndex='99999';setTimeout(function(){if(typeof adminCheckLayout==='function')adminCheckLayout();if(typeof adminRenderCodesTable==='function')adminRenderCodesTable();if(typeof adminLoadDmStats==='function')adminLoadDmStats();},50);">⚙️ Admin</button>
-    <a href="#" id="nav-cta-btn" class="nav-cta" onclick="showPage('page-access');closeMenu();return false;" data-i18n="nav_start">🚀 Learner / Student</a>
-    <a href="#" id="nav-cta-prof-btn" class="nav-cta" onclick="console.log('[DEBUG] Research button clicked, calling showPage'); showPage('page-professional');closeMenu();return false;" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Research / Professional</a>
+    <a href="#" id="nav-cta-btn" class="nav-cta" onclick="document.getElementById('admin-overlay').style.display='none'; showPage('page-access');closeMenu();return false;" data-i18n="nav_start">🚀 Learner / Student</a>
+    <a href="#" id="nav-cta-prof-btn" class="nav-cta" onclick="document.getElementById('admin-overlay').style.display='none'; showPage('page-professional');closeMenu();return false;" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Research / Professional</a>
   </div>
   <div style="display:flex;align-items:center;gap:6px;">
     <span style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:500;white-space:nowrap;" data-t="select_lang_lbl">Select Language</span>
