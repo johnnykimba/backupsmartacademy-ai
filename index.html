@@ -2290,7 +2290,7 @@ function showLegalTab(tab){
     <a href="#contact" onclick="closeMenu()" data-i18n="nav_contact" class="nav-marketing">Contact</a>
     <button class="nav-adm nav-non-research" id="nav-admin-btn" onclick="document.querySelectorAll('.page').forEach(function(p){p.style.display='none';});document.getElementById('admin-overlay').style.display='flex';document.getElementById('admin-overlay').style.zIndex='99999';setTimeout(function(){if(typeof adminCheckLayout==='function')adminCheckLayout();if(typeof adminRenderCodesTable==='function')adminRenderCodesTable();if(typeof adminLoadDmStats==='function')adminLoadDmStats();},50);">⚙️ Admin</button>
     <a href="#" id="nav-cta-btn" class="nav-cta" onclick="document.getElementById('admin-overlay').style.display='none'; showPage('page-access');closeMenu();return false;" data-i18n="nav_start">🚀 Learner / Student</a>
-    <a href="#" id="nav-cta-prof-btn" class="nav-cta" onclick="document.getElementById('admin-overlay').style.display='none'; showPage('page-professional');closeMenu();return false;" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Research / Professional</a>
+    <a href="research.html" id="nav-cta-prof-btn" class="nav-cta" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Research / Professional</a>
   </div>
   <div style="display:flex;align-items:center;gap:6px;">
     <span style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:500;white-space:nowrap;" data-t="select_lang_lbl">Select Language</span>
@@ -17265,7 +17265,6 @@ async function adminLoadDrcPending(){
   }catch(e){list.innerHTML='<div style="color:#ef4444;font-size:12px;padding:10px;">Error: '+e.message+'</div>';}
 }
 </script>
-<script src="prof-upload-logic.js"></script>
 <!-- ════════════════════════════════════════════════════════════
      PAGE: PROFESSIONAL / RESEARCHER MODE
      Top-level page, separate from the student Learner flow.
@@ -17273,107 +17272,6 @@ async function adminLoadDrcPending(){
      by the main Smart Academy worker (existing verifyResearchGate
      logic) — only the experience AFTER the gate is different.
 ════════════════════════════════════════════════════════════════ -->
-<div class="page" id="page-professional">
-<div style="background:#0f2044;min-height:100vh;width:100%;padding:40px 20px;box-sizing:border-box;color:#fff;">
-
-  <div id="prof-gate" style="max-width:420px;margin:40px auto;text-align:center;">
-    <div style="font-size:40px;">🔬</div>
-    <h2 style="color:#fff;">Research / Professional Access</h2>
-    <p style="color:rgba(255,255,255,0.6);font-size:13px;">Enter your Research access code (RM-, RS-, or RY-) to unlock document analysis.</p>
-    <input id="prof-gate-code-input" type="text" placeholder="e.g. RM-XXXXXXX" maxlength="14"
-      oninput="this.value=this.value.toUpperCase()"
-      onkeydown="if(event.key==='Enter') profVerifyGate()"
-      style="width:100%;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;text-align:center;box-sizing:border-box;margin:12px 0;">
-    <div id="prof-gate-error" style="color:#ef4444;font-size:12px;display:none;"></div>
-    <button onclick="profVerifyGate()" style="width:100%;padding:13px;background:#7c3aed;border:none;border-radius:10px;color:#fff;font-weight:800;cursor:pointer;">🚀 Unlock Research Mode</button>
-    <button onclick="showPage('page-landing')" style="width:100%;padding:10px;margin-top:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.5);cursor:pointer;">← Back to Home</button>
-  </div>
-
-  <div id="prof-main-content" style="display:none;max-width:760px;margin:0 auto;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
-      <div style="color:#06b6d4;font-weight:700;">🔬 Research / Professional Mode</div>
-      <button onclick="showPage('page-landing')" style="padding:8px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:rgba(255,255,255,0.6);cursor:pointer;">🏠 Exit</button>
-    </div>
-    <!-- ════════════════════════════════════════════════════════════
-     PROFESSIONAL / RESEARCHER MODE — UPLOAD SECTION
-     Fully separate from the existing Photo/PDF/Excel uploader.
-     Every ID and class below is prefixed with "prof-" so nothing
-     here can ever collide with the student-facing upload system.
-════════════════════════════════════════════════════════════════ -->
-<div id="prof-upload-zone" style="display:none;">
-
-  <div class="prof-input-bottom" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0;">
-    <button class="prof-input-attach" id="prof-attach-btn"
-      style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:7px;color:var(--muted);font-size:13px;padding:8px 16px;cursor:pointer;transition:all 0.2s;font-weight:600;">
-      📎 Attach files (PDF up to 60 pages, photos, Excel)
-    </button>
-    <input type="file" id="prof-attach-input" multiple
-      accept=".csv,.xlsx,.xls,.pdf,.png,.jpg,.jpeg,.doc,.docx" style="display:none;">
-    <div class="prof-input-files-preview" id="prof-files-preview" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
-  </div>
-
-  <!-- PDF PAGE SELECTOR PANEL -->
-  <div class="prof-pdf-selector-panel" id="prof-pdf-selector-panel"
-    style="background:var(--surface, #1a2332);border:1px solid var(--border, rgba(255,255,255,0.1));border-radius:14px;padding:14px;margin:10px 0;display:none;">
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-size:13px;font-weight:700;color:#fff;">📋 SELECT PAGE RANGE FOR ANALYSIS</span>
-      <button onclick="profClearAllAttached()"
-        style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:7px;color:#ef4444;font-size:11px;font-weight:600;padding:4px 12px;cursor:pointer;">
-        🗑️ Clear All Files
-      </button>
-    </div>
-    <div class="prof-pdf-thumbs-wrap" style="overflow-x:auto;padding-bottom:6px;margin-top:10px;">
-      <div class="prof-pdf-thumbs" id="prof-pdf-thumbs" style="display:flex;gap:8px;padding:4px 0;"></div>
-    </div>
-    <div class="prof-pdf-page-inputs" style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">
-      <label style="font-size:11px;color:var(--muted);">From Page</label>
-      <input type="number" id="prof-pdf-from" min="1" value="1"
-        style="width:70px;background:rgba(255,255,255,0.06);border:1px solid var(--border, rgba(255,255,255,0.1));border-radius:6px;color:#fff;padding:5px 8px;font-size:12px;text-align:center;outline:none;">
-      <label style="font-size:11px;color:var(--muted);">To Page</label>
-      <input type="number" id="prof-pdf-to" min="1" value="1"
-        style="width:70px;background:rgba(255,255,255,0.06);border:1px solid var(--border, rgba(255,255,255,0.1));border-radius:6px;color:#fff;padding:5px 8px;font-size:12px;text-align:center;outline:none;">
-      <span id="prof-pdf-page-count" style="font-size:10px;color:var(--muted);"></span>
-      <span style="font-size:10px;color:#f59e0b;">Max 60 pages per upload</span>
-    </div>
-    <div class="prof-pdf-status" id="prof-pdf-status" style="font-size:11px;color:#10b981;margin-top:6px;display:none;"></div>
-    <button class="prof-pdf-confirm-btn" id="prof-pdf-confirm-btn" onclick="profValidateAndConfirmPages(true)"
-      style="margin-top:8px;padding:8px 18px;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;width:100%;">
-      ✓ Confirm Page Selection — Ready!
-    </button>
-  </div>
-
-  <!-- QUESTION INPUT + ANALYZE BUTTON -->
-  <div style="margin-top:14px;">
-    <textarea id="prof-question-input" placeholder="Ask a question about your uploaded document (e.g. 'Summarize the key findings' or 'What methodology was used?')"
-      style="width:100%;min-height:70px;padding:12px;border-radius:10px;border:1px solid var(--border, rgba(255,255,255,0.15));background:rgba(255,255,255,0.05);color:#fff;font-size:13px;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
-    <button id="prof-run-btn" onclick="profRunAnalysis()"
-      style="margin-top:10px;width:100%;padding:12px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">
-      🔬 Analyze Document
-    </button>
-  </div>
-
-  <!-- RESULTS — three panels: GPT-4o, Claude, Verified Merged -->
-  <div id="prof-results" style="display:none;"></div>
-
-</div>
-
-<style>
-.prof-pdf-thumb{flex-shrink:0;cursor:pointer;border:2px solid rgba(255,255,255,0.15);border-radius:6px;overflow:hidden;position:relative;transition:all 0.2s;background:rgba(255,255,255,0.04);}
-.prof-pdf-thumb:hover{border-color:#06b6d4;}
-.prof-pdf-thumb.prof-selected{border-color:#06b6d4;background:rgba(6,182,212,0.1);}
-.prof-pdf-thumb canvas{display:block;width:72px;height:96px;object-fit:cover;}
-.prof-pdf-thumb-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);font-size:9px;font-weight:700;color:#fff;text-align:center;padding:2px 0;}
-.prof-pdf-thumb-check{position:absolute;top:3px;right:3px;width:16px;height:16px;background:#06b6d4;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:9px;color:#fff;}
-.prof-pdf-thumb.prof-selected .prof-pdf-thumb-check{display:flex;}
-.prof-input-file-chip{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:4px 10px;font-size:11px;color:#10b981;display:flex;align-items:center;gap:4px;}
-.prof-input-file-chip button{background:none;border:none;color:#ef4444;cursor:pointer;font-size:11px;padding:0;}
-</style>
-
-  </div>
-
-</div>
-</div>
-<!-- /page-professional -->
 
 </body>
 </html>
