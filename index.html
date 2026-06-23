@@ -3725,7 +3725,16 @@ window.addEventListener('load', function(){
             </div>
             <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#60a5fa;">$99</div>
           </label>
+          <div style="height:1px;background:rgba(255,255,255,0.1);margin:14px 0;"></div>
+          <div style="font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">🔬 Research / Professional</div>
+          <label onclick="pfSelectPlan('RM',22)" id="pf-plan-RM" style="display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.08);border:2px solid rgba(124,58,237,0.25);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div id="pf-radio-RM" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
+              <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🔬 Research Monthly</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Document analysis · 30 days</div></div>
+            </div>
+            <div id="pf-price-RM" style="font-size:16px;font-weight:900;color:#a78bfa;">$22</div>
           </label>
+          <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:6px;">💡 Paying via DRC Mobile Money? Research access is <strong style="color:#a78bfa;">$20</strong> — see the DRC payment section below.</div>
         </div>
 
         <button onclick="pfCheckout()" id="pf-pay-btn"
@@ -12683,12 +12692,13 @@ function togglePayPanel(type){
 
 function pfSelectPlan(plan, price){
   _pfPlan = plan; _pfPrice = price;
-  var labels = {W:'1 Week',M:'1 Month',Y:'1 Year'};
-  ['W','M','Y'].forEach(function(p){
+  var labels = {W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Monthly'};
+  ['W','M','Y','RM'].forEach(function(p){
     var row   = document.getElementById('pf-plan-'+p);
     var radio = document.getElementById('pf-radio-'+p);
-    if(row)  { row.style.borderColor   = p===plan ? '#60a5fa' : 'rgba(255,255,255,0.1)'; row.style.background = p===plan ? 'rgba(96,165,250,0.1)' : 'rgba(255,255,255,0.06)'; }
-    if(radio){ radio.style.background  = p===plan ? '#60a5fa' : 'transparent'; radio.style.borderColor = p===plan ? '#60a5fa' : 'rgba(255,255,255,0.3)'; }
+    var activeColor = p==='RM' ? '#a78bfa' : '#60a5fa';
+    if(row)  { row.style.borderColor   = p===plan ? activeColor : 'rgba(255,255,255,0.1)'; row.style.background = p===plan ? (p==='RM' ? 'rgba(167,139,250,0.15)' : 'rgba(96,165,250,0.1)') : (p==='RM' ? 'rgba(124,58,237,0.08)' : 'rgba(255,255,255,0.06)'); }
+    if(radio){ radio.style.background  = p===plan ? activeColor : 'transparent'; radio.style.borderColor = p===plan ? activeColor : 'rgba(255,255,255,0.3)'; }
   });
   var fxZar = parseFloat(localStorage.getItem('saa_fx_zar')||'18.5');
   var zarAmount = (price * fxZar).toFixed(2); // exact ZAR for PayFast
