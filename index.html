@@ -3171,7 +3171,8 @@ function adminRenderTable(codes, tbody){
       + '<td style="padding:10px 6px;font-size:11px;color:rgba(255,255,255,0.5);">'+createdStr+'</td>'
       + '<td style="padding:10px 6px;">'+costStr+'</td>'
       + '<td style="padding:10px 6px;"><button onclick="copyCode(\''+c.code+'\',this)" style="background:rgba(255,255,255,0.06);border:none;border-radius:6px;color:rgba(255,255,255,0.6);font-size:11px;padding:4px 8px;cursor:pointer;">📋</button>'
-      + ' <button onclick="adminResetDevice(\''+c.code+'\',this)" title="Unlock from device" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:#ef4444;font-size:11px;padding:4px 8px;cursor:pointer;">🔓</button></td>'
+      + ' <button onclick="adminResetDevice(\''+c.code+'\',this)" title="Unlock from device" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:#ef4444;font-size:11px;padding:4px 8px;cursor:pointer;">🔓</button>'
+      + ' <button onclick="adminDeleteCode(\''+c.code+'\',this)" title="Delete this code permanently" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#ef4444;font-size:11px;padding:4px 8px;cursor:pointer;">🗑️</button></td>'
       + '</tr>';
   }).join('');
 
@@ -6381,6 +6382,33 @@ async function adminResetDevice(code, btn){
   }catch(e){
     toast('❌ Network error','err');
     btn.textContent='🔓';btn.disabled=false;
+  }
+}
+
+async function adminDeleteCode(code, btn){
+  if(!confirm('Permanently delete code "'+code+'"?\n\nThis cannot be undone. The code will stop working immediately and disappear from this list.')) return;
+  btn.textContent='⏳';btn.disabled=true;
+  try{
+    var adminKey = localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
+    var res = await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:APP_SECRET,action:'delete-code',adminKey:adminKey,code:code})});
+    var d = await res.json();
+    if(d.ok){
+      toast('🗑️ '+code+' deleted','ok');
+      // Remove from local cache so the table updates immediately
+      try{
+        var codes = JSON.parse(localStorage.getItem('saa_codes')||'[]');
+        codes = codes.filter(function(c){ return c.code !== code; });
+        localStorage.setItem('saa_codes', JSON.stringify(codes));
+      }catch(e){}
+      if(typeof adminRenderCodesTable === 'function') adminRenderCodesTable();
+    } else {
+      toast('❌ '+(d.error||'Failed to delete'),'err');
+      btn.textContent='🗑️';btn.disabled=false;
+    }
+  }catch(e){
+    toast('❌ Network error','err');
+    btn.textContent='🗑️';btn.disabled=false;
   }
 }
 
