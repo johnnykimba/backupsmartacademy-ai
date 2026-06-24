@@ -440,7 +440,22 @@ function buildScorecardHTML(sc){
     html += '<div class="score-item"><div class="score-bar"><div class="score-bar-fill" style="width:'+v+'%;background:'+c+'"></div></div>'+
       '<div class="score-val" style="color:'+c+'">'+v+'%</div><div class="score-label">'+m.l+'</div></div>';
   });
-  html += '</div></div>';
+  html += '</div>';
+
+  if(sc.recommendations && sc.recommendations.length){
+    var metricLabels = {source_coverage:'Source Coverage', factual_accuracy:'Factual Accuracy', analysis_depth:'Analysis Depth', agreement_level:'Model Agreement', clarity:'Clarity'};
+    html += '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">';
+    html += '<div style="font-size:11px;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">💡 To Improve Confidence</div>';
+    html += '<ul style="margin:0;padding-left:18px;">';
+    sc.recommendations.forEach(function(r){
+      var label = metricLabels[r.metric] || r.metric || '';
+      var text = (typeof r === 'string') ? r : (r.text || '');
+      html += '<li style="font-size:12px;color:#cbd5e1;line-height:1.6;margin-bottom:4px;"><strong style="color:#fbbf24;">'+label+':</strong> '+text+'</li>';
+    });
+    html += '</ul></div>';
+  }
+
+  html += '</div>';
   return html;
 }
 
@@ -466,6 +481,13 @@ function renderResults(data){
 function downloadWord(){
   if(!lastResultData) return;
   var sc = lastResultData.scorecard;
+  var recHtml = (sc && sc.recommendations && sc.recommendations.length) ?
+    '<h2>To Improve Confidence</h2><ul>' + sc.recommendations.map(function(r){
+    var ml={source_coverage:'Source Coverage',factual_accuracy:'Factual Accuracy',analysis_depth:'Analysis Depth',agreement_level:'Model Agreement',clarity:'Clarity'};
+    var lbl=ml[r.metric]||r.metric||'';
+    var txt=(typeof r==='string')?r:(r.text||'');
+    return '<li><b>'+lbl+':</b> '+txt+'</li>';
+  }).join('') + '</ul>' : '';
   var html = '<html><head><meta charset="utf-8"><title>Research Report</title></head><body style="font-family:Arial,sans-serif;">' +
     '<h1>Research / Professional Analysis Report</h1>' +
     '<p style="color:#666;">Generated ' + new Date().toLocaleString() + '</p>' +
@@ -473,6 +495,7 @@ function downloadWord(){
       '<ul><li>Source Coverage: ' + (sc.source_coverage||0) + '%</li><li>Factual Accuracy: ' + (sc.factual_accuracy||0) + '%</li>' +
       '<li>Analysis Depth: ' + (sc.analysis_depth||0) + '%</li><li>Model Agreement: ' + (sc.agreement_level||0) + '%</li>' +
       '<li>Clarity: ' + (sc.clarity||0) + '%</li></ul>' : '') +
+    recHtml +
     '<h2>Verified Final Result</h2><p>' + (lastResultData.mergedAnswer||'').replace(/\n/g,'<br>') + '</p>' +
     '</body></html>';
   var blob = new Blob([html], {type:'application/msword'});
@@ -487,6 +510,13 @@ function downloadPDF(){
   if(!lastResultData) return;
   var win = window.open('', '_blank');
   var sc = lastResultData.scorecard;
+  var recHtml = (sc && sc.recommendations && sc.recommendations.length) ?
+    '<h2>To Improve Confidence</h2><ul>' + sc.recommendations.map(function(r){
+    var ml={source_coverage:'Source Coverage',factual_accuracy:'Factual Accuracy',analysis_depth:'Analysis Depth',agreement_level:'Model Agreement',clarity:'Clarity'};
+    var lbl=ml[r.metric]||r.metric||'';
+    var txt=(typeof r==='string')?r:(r.text||'');
+    return '<li><b>'+lbl+':</b> '+txt+'</li>';
+  }).join('') + '</ul>' : '';
   win.document.write('<html><head><title>Research Report</title></head><body style="font-family:Arial,sans-serif;padding:30px;">' +
     '<h1>Research / Professional Analysis Report</h1>' +
     '<p style="color:#666;">Generated ' + new Date().toLocaleString() + '</p>' +
@@ -494,6 +524,7 @@ function downloadPDF(){
       '<ul><li>Source Coverage: ' + (sc.source_coverage||0) + '%</li><li>Factual Accuracy: ' + (sc.factual_accuracy||0) + '%</li>' +
       '<li>Analysis Depth: ' + (sc.analysis_depth||0) + '%</li><li>Model Agreement: ' + (sc.agreement_level||0) + '%</li>' +
       '<li>Clarity: ' + (sc.clarity||0) + '%</li></ul>' : '') +
+    recHtml +
     '<h2>Verified Final Result</h2><p>' + (lastResultData.mergedAnswer||'').replace(/\n/g,'<br>') + '</p>' +
     '</body></html>');
   win.document.close();
