@@ -12585,7 +12585,7 @@ function renderPricingPage(){
     if(c==='intl'){
       main = '$'+r.min+' – $'+r.max;
     } else if(c==='za'){
-      main = 'R'+Math.round(r.min*18.5)+' – R'+Math.round(r.max*18.5);
+      main = 'R'+Math.round(r.min*17)+' – R'+Math.round(r.max*17);
     } else if(c==='drc'){
       main = 'FC '+Math.round(r.min*d.rate).toLocaleString()+' – '+Math.round(r.max*d.rate).toLocaleString();
       sub  = '= $'+r.min+' – $'+r.max;
@@ -12743,7 +12743,7 @@ function pfSelectPlan(plan, price){
     if(row)  { row.style.borderColor   = p===plan ? activeColor : 'rgba(255,255,255,0.1)'; row.style.background = p===plan ? (p==='RM' ? 'rgba(167,139,250,0.15)' : 'rgba(96,165,250,0.1)') : (p==='RM' ? 'rgba(124,58,237,0.08)' : 'rgba(255,255,255,0.06)'); }
     if(radio){ radio.style.background  = p===plan ? activeColor : 'transparent'; radio.style.borderColor = p===plan ? activeColor : 'rgba(255,255,255,0.3)'; }
   });
-  var fxZar = parseFloat(localStorage.getItem('saa_fx_zar')||'18.5');
+  var fxZar = parseFloat(localStorage.getItem('saa_fx_zar')||'17');
   var zarAmount = (price * fxZar).toFixed(2); // exact ZAR for PayFast
   var btn = document.getElementById('pf-pay-btn');
   if(btn){ btn.textContent = '🔒 Pay \$'+price+' via PayFast'; btn.disabled = false; btn.style.opacity = '1'; }
@@ -12938,7 +12938,7 @@ function mobProceed(){
   document.getElementById('mob-step0').style.display = 'none';
   document.getElementById('mob-details').style.display = 'block';
 
-  var fxZar = parseFloat(localStorage.getItem('saa_fx_zar'))||18.5;
+  var fxZar = parseFloat(localStorage.getItem('saa_fx_zar'))||17;
   var fxCdf = parseFloat(localStorage.getItem('saa_fx_cdf'))||2800;
   var prices = {W:5, M:10, Y:90, RM:20};
   var price = prices[_mobPlan] || 5;
@@ -13020,7 +13020,7 @@ async function uaGetAmount(){
 
   // ── FIXED PRICES for SA and DRC (no unique amount needed) ──────
   var fixedPrices = {W:5, M:10, Y:90, RM:20};
-  var fxZar = parseFloat(localStorage.getItem('saa_fx_zar'))||18.5;
+  var fxZar = parseFloat(localStorage.getItem('saa_fx_zar'))||17;
   var fxCdf = parseFloat(localStorage.getItem('saa_fx_cdf'))||2800;
 
   if(_uaRegion === 'SA' || _uaRegion === 'DRC'){
@@ -16769,7 +16769,7 @@ window.openGuide = function(tab){
         <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:10px;">Set rates used to show local currency equivalents on the pricing page.</div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
           <span style="font-size:12px;color:#fff;font-weight:700;min-width:80px;">USD → ZAR</span>
-          <input type="number" id="fx-zar" value="18.5" step="0.1" min="1"
+          <input type="number" id="fx-zar" value="17" step="0.1" min="1"
             style="flex:1;padding:8px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(245,158,11,0.3);border-radius:7px;color:#fff;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;">
           <span style="font-size:11px;color:rgba(255,255,255,0.4);">ZAR per $1</span>
         </div>

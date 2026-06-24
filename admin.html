@@ -207,6 +207,7 @@ td{padding:10px 6px;border-bottom:1px solid rgba(255,255,255,0.04);}
       <button class="btn btn-ghost on-chip" onclick="filterCodes('active',this)" style="padding:5px 14px;font-size:11px;">Active</button>
       <button class="btn btn-ghost on-chip" onclick="filterCodes('unused',this)" style="padding:5px 14px;font-size:11px;">Unused</button>
       <button class="btn btn-ghost on-chip" onclick="filterCodes('expired',this)" style="padding:5px 14px;font-size:11px;">Expired</button>
+      <button onclick="deleteAllCodes(this)" style="padding:5px 14px;font-size:11px;margin-left:auto;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.5);border-radius:8px;color:#ef4444;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🗑️ Delete All Codes</button>
     </div>
     <div class="card" style="padding:0;overflow:hidden;">
       <table>
@@ -637,6 +638,25 @@ async function deleteCode(code, btn){
       renderCodes();
     }else{toast('❌ '+(d.error||'Failed'),'err');btn.textContent='🗑️';btn.disabled=false;}
   }catch(e){toast('❌ Network error','err');btn.textContent='🗑️';btn.disabled=false;}
+}
+
+async function deleteAllCodes(btn){
+  var count = _codes.length;
+  if(!count){ toast('No codes to delete','err'); return; }
+  if(!confirm('Permanently delete ALL '+count+' code(s)?\n\nThis cannot be undone and will remove every code shown in this table.')) return;
+  if(!confirm('Are you absolutely sure? Type OK to confirm this is correct — there is no way to recover deleted codes.')) return;
+  btn.textContent='⏳ Deleting...';btn.disabled=true;
+  try{
+    var res=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:S,action:'delete-all-codes',adminKey:AK})});
+    var d=await res.json();
+    if(d.ok){
+      toast('🗑️ '+(d.deleted||0)+' code(s) deleted','ok');
+      _codes=[];
+      renderCodes();
+    }else{toast('❌ '+(d.error||'Failed'),'err');}
+  }catch(e){toast('❌ Network error','err');}
+  btn.textContent='🗑️ Delete All Codes';btn.disabled=false;
 }
 
 // ── STATUS ──────────────────────────────────────────
