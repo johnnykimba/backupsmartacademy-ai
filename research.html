@@ -28,6 +28,7 @@ body{
 .nav-logo{font-size:16px;font-weight:800;color:#fff;text-decoration:none;}
 .nav-logo span{color:var(--cyan);}
 .nav-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;}
+#rt-lang-select option{background:#1a2332;color:#fff;}
 .nav-btn:hover{background:rgba(255,255,255,0.06);color:#fff;}
 
 #access-gate{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;}
@@ -165,6 +166,7 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
           <input type="number" id="pdf-from" min="1" value="1">
           <label data-rt="to_lbl">To</label>
           <input type="number" id="pdf-to" min="1" value="1">
+          <button onclick="selectAllPages()" style="background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.35);border-radius:7px;color:var(--cyan);font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;white-space:nowrap;">✓ Select All Pages</button>
           <span id="page-count-label" style="font-size:10px;color:var(--muted);"></span>
           <span style="font-size:10px;color:#f59e0b;" data-rt="max_pages">Max 60 pages</span>
         </div>
@@ -369,10 +371,23 @@ async function showPdfPanel(file){
       })(p, canvas);
       div.addEventListener('click', function(){ this.classList.toggle('selected'); });
     }
+    if(numPages > maxThumbs){
+      var more = document.createElement('span');
+      more.style.cssText = 'font-size:10px;color:var(--muted);padding:10px;align-self:center;white-space:nowrap;';
+      more.textContent = '+ ' + (numPages - maxThumbs) + ' more page(s) — use the From/To fields below to select beyond ' + maxThumbs;
+      thumbs.appendChild(more);
+    }
     validatePages();
   }catch(e){
     thumbs.innerHTML = '<span style="font-size:11px;color:var(--muted);">Preview unavailable.</span>';
   }
+}
+
+function selectAllPages(){
+  if(!pdfDoc){ if(typeof toast === 'function') toast('Upload a PDF first', 'err'); return; }
+  document.getElementById('pdf-from').value = 1;
+  document.getElementById('pdf-to').value = Math.min(pdfDoc.numPages, MAX_PDF_PAGES);
+  validatePages();
 }
 
 function validatePages(){
