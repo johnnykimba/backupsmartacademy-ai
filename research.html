@@ -107,21 +107,35 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
 
 <nav class="nav">
   <a href="index.html" class="nav-logo">Smart <span>Academy AI</span></a>
-  <a href="index.html" class="nav-btn">🏠 Back to Home</a>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <select id="rt-lang-select" onchange="rtSetLanguage(this.value)" style="background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px;padding:6px 8px;cursor:pointer;">
+      <option value="en">🇬🇧 English</option>
+      <option value="fr">🇫🇷 Français</option>
+      <option value="pt">🇵🇹 Português</option>
+      <option value="sw">🇰🇪 Kiswahili</option>
+      <option value="zu">🇿🇦 isiZulu</option>
+      <option value="af">🇿🇦 Afrikaans</option>
+      <option value="es">🇪🇸 Español</option>
+      <option value="ar">🇸🇦 العربية</option>
+      <option value="hi">🇮🇳 हिन्दी</option>
+      <option value="zh">🇨🇳 中文</option>
+    </select>
+    <a href="index.html" class="nav-btn" data-rt="back_home">🏠 Back to Home</a>
+  </div>
 </nav>
 
 <!-- ACCESS GATE -->
 <div id="access-gate">
   <div class="access-card">
     <div class="access-icon">🔬</div>
-    <h2>Research / Professional Access</h2>
-    <p>Enter your Research access code (starts with RM-, RS-, or RY-) to unlock document analysis.</p>
+    <h2 data-rt="gate_title">Research / Professional Access</h2>
+    <p data-rt="gate_desc">Enter your Research access code (starts with RM-, RS-, or RY-) to unlock document analysis.</p>
     <input id="gate-code-input" class="access-input" type="text" placeholder="e.g. RM-XXXXXXX" maxlength="14"
       oninput="this.value=this.value.toUpperCase()"
       onkeydown="if(event.key==='Enter') verifyGate()">
     <div id="gate-error" class="access-error"></div>
-    <button class="access-btn" onclick="verifyGate()">🚀 Unlock Research Mode</button>
-    <button class="access-back" onclick="window.location.href='index.html'">← Back to Home</button>
+    <button class="access-btn" onclick="verifyGate()" data-rt="unlock_btn">🚀 Unlock Research Mode</button>
+    <button class="access-back" onclick="window.location.href='index.html'" data-rt="back_home_arrow">← Back to Home</button>
   </div>
 </div>
 
@@ -131,34 +145,34 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
     <div class="content-header">
       <div>
         <div class="content-title">🔬 Research / Professional Mode</div>
-        <div class="content-title-main">Document Analysis</div>
+        <div class="content-title-main" data-rt="doc_analysis">Document Analysis</div>
       </div>
     </div>
 
     <div class="upload-zone">
-      <button class="attach-btn" id="attach-btn">📎 Attach files (PDF up to 60 pages, photos, Excel)</button>
+      <button class="attach-btn" id="attach-btn" data-rt="attach_files">📎 Attach files (PDF up to 60 pages, photos, Excel)</button>
       <input type="file" id="attach-input" multiple accept=".csv,.xlsx,.xls,.pdf,.png,.jpg,.jpeg" style="display:none;">
       <div id="files-preview" style="margin-top:10px;"></div>
 
       <div class="pdf-panel" id="pdf-panel">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:13px;font-weight:700;color:#fff;">📋 Select Page Range</span>
-          <button onclick="clearAllFiles()" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:7px;color:#ef4444;font-size:11px;padding:4px 12px;cursor:pointer;">🗑️ Clear All</button>
+          <span style="font-size:13px;font-weight:700;color:#fff;" data-rt="select_pages">📋 Select Page Range</span>
+          <button onclick="clearAllFiles()" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:7px;color:#ef4444;font-size:11px;padding:4px 12px;cursor:pointer;" data-rt="clear_all">🗑️ Clear All</button>
         </div>
         <div class="pdf-thumbs" id="pdf-thumbs"></div>
         <div class="page-inputs">
-          <label>From</label>
+          <label data-rt="from_lbl">From</label>
           <input type="number" id="pdf-from" min="1" value="1">
-          <label>To</label>
+          <label data-rt="to_lbl">To</label>
           <input type="number" id="pdf-to" min="1" value="1">
           <span id="page-count-label" style="font-size:10px;color:var(--muted);"></span>
-          <span style="font-size:10px;color:#f59e0b;">Max 60 pages</span>
+          <span style="font-size:10px;color:#f59e0b;" data-rt="max_pages">Max 60 pages</span>
         </div>
         <div id="pdf-status" style="font-size:11px;color:#10b981;margin-top:6px;display:none;"></div>
       </div>
 
-      <textarea id="question-input" placeholder="Ask a question about your document (e.g. 'Summarize the key findings')"></textarea>
-      <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()">🔬 Analyze Document</button>
+      <textarea id="question-input" placeholder="Ask a question about your document (e.g. 'Summarize the key findings')" data-rt-ph="question_ph"></textarea>
+      <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()" data-rt="analyze_btn">🔬 Analyze Document</button>
     </div>
 
     <div id="results"></div>
@@ -170,6 +184,53 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
 // PROFESSIONAL / RESEARCHER MODE — standalone page
 // Self-contained, no dependency on index.html's .page system.
 // ════════════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════════════
+// RESEARCH/PROFESSIONAL — STANDALONE TRANSLATION SYSTEM
+// Self-contained, independent from index.html's i18n system,
+// since this is a standalone page. Covers 10 core languages.
+// ════════════════════════════════════════════════════════════
+var RT_DICT = {
+  en:{back_home:'🏠 Back to Home', gate_title:'Research / Professional Access', gate_desc:'Enter your Research access code (starts with RM-, RS-, or RY-) to unlock document analysis.', unlock_btn:'🚀 Unlock Research Mode', back_home_arrow:'← Back to Home', doc_analysis:'Document Analysis', attach_files:'📎 Attach files (PDF up to 60 pages, photos, Excel)', select_pages:'📋 Select Page Range', clear_all:'🗑️ Clear All', from_lbl:'From', to_lbl:'To', max_pages:'Max 60 pages', question_ph:"Ask a question about your document (e.g. 'Summarize the key findings')", analyze_btn:'🔬 Analyze Document'},
+  fr:{back_home:'🏠 Retour à l\'accueil', gate_title:'Accès Recherche / Professionnel', gate_desc:'Entrez votre code d\'accès Recherche (commence par RM-, RS- ou RY-) pour débloquer l\'analyse de documents.', unlock_btn:'🚀 Débloquer le Mode Recherche', back_home_arrow:'← Retour à l\'accueil', doc_analysis:'Analyse de Document', attach_files:'📎 Joindre des fichiers (PDF jusqu\'à 60 pages, photos, Excel)', select_pages:'📋 Sélectionner la Plage de Pages', clear_all:'🗑️ Tout Effacer', from_lbl:'De', to_lbl:'À', max_pages:'Max 60 pages', question_ph:"Posez une question sur votre document (ex. 'Résumez les points clés')", analyze_btn:'🔬 Analyser le Document'},
+  pt:{back_home:'🏠 Voltar ao Início', gate_title:'Acesso Pesquisa / Profissional', gate_desc:'Insira o seu código de acesso de Pesquisa (começa com RM-, RS- ou RY-) para desbloquear a análise de documentos.', unlock_btn:'🚀 Desbloquear Modo Pesquisa', back_home_arrow:'← Voltar ao Início', doc_analysis:'Análise de Documento', attach_files:'📎 Anexar ficheiros (PDF até 60 páginas, fotos, Excel)', select_pages:'📋 Selecionar Intervalo de Páginas', clear_all:'🗑️ Limpar Tudo', from_lbl:'De', to_lbl:'Até', max_pages:'Máx. 60 páginas', question_ph:"Faça uma pergunta sobre o seu documento (ex. 'Resuma os principais resultados')", analyze_btn:'🔬 Analisar Documento'},
+  sw:{back_home:'🏠 Rudi Nyumbani', gate_title:'Ufikiaji wa Utafiti / Kitaaluma', gate_desc:'Ingiza msimbo wako wa ufikiaji wa Utafiti (huanza na RM-, RS-, au RY-) ili kufungua uchambuzi wa hati.', unlock_btn:'🚀 Fungua Hali ya Utafiti', back_home_arrow:'← Rudi Nyumbani', doc_analysis:'Uchambuzi wa Hati', attach_files:'📎 Pakia faili (PDF hadi kurasa 60, picha, Excel)', select_pages:'📋 Chagua Kurasa', clear_all:'🗑️ Futa Yote', from_lbl:'Kutoka', to_lbl:'Hadi', max_pages:'Upeo kurasa 60', question_ph:"Uliza swali kuhusu hati yako (mf. 'Fanya muhtasari wa matokeo muhimu')", analyze_btn:'🔬 Changanua Hati'},
+  zu:{back_home:'🏠 Buyela Ekhaya', gate_title:'Ukufinyelela Kocwaningo / Ochwepheshe', gate_desc:'Faka ikhodi yakho yokufinyelela Ucwaningo (iqala ngo-RM-, RS-, noma RY-) ukuvula ukuhlaziya kwedokhumenti.', unlock_btn:'🚀 Vula Imodi Yocwaningo', back_home_arrow:'← Buyela Ekhaya', doc_analysis:'Ukuhlaziya Idokhumenti', attach_files:'📎 Faka amafayela (PDF kuze kufike emakhasini 60, izithombe, Excel)', select_pages:'📋 Khetha Ibanga Lamakhasi', clear_all:'🗑️ Sula Konke', from_lbl:'Kusuka', to_lbl:'Kuya', max_pages:'Amakhasi angeqe 60', question_ph:"Buza umbuzo mayelana nedokhumenti yakho (isb. 'Shwepesha okutholakele okubalulekile')", analyze_btn:'🔬 Hlaziya Idokhumenti'},
+  af:{back_home:'🏠 Terug na Tuis', gate_title:'Navorsing / Professionele Toegang', gate_desc:'Voer u Navorsingstoegangskode in (begin met RM-, RS-, of RY-) om dokumentanalise te ontsluit.', unlock_btn:'🚀 Ontsluit Navorsingsmodus', back_home_arrow:'← Terug na Tuis', doc_analysis:'Dokumentanalise', attach_files:'📎 Heg lêers aan (PDF tot 60 bladsye, foto\'s, Excel)', select_pages:'📋 Kies Bladsybestek', clear_all:'🗑️ Vee Alles Uit', from_lbl:'Van', to_lbl:'Tot', max_pages:'Maks 60 bladsye', question_ph:"Vra 'n vraag oor u dokument (bv. 'Som die belangrikste bevindinge op')", analyze_btn:'🔬 Ontleed Dokument'},
+  es:{back_home:'🏠 Volver al Inicio', gate_title:'Acceso a Investigación / Profesional', gate_desc:'Introduzca su código de acceso de Investigación (comienza con RM-, RS- o RY-) para desbloquear el análisis de documentos.', unlock_btn:'🚀 Desbloquear Modo Investigación', back_home_arrow:'← Volver al Inicio', doc_analysis:'Análisis de Documento', attach_files:'📎 Adjuntar archivos (PDF hasta 60 páginas, fotos, Excel)', select_pages:'📋 Seleccionar Rango de Páginas', clear_all:'🗑️ Borrar Todo', from_lbl:'Desde', to_lbl:'Hasta', max_pages:'Máx. 60 páginas', question_ph:"Haga una pregunta sobre su documento (ej. 'Resuma los hallazgos clave')", analyze_btn:'🔬 Analizar Documento'},
+  ar:{back_home:'🏠 العودة للرئيسية', gate_title:'الوصول للبحث / المهني', gate_desc:'أدخل رمز الوصول للبحث (يبدأ بـ RM- أو RS- أو RY-) لإلغاء قفل تحليل المستندات.', unlock_btn:'🚀 إلغاء قفل وضع البحث', back_home_arrow:'← العودة للرئيسية', doc_analysis:'تحليل المستند', attach_files:'📎 إرفاق ملفات (PDF حتى 60 صفحة، صور، Excel)', select_pages:'📋 تحديد نطاق الصفحات', clear_all:'🗑️ حذف الكل', from_lbl:'من', to_lbl:'إلى', max_pages:'الحد الأقصى 60 صفحة', question_ph:'اطرح سؤالاً حول مستندك (مثال: لخص النتائج الرئيسية)', analyze_btn:'🔬 تحليل المستند'},
+  hi:{back_home:'🏠 होम पर वापस जाएं', gate_title:'शोध / पेशेवर एक्सेस', gate_desc:'दस्तावेज़ विश्लेषण अनलॉक करने के लिए अपना शोध एक्सेस कोड दर्ज करें (RM-, RS-, या RY- से शुरू होता है)।', unlock_btn:'🚀 शोध मोड अनलॉक करें', back_home_arrow:'← होम पर वापस जाएं', doc_analysis:'दस्तावेज़ विश्लेषण', attach_files:'📎 फ़ाइलें संलग्न करें (PDF 60 पृष्ठों तक, फ़ोटो, Excel)', select_pages:'📋 पृष्ठ श्रेणी चुनें', clear_all:'🗑️ सभी साफ़ करें', from_lbl:'से', to_lbl:'तक', max_pages:'अधिकतम 60 पृष्ठ', question_ph:"अपने दस्तावेज़ के बारे में एक प्रश्न पूछें (जैसे 'मुख्य निष्कर्षों का सारांश दें')", analyze_btn:'🔬 दस्तावेज़ का विश्लेषण करें'},
+  zh:{back_home:'🏠 返回首页', gate_title:'研究/专业版访问', gate_desc:'输入您的研究访问代码（以 RM-、RS- 或 RY- 开头）以解锁文档分析。', unlock_btn:'🚀 解锁研究模式', back_home_arrow:'← 返回首页', doc_analysis:'文档分析', attach_files:'📎 附加文件（PDF最多60页、照片、Excel）', select_pages:'📋 选择页面范围', clear_all:'🗑️ 清除全部', from_lbl:'从', to_lbl:'到', max_pages:'最多60页', question_ph:'就您的文档提出问题（例如"总结关键发现"）', analyze_btn:'🔬 分析文档'}
+};
+
+function rtApplyLanguage(lang){
+  var dict = RT_DICT[lang] || RT_DICT.en;
+  document.querySelectorAll('[data-rt]').forEach(function(el){
+    var key = el.getAttribute('data-rt');
+    if(dict[key]) el.textContent = dict[key];
+  });
+  document.querySelectorAll('[data-rt-ph]').forEach(function(el){
+    var key = el.getAttribute('data-rt-ph');
+    if(dict[key]) el.placeholder = dict[key];
+  });
+  document.documentElement.lang = lang;
+  if(lang === 'ar') document.documentElement.dir = 'rtl'; else document.documentElement.dir = 'ltr';
+}
+
+function rtSetLanguage(lang){
+  localStorage.setItem('rt_lang', lang);
+  rtApplyLanguage(lang);
+}
+
+// Apply saved language preference on load (also reuses the main site's
+// saved language choice if present, for a consistent experience)
+(function(){
+  var saved = localStorage.getItem('rt_lang') || localStorage.getItem('saa_lang') || 'en';
+  if(!RT_DICT[saved]) saved = 'en';
+  var sel = document.getElementById('rt-lang-select');
+  if(sel) sel.value = saved;
+  rtApplyLanguage(saved);
+})();
 
 var MAIN_WORKER_URL = 'https://smartacademy-ai.kasongokimba.workers.dev';
 var PROF_WORKER_URL = 'https://prof-research.kasongokimba.workers.dev';
