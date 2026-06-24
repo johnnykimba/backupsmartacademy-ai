@@ -551,8 +551,22 @@ async function loadCodes(){
       var costRes = await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({_appSecret:S,action:'get-all-costs',adminKey:AK})});
       var costData = await costRes.json();
-      _costsFromKV = costData.costs || {};
-    }catch(e2){ _costsFromKV = {}; }
+      if(costData.error){
+        console.error('[AI Cost] Worker returned error:', costData.error);
+        toast('⚠️ AI Cost error: '+costData.error, 'err');
+        _costsFromKV = {};
+      } else {
+        _costsFromKV = costData.costs || {};
+        console.log('[AI Cost] Loaded', Object.keys(_costsFromKV).length, 'cost record(s) from KV');
+        if(Object.keys(_costsFromKV).length === 0){
+          console.log('[AI Cost] No cost records found yet — this is normal if no AI features have been used on these codes.');
+        }
+      }
+    }catch(e2){
+      console.error('[AI Cost] Network/fetch error:', e2.message);
+      toast('⚠️ AI Cost network error: '+e2.message, 'err');
+      _costsFromKV = {};
+    }
 
     renderCodes();
   }catch(e){
