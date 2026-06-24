@@ -365,6 +365,11 @@ async function runAnalysis(){
       '<div class="loading-bar-track"><div class="loading-bar-fill"></div></div>' +
     '</div>';
 
+  // Auto-scroll so the loading indicator (and the results once ready) are
+  // immediately visible — avoids the person having to scroll down manually
+  // to see that analysis is actually running.
+  setTimeout(function(){ resultsEl.scrollIntoView({behavior:'smooth', block:'start'}); }, 100);
+
   try{
     var images = []; var docText = '';
     for(var i=0;i<attachedFiles.length;i++){
@@ -476,6 +481,7 @@ function renderResults(data){
       '<button class="download-btn" onclick="downloadPDF()">⬇️ Download PDF</button>' +
     '</div></div>';
   if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([resultsEl]).catch(function(){});
+  setTimeout(function(){ resultsEl.scrollIntoView({behavior:'smooth', block:'start'}); }, 150);
 }
 
 function downloadWord(){
