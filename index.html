@@ -3610,28 +3610,29 @@ window.addEventListener('load', function(){
         </div>
 
         <!-- Plan selector -->
-        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Select Plan</div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Select Plan</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:8px;">≈ Prices shown in USD — PayFast charges in ZAR, so the final amount may vary slightly with the exchange rate.</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
           <label onclick="pfSelectPlan('W',5)" id="pf-plan-W" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-W" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">📅 1 Week</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 7 days</div></div>
             </div>
-            <div id="pf-price-W" style="font-size:16px;font-weight:900;color:#60a5fa;">$5</div>
+            <div id="pf-price-W" style="font-size:16px;font-weight:900;color:#60a5fa;">≈$5</div>
           </label>
           <label onclick="pfSelectPlan('M',10)" id="pf-plan-M" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-M" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🗓 1 Month</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 30 days</div></div>
             </div>
-            <div id="pf-price-M" style="font-size:16px;font-weight:900;color:#60a5fa;">$10</div>
+            <div id="pf-price-M" style="font-size:16px;font-weight:900;color:#60a5fa;">≈$10</div>
           </label>
           <label onclick="pfSelectPlan('Y',120)" id="pf-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-Y" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🏆 1 Year</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 365 days · Best value</div></div>
             </div>
-            <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#60a5fa;">$120</div>
+            <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#60a5fa;">≈$120</div>
           </label>
           <div style="height:1px;background:rgba(255,255,255,0.1);margin:14px 0;"></div>
           <div style="font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;" data-t="p_research_title">🔬 Research / Professional</div>
@@ -3640,7 +3641,7 @@ window.addEventListener('load', function(){
               <div id="pf-radio-RM" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);" data-t="p_research_desc">🔬 Research Monthly</div><div style="font-size:11px;color:rgba(255,255,255,0.5);" data-t="p_research_sub">Document analysis · 30 days</div></div>
             </div>
-            <div id="pf-price-RM" style="font-size:16px;font-weight:900;color:#a78bfa;">$25</div>
+            <div id="pf-price-RM" style="font-size:16px;font-weight:900;color:#a78bfa;">≈$25</div>
           </label>
         </div>
 
@@ -7306,6 +7307,20 @@ async function initQuiz(){
         .replace(/\((\d+)\/(\d+)\)/g, function(m,n,d){ return '\\(\\frac{'+n+'}{'+d+'}\\)'; })
         // 2/4 standalone (not inside already converted) → \(\frac{2}{4}\)
         .replace(/(?<!\\frac\{[^}]*\}\{[^}]*)(?<![0-9])(\d+)\/(\d+)(?![0-9}])/g, function(m,n,d){
+          return '\\(\\frac{'+n+'}{'+d+'}\\)';
+        })
+        // x/2, 3/y, x/y — single-letter variable on either/both sides of
+        // the slash. Real, confirmed gap: the digit-only regex above
+        // never caught algebra-style variable fractions, which are
+        // extremely common in school-level math content.
+        .replace(/(?<!\\frac\{[^}]*\}\{[^}]*)\b([A-Za-z]|\d+)\/([A-Za-z]|\d+)\b(?![0-9}])/g, function(m,n,d){
+          // Skip if both sides are digits — already handled above.
+          if(/^\d+$/.test(n) && /^\d+$/.test(d)) return m;
+          // Skip common non-math abbreviations that happen to match the
+          // letter/letter or letter/digit shape (w/o = without, c/o =
+          // care of, etc.) — found via direct testing before deploy.
+          var common = ['w/o','c/o','a/c','n/a','b/w','i/o'];
+          if(common.indexOf((n+'/'+d).toLowerCase()) !== -1) return m;
           return '\\(\\frac{'+n+'}{'+d+'}\\)';
         })
         // ── INTEGRAL NOTATION ────────────────────────────────────
