@@ -1541,8 +1541,8 @@ footer{
 .msg.ai .msg-av{background:linear-gradient(135deg,var(--blue),var(--cyan));}
 .msg.user .msg-av{background:var(--border);}
 .msg-bub{
-  max-width:94%;padding:14px 18px;
-  border-radius:14px;font-size:15px;line-height:1.7;
+  max-width:100%;padding:20px 26px;
+  border-radius:14px;font-size:22px;line-height:1.6;
   color:#ffffff;
 }
 .typing-ind{
@@ -3252,43 +3252,7 @@ function adminSaveTariffs(){
 // ════════════════════════════════════════════════
 // adminToggleMaintenance function removed per request — Site Maintenance feature removed entirely
 
-function adminToggleAnnouncement(showIt){
-  var WORKER   = 'https://smartacademy-ai.kasongokimba.workers.dev';
-  var adminKey = localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
-  var text     = (document.getElementById('announcement-input')||{}).value||'';
-  if(showIt && !text.trim()){
-    toast('⚠️ Type an announcement message first','err');
-    return;
-  }
-  // IMPORTANT: this does NOT touch the full site online/offline status —
-  // it only updates the independent announcement banner fields.
-  var payload = {_appSecret:APP_SECRET, action:'set-site-status', adminKey:adminKey, announcement: text, announcementOn: !!showIt};
-
-  fetch(WORKER, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    if(d.success){
-      toast(showIt ? '📢 Announcement banner is now showing' : '✅ Announcement banner hidden', 'ok');
-      // Immediately reflect the change on screen — previously this only
-      // saved to the worker, but the visible banner only re-checks its
-      // status when navigating TO the Pricing page, so clicking this
-      // button while already there appeared to do nothing.
-      var banner = document.getElementById('announcement-banner');
-      var textEl = document.getElementById('announcement-text');
-      if(banner && textEl){
-        if(showIt && text.trim()){
-          textEl.textContent = text;
-          banner.style.display = 'flex';
-        } else {
-          banner.style.display = 'none';
-        }
-      }
-    } else {
-      toast('❌ '+(d.error||'Failed to update announcement'),'err');
-    }
-  })
-  .catch(function(){ toast('❌ Network error','err'); });
-}
+// adminToggleAnnouncement removed per request — Announcement Banner feature removed entirely
 
 // _updateMaintenanceStatusBar removed per request
 
@@ -3379,43 +3343,7 @@ function adminLoadSettingsFromKV(callback){
 
 // adminLoadMaintenanceStatus removed per request
 
-// ── ANNOUNCEMENT BANNER — non-blocking advance notice (e.g. upcoming maintenance) ──
-function loadAnnouncementBanner(){
-  var WORKER = 'https://smartacademy-ai.kasongokimba.workers.dev';
-  fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'get-site-status'})})
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    var banner = document.getElementById('announcement-banner');
-    var textEl = document.getElementById('announcement-text');
-    if(!banner || !textEl) return;
-    if(d.announcementOn && d.announcement){
-      // Re-show once per day even if previously dismissed — reminders matter for maintenance notices
-      var today = new Date().toISOString().slice(0,10);
-      var dismissedOn = localStorage.getItem('saa_announcement_dismissed_date');
-      var dismissedText = localStorage.getItem('saa_announcement_dismissed_text');
-      var alreadyDismissedToday = (dismissedOn === today && dismissedText === d.announcement);
-      if(!alreadyDismissedToday){
-        textEl.textContent = d.announcement;
-        banner.style.display = 'flex';
-      }
-    } else {
-      banner.style.display = 'none';
-    }
-  })
-  .catch(function(){});
-}
-
-function dismissAnnouncement(){
-  var banner = document.getElementById('announcement-banner');
-  var textEl = document.getElementById('announcement-text');
-  if(banner) banner.style.display = 'none';
-  if(textEl){
-    localStorage.setItem('saa_announcement_dismissed_date', new Date().toISOString().slice(0,10));
-    localStorage.setItem('saa_announcement_dismissed_text', textEl.textContent);
-  }
-}
-
-// loadAnnouncementBanner() is now called specifically when the pricing page opens (see showPage()) — not globally
+// Announcement Banner feature removed entirely per request
 
 // Render WhatsApp contact card from saved number (deferred until function is defined)
 window.addEventListener('load', function(){ if(typeof _renderWaContactCard==='function') _renderWaContactCard(); });
@@ -4691,12 +4619,6 @@ document.addEventListener('DOMContentLoaded', function(){
 <!-- ══════════════════════════════════════════════
      ANNOUNCEMENT BANNER — non-blocking advance notice (e.g. "Maintenance in 2 days")
      ══════════════════════════════════════════════ -->
-<div id="announcement-banner" style="display:none;position:sticky;top:0;z-index:999998;background:linear-gradient(135deg,#f59e0b,#d97706);color:#1a1208;padding:10px 16px;font-size:13px;font-weight:700;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;">
-  <span style="font-size:16px;">📢</span>
-  <span id="announcement-text">Scheduled maintenance coming soon.</span>
-  <button onclick="dismissAnnouncement()" style="background:rgba(0,0,0,0.15);border:none;border-radius:50%;width:22px;height:22px;color:#1a1208;font-size:13px;font-weight:900;cursor:pointer;line-height:1;flex-shrink:0;">✕</button>
-</div>
-
 <!-- ══════════════════════════════════════════════
      MAINTENANCE OVERLAY — covers entire site when offline
      ══════════════════════════════════════════════ -->
@@ -5898,13 +5820,7 @@ function showPage(id){
       }
     }, 200);
   }
-  // Announcement banner only shows on the Pricing page — hide it everywhere else
-  if(id==='page-pricing'){
-    if(typeof loadAnnouncementBanner==='function') loadAnnouncementBanner();
-  } else {
-    var annBanner = document.getElementById('announcement-banner');
-    if(annBanner) annBanner.style.display = 'none';
-  }
+  // Announcement Banner feature removed per request
   if(id==='page-pricing'){ setTimeout(function(){
     if(typeof switchPayPanel==='function') switchPayPanel('intl');
     loadPricingRates();
@@ -16410,29 +16326,6 @@ window.openGuide = function(tab){
             <button onclick="adminSaveSettingsToKV()" style="padding:7px 12px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.3);border-radius:8px;color:#06b6d4;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
               ☁️ Sync Now
             </button>
-          </div>
-
-          <!-- ANNOUNCEMENT BANNER -->
-          <div class="admin-section" style="border:2px solid rgba(245,158,11,0.4);background:rgba(245,158,11,0.05);">
-            <div class="admin-section-title" style="color:#f59e0b;">📢 Announcement Banner</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:14px;">
-              Show a small non-blocking banner at the top of the site — e.g. advance notice of upcoming maintenance. The site stays fully usable; this is just a heads-up message. Re-appears once per day even if dismissed, until you turn it off.
-            </div>
-            <div style="margin-bottom:12px;">
-              <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;">Announcement text:</div>
-              <textarea id="announcement-input" rows="2" placeholder="Scheduled maintenance in 2 days — Smart Academy AI will be offline for about 1 hour on [date] at [time] for upgrades."
-                style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:rgba(255,255,255,0.7);font-family:'DM Sans',sans-serif;font-size:12px;resize:none;outline:none;box-sizing:border-box;"></textarea>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-              <button onclick="adminToggleAnnouncement(true)"
-                style="padding:12px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);border-radius:10px;color:#f59e0b;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
-                📢 Show Banner
-              </button>
-              <button onclick="adminToggleAnnouncement(false)"
-                style="padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.6);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
-                ✕ Hide Banner
-              </button>
-            </div>
           </div>
 
           <!-- API KEY -->
