@@ -2101,10 +2101,10 @@ footer{
 /* ══ END PARENTAL PIN ══ */
 
 /* TRIAL CODE */
-#trial-card{margin:0 auto 24px;max-width:480px;background:linear-gradient(135deg,rgba(26,86,219,0.15),rgba(0,212,224,0.1));border:2px solid rgba(0,212,224,0.4);border-radius:16px;padding:20px 22px;text-align:center;display:none;box-shadow:0 0 30px rgba(0,212,224,0.12);}
-#trial-card .tc-badge{display:inline-block;background:rgba(0,212,224,0.15);border:1px solid rgba(0,212,224,0.4);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;color:#00d4e0;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
-#trial-card h3{color:#fff;font-size:18px;margin:0 0 6px;}
-#trial-card p{color:rgba(255,255,255,0.65);font-size:13px;margin:0 0 14px;}
+#trial-card{margin:0 auto 16px;max-width:480px;background:linear-gradient(135deg,rgba(26,86,219,0.15),rgba(0,212,224,0.1));border:2px solid rgba(0,212,224,0.4);border-radius:14px;padding:12px 18px;text-align:center;display:none;box-shadow:0 0 30px rgba(0,212,224,0.12);}
+#trial-card .tc-badge{display:inline-block;background:rgba(0,212,224,0.15);border:1px solid rgba(0,212,224,0.4);border-radius:20px;padding:2px 10px;font-size:10px;font-weight:700;color:#00d4e0;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+#trial-card h3{color:#fff;font-size:14px;margin:0 0 3px;}
+#trial-card p{color:rgba(255,255,255,0.65);font-size:11px;margin:0 0 8px;}
 #trial-countdown{font-size:28px;font-weight:900;color:#00d4e0;font-family:monospace;letter-spacing:2px;margin-bottom:14px;}
 #trial-countdown.warning{color:#f59e0b;animation:pulse 1s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
@@ -2348,11 +2348,13 @@ function showLegalTab(tab){
         <h3>Try Smart Academy AI Free</h3>
         <p>Full access for a limited time. No code needed.</p>
         <div id="trial-countdown" style="display:none;">--:--</div>
-        <button class="btn-trial" onclick="startTrial()">🚀 Start Free Trial</button>
-        <button class="btn-trial" onclick="startResearchTrial()" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);margin-top:8px;">🔬 Try Research / Professional Free</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+          <button class="btn-trial" onclick="startTrial()" style="flex:1;min-width:140px;padding:10px 16px;font-size:13px;">🚀 Start Free Trial</button>
+          <button class="btn-trial" onclick="startResearchTrial()" style="flex:1;min-width:140px;padding:10px 16px;font-size:13px;background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Try Research Free</button>
+        </div>
       </div>
 
-      <div class="hero-btns" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;">
+      <div class="hero-btns" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">
         <button class="btn-hero-primary" onclick="showPage('page-access')" data-i18n="hero_cta" style="flex:1;min-width:180px;">🎓 Learner / Student</button>
         <button onclick="document.getElementById('section-learning').scrollIntoView({behavior:'smooth'})" style="flex:1;min-width:160px;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;background:linear-gradient(135deg,#1a56db,#0891b2);border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
           <span>📘</span>
