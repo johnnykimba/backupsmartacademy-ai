@@ -7548,17 +7548,18 @@ function buildUserMsg(){
   const diffInstruction = diffInstructions[S.diffMode] || diffInstructions['doc'];
 
   const mathSymbolInstruction = `CRITICAL MATH NOTATION RULES — always use these symbols directly:
-• Fractions: ALWAYS use LaTeX \\(\\frac{a}{b}\\) format. Write \\(\\frac{2}{4}x^4\\) NOT "(2/4)x^4"
+• Fractions: ALWAYS use LaTeX \\(\\frac{a}{b}\\) format. Write \\(\\frac{2}{4}x^4\\) NOT "(2/4)x^4" and NOT a slash-style fraction like "2/4"
+• Powers/exponents: ALWAYS use LaTeX \\(x^2\\) format consistently. Write \\(x^2\\) NOT "x squared", NOT "x^2" as plain unformatted text, and NOT the Unicode superscript character ². Every exponent must be wrapped in \\(...\\)
 • Integrals: use ∫ symbol. Write ∫(2x-6)⁴ dx NOT "integral of (2x-6)^4*dx"
 • Derivatives: write d/dx[f(x)] NOT "the derivative of"
 • Limits: write lim(x→a) NOT "the limit as x approaches"
 • Trig: use cos, sin, tan, cot, sec, csc (NOT cosine, sine, tangent etc.)
 • Greek: use θ, π, α, β, δ, σ, λ, ∞, φ, ω directly (NOT theta, pi, alpha etc.)
 • Angles: use ∠ symbol (NOT the word "angle"). Degrees: use °
-• Powers: use ² ³ or ^ notation. Write x² NOT "x squared"
-• Roots: use √ ∛ symbols (NOT "square root of")
+• Roots: use \\(\\sqrt{x}\\) or \\(\\sqrt[n]{x}\\) LaTeX format (NOT "square root of" and NOT the plain √ symbol alone for anything beyond a simple label)
 • Never use *dx — write dx with a space: ∫f(x) dx
-• For ALL fractions in answers and questions use \\(\\frac{numerator}{denominator}\\)`;
+• For ALL fractions in answers and questions use \\(\\frac{numerator}{denominator}\\) — never a forward slash, no exceptions
+• Be consistent: do not mix LaTeX notation with plain-text or Unicode math symbols within the same answer`;
 
   // Count real images (excluding the Excel placeholder entry)
   const realImages = S.images.filter(function(img){ return img.type !== 'excel'; });
