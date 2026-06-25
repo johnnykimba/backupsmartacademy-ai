@@ -435,7 +435,7 @@ async function loadPending(){
         +'<td style="padding:10px 8px;color:rgba(255,255,255,0.25);font-size:11px;">—</td>'
         +'<td style="padding:10px 8px;color:#fff;font-weight:600;">'+plan+'</td>'
         +'<td style="padding:10px 8px;color:#06b6d4;font-size:11px;font-weight:700;">'+amountsStr+'</td>'
-        +'<td style="padding:10px 8px;white-space:nowrap;"><span style="color:'+ageCol+';font-weight:700;">'+age+'h</span>&nbsp;<span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800;">⏳ PENDING</span></td>'
+        +'<td style="padding:10px 8px;white-space:nowrap;"><span style="color:'+ageCol+';font-weight:700;">'+age+'h</span>&nbsp;<span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800;">⏳ PENDING</span>&nbsp;<button onclick="deleteDrcProof(\''+x.clientId+'\',this)" title="Delete this proof entry" style="padding:3px 7px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#ef4444;font-size:10px;cursor:pointer;font-family:\'DM Sans\',sans-serif;">🗑️</button></td>'
         +'</tr>';
     });
 
@@ -454,7 +454,7 @@ async function loadPending(){
         +'<td style="padding:10px 8px;font-family:monospace;font-weight:900;color:#10b981;font-size:13px;letter-spacing:2px;">'+(x.code||'—')+'</td>'
         +'<td style="padding:10px 8px;color:#fff;font-weight:600;">'+plan+' <span style="color:rgba(255,255,255,0.3);font-size:9px;">(verified)</span></td>'
         +'<td style="padding:10px 8px;color:#10b981;font-size:11px;font-weight:700;">'+amountsStr+'</td>'
-        +'<td style="padding:10px 8px;white-space:nowrap;"><span style="color:rgba(255,255,255,0.4);">'+ago+'</span>&nbsp;<span style="background:rgba(16,185,129,0.15);color:#10b981;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800;">✅ MATCHED</span></td>'
+        +'<td style="padding:10px 8px;white-space:nowrap;"><span style="color:rgba(255,255,255,0.4);">'+ago+'</span>&nbsp;<span style="background:rgba(16,185,129,0.15);color:#10b981;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800;">✅ MATCHED</span>&nbsp;<button onclick="deleteDrcProof(\''+x.clientId+'\',this)" title="Delete this proof entry" style="padding:3px 7px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#ef4444;font-size:10px;cursor:pointer;font-family:\'DM Sans\',sans-serif;">🗑️</button></td>'
         +'</tr>';
     });
 
@@ -652,6 +652,21 @@ async function resetDevice(code, btn){
     else{toast('❌ '+(d.error||'Failed'),'err');btn.textContent='🔓';btn.disabled=false;}
   }catch(e){toast('❌ Network error','err');btn.textContent='🔓';btn.disabled=false;}
 }
+async function deleteDrcProof(clientId, btn){
+  if(!confirm('Delete this proof entry (clientId: '+clientId+')?\n\nThis only removes the match record — it does NOT delete the access code itself.')) return;
+  btn.textContent='⏳';btn.disabled=true;
+  try{
+    var res=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:S,action:'delete-drc-proof',adminKey:AK,clientId:clientId})});
+    var d=await res.json();
+    if(d.ok){
+      toast('🗑️ Proof entry deleted','ok');
+      if(typeof loadPending==='function') loadPending();
+      else location.reload();
+    }else{toast('❌ '+(d.error||'Failed'),'err');btn.textContent='🗑️';btn.disabled=false;}
+  }catch(e){toast('❌ Network error','err');btn.textContent='🗑️';btn.disabled=false;}
+}
+
 async function deleteCode(code, btn){
   if(!confirm('Permanently delete "'+code+'"?\nThis cannot be undone.')) return;
   btn.textContent='⏳';btn.disabled=true;
