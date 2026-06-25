@@ -7271,15 +7271,15 @@ async function initQuiz(){
     // ── FIX MATH WORD FORMS → SYMBOLS ────────────────────────────
     function fixMath(s){
       if(!s || typeof s !== 'string') return s;
-      // GUARD: if text already contains clean Unicode math symbols (∫ √ ² ³ etc.)
-      // it came from the strict no-LaTeX quiz prompt — skip LaTeX injection and
-      // text-to-symbol replacements entirely to avoid double-conversion (e.g. ∫∫).
-      // Only run light whitespace cleanup in that case.
-      var alreadyCleanMath = /[∫√∞≠≤≥≈±×÷∂∇ΣΠ]|[²³⁴⁵⁶⁷⁸⁹⁰¹]/.test(s);
-      if(alreadyCleanMath){
-        return s.replace(/\*dx\b/gi,' dx').replace(/\*dy\b/gi,' dy').replace(/\*du\b/gi,' du');
-      }
       return s
+        // Always normalize any stray Unicode superscripts to proper LaTeX,
+        // since the prompt now strictly forbids them but the AI may still
+        // occasionally slip. Common superscript digits only (covers the
+        // vast majority of real exponents in school-level material).
+        .replace(/([A-Za-z0-9\)\]])²/g, '$1^2')
+        .replace(/([A-Za-z0-9\)\]])³/g, '$1^3')
+        .replace(/([A-Za-z0-9\)\]])⁴/g, '$1^4')
+        .replace(/([A-Za-z0-9\)\]])⁵/g, '$1^5')
         // ── AUTO-CONVERT PLAIN FRACTIONS TO LATEX ────────────────
         // (2/4)x → \(\frac{2}{4}\)x
         .replace(/\((\d+)\/(\d+)\)/g, function(m,n,d){ return '\\(\\frac{'+n+'}{'+d+'}\\)'; })
