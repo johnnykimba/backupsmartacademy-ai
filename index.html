@@ -3250,25 +3250,7 @@ function adminSaveTariffs(){
 // ════════════════════════════════════════════════
 // MAINTENANCE TOGGLE (admin)
 // ════════════════════════════════════════════════
-function adminToggleMaintenance(goOffline){
-  var WORKER   = 'https://smartacademy-ai.kasongokimba.workers.dev';
-  var adminKey = localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
-  var msg      = goOffline ? ((document.getElementById('maint-msg-input')||{}).value||'') : '';
-  var payload  = {_appSecret:APP_SECRET, action:'set-site-status', adminKey:adminKey, online:!goOffline};
-  if(msg) payload.message = msg;
-
-  fetch(WORKER, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    if(d.success){
-      toast(goOffline ? '🔧 Site is now in MAINTENANCE mode' : '✅ Site is back ONLINE', goOffline?'err':'ok');
-      _updateMaintenanceStatusBar(!goOffline);
-    } else {
-      toast('❌ '+(d.error||'Failed to update site status'),'err');
-    }
-  })
-  .catch(function(){ toast('❌ Network error','err'); });
-}
+// adminToggleMaintenance function removed per request — Site Maintenance feature removed entirely
 
 function adminToggleAnnouncement(showIt){
   var WORKER   = 'https://smartacademy-ai.kasongokimba.workers.dev';
@@ -3308,19 +3290,7 @@ function adminToggleAnnouncement(showIt){
   .catch(function(){ toast('❌ Network error','err'); });
 }
 
-function _updateMaintenanceStatusBar(isOnline){
-  var bar = document.getElementById('maint-status-bar');
-  if(!bar) return;
-  if(isOnline){
-    bar.style.background='rgba(16,185,129,0.1)';
-    bar.style.border='1px solid rgba(16,185,129,0.4)';
-    bar.innerHTML='<span style="font-size:18px;">🟢</span> <strong style="color:#10b981;">ONLINE</strong> <span style="color:rgba(255,255,255,0.4);font-size:12px;">— Site is live and accessible to all users</span>';
-  } else {
-    bar.style.background='rgba(239,68,68,0.1)';
-    bar.style.border='1px solid rgba(239,68,68,0.4)';
-    bar.innerHTML='<span style="font-size:18px;">🔴</span> <strong style="color:#ef4444;">OFFLINE (Maintenance)</strong> <span style="color:rgba(255,255,255,0.4);font-size:12px;">— Users see maintenance screen</span>';
-  }
-}
+// _updateMaintenanceStatusBar removed per request
 
 // ════════════════════════════════════════════════
 // ADMIN SETTINGS — Cloudflare KV sync
@@ -3407,13 +3377,7 @@ function adminLoadSettingsFromKV(callback){
   .catch(function(){ if(typeof callback === 'function') callback(); });
 }
 
-function adminLoadMaintenanceStatus(){
-  var WORKER = 'https://smartacademy-ai.kasongokimba.workers.dev';
-  fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'get-site-status'})})
-  .then(function(r){ return r.json(); })
-  .then(function(d){ _updateMaintenanceStatusBar(d.online !== false); })
-  .catch(function(){});
-}
+// adminLoadMaintenanceStatus removed per request
 
 // ── ANNOUNCEMENT BANNER — non-blocking advance notice (e.g. upcoming maintenance) ──
 function loadAnnouncementBanner(){
@@ -3502,39 +3466,7 @@ window.addEventListener('load', function(){
 });
 
 // ════════════════════════════════════════════════
-// MAINTENANCE MODE — check site status on load
-// ════════════════════════════════════════════════
-(function checkSiteStatus(){
-  var WORKER = 'https://smartacademy-ai.kasongokimba.workers.dev';
-  function doCheck(){
-    fetch(WORKER, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({_appSecret:APP_SECRET,action:'get-site-status',t:Date.now()}) // cache-bust
-    })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      var overlay = document.getElementById('maintenance-overlay');
-      var msgEl   = document.getElementById('maintenance-msg');
-      if(d.online === false){
-        if(msgEl && d.message) msgEl.textContent = d.message;
-        if(overlay){
-          overlay.style.display = 'flex';
-          document.body.style.overflow = 'hidden';
-        }
-      } else {
-        // Site came back online — hide overlay if showing
-        if(overlay && overlay.style.display !== 'none'){
-          overlay.style.display = 'none';
-          document.body.style.overflow = '';
-        }
-      }
-    })
-    .catch(function(){ /* fail silently — keep site running */ });
-  }
-  doCheck(); // run immediately on load
-  setInterval(doCheck, 30000); // recheck every 30 seconds
-})();
+// MAINTENANCE MODE feature removed per request
 
 // Load saved tariffs on startup
 window.addEventListener('load', function(){
@@ -4768,32 +4700,8 @@ document.addEventListener('DOMContentLoaded', function(){
 <!-- ══════════════════════════════════════════════
      MAINTENANCE OVERLAY — covers entire site when offline
      ══════════════════════════════════════════════ -->
-<div id="maintenance-overlay" style="display:none;position:fixed;inset:0;z-index:9999999;background:linear-gradient(135deg,#0a1628 0%,#0f2044 50%,#0d1f3c 100%);align-items:center;justify-content:center;flex-direction:column;padding:32px;text-align:center;">
-  <div style="max-width:460px;width:100%;">
-    <!-- Animated icon -->
-    <div style="font-size:72px;margin-bottom:24px;animation:maintSpin 6s linear infinite;display:inline-block;">⚙️</div>
-    <h1 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.3;">
-      Under Maintenance
-    </h1>
-    <div id="maintenance-msg" style="font-size:15px;color:rgba(255,255,255,0.65);line-height:1.7;margin-bottom:32px;">
-      Smart Academy AI is undergoing scheduled maintenance. We will be back shortly. Thank you for your patience.
-    </div>
-    <!-- Pulsing status bar -->
-    <div style="display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:50px;padding:10px 24px;margin-bottom:32px;display:inline-flex;">
-      <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;animation:maintPulse 1.5s ease-in-out infinite;"></div>
-      <span style="font-size:13px;font-weight:700;color:#f59e0b;letter-spacing:1px;text-transform:uppercase;">Coming Back Soon</span>
-    </div>
-    <!-- Brand -->
-    <div style="margin-top:28px;">
-      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,#1a56db,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Smart Academy AI</div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:4px;">Your Personal AI Study Coach</div>
-    </div>
-  </div>
-</div>
 <style>
 @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
-@keyframes maintSpin { 0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
-@keyframes maintPulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.85);} }
 </style>
 
 <script>
@@ -16502,37 +16410,6 @@ window.openGuide = function(tab){
             <button onclick="adminSaveSettingsToKV()" style="padding:7px 12px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.3);border-radius:8px;color:#06b6d4;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
               ☁️ Sync Now
             </button>
-          </div>
-
-          <!-- ══ SITE MAINTENANCE TOGGLE ══ -->
-          <div class="admin-section" style="border:2px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.05);">
-            <div class="admin-section-title" style="color:#ef4444;">🔧 Site Maintenance</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:14px;">
-              Switch the entire website ON or OFF. When offline, all visitors see a maintenance screen.
-            </div>
-            <!-- Live status bar -->
-            <div id="maint-status-bar" style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:16px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.4);">
-              <span style="font-size:18px;">🟢</span>
-              <strong style="color:#10b981;">ONLINE</strong>
-              <span style="color:rgba(255,255,255,0.4);font-size:12px;">— Site is live and accessible to all users</span>
-            </div>
-            <!-- Custom message -->
-            <div style="margin-bottom:12px;">
-              <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;">Maintenance message shown to visitors (optional):</div>
-              <textarea id="maint-msg-input" rows="2" placeholder="Smart Academy AI is undergoing scheduled maintenance. We will be back shortly."
-                style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:rgba(255,255,255,0.7);font-family:'DM Sans',sans-serif;font-size:12px;resize:none;outline:none;box-sizing:border-box;"></textarea>
-            </div>
-            <!-- Buttons -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-              <button onclick="adminToggleMaintenance(false)"
-                style="padding:12px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:10px;color:#10b981;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
-                🟢 Set ONLINE
-              </button>
-              <button onclick="adminToggleMaintenance(true)"
-                style="padding:12px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:10px;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
-                🔴 Set OFFLINE
-              </button>
-            </div>
           </div>
 
           <!-- ANNOUNCEMENT BANNER -->
