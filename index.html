@@ -3348,6 +3348,27 @@ function adminLoadSettingsFromKV(callback){
 // Render WhatsApp contact card from saved number (deferred until function is defined)
 window.addEventListener('load', function(){ if(typeof _renderWaContactCard==='function') _renderWaContactCard(); });
 
+// ── RESUME PAYFAST POLLING AFTER RETURN REDIRECT ──────────────────
+// PayFast's return_url is a genuine full-page navigation back to this
+// site, not a same-tab JS continuation — this destroys the in-memory
+// polling loop that pfCheckout() started before redirecting away. The
+// pending clientId was already being saved to localStorage correctly;
+// this was the missing piece that actually resumes polling for it.
+window.addEventListener('load', function(){
+  if(window.location.hash === '#payment-success'){
+    var pendingClient = localStorage.getItem('pf_pending_client');
+    var pendingTs = parseInt(localStorage.getItem('pf_pending_ts')) || 0;
+    var ageMs = Date.now() - pendingTs;
+    // Only resume if genuinely still within a reasonable window (1 hour,
+    // matching pfStartPolling's own timeout) — avoids resuming a stale,
+    // already-claimed, or abandoned pending payment indefinitely.
+    if(pendingClient && ageMs < 3600000 && typeof pfStartPolling === 'function'){
+      toast('⏳ Confirming your payment, please wait...', 'ok');
+      pfStartPolling(pendingClient);
+    }
+  }
+});
+
 // ════════════════════════════════════════════════
 // AUTO-LOAD ADMIN SETTINGS FROM KV ON PAGE LOAD
 // ════════════════════════════════════════════════
@@ -3571,7 +3592,7 @@ window.addEventListener('load', function(){
         <div style="font-size:56px;margin-bottom:8px;">📱</div>
         <div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:4px;">Mobile Money</div>
         <div style="font-size:11px;color:rgba(255,255,255,0.7);">Airtel · M-Pesa · Orange</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.7);">Mama Money</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.7);">Illicocash (Rawbank)</div>
         <div style="margin-top:10px;background:rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;color:#fff;">Africa & DRC →</div>
       </div>
     </div>
@@ -12870,6 +12891,7 @@ function mobProceed(){
         + '<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:9px;font-weight:800;color:#f97316;letter-spacing:1px;">AIRTEL MONEY</span><span style="font-size:15px;font-weight:900;color:#fff;letter-spacing:1px;">0973201231</span></div>'
         + '<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:9px;font-weight:800;color:#10b981;letter-spacing:1px;">M-PESA DRC</span><span style="font-size:15px;font-weight:900;color:#fff;letter-spacing:1px;">0862716000</span></div>'
         + '<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:9px;font-weight:800;color:#f59e0b;letter-spacing:1px;">ORANGE MONEY</span><span style="font-size:15px;font-weight:900;color:#fff;letter-spacing:1px;">0850275466</span></div>'
+        + '<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:9px;font-weight:800;color:#a78bfa;letter-spacing:1px;">ILLICOCASH (RAWBANK)</span><span style="font-size:15px;font-weight:900;color:#fff;letter-spacing:1px;">0821469683</span></div>'
         + '</div>'
         + '<div style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:10px;padding:10px;">'        + '<div style="font-size:11px;font-weight:700;color:#06b6d4;margin-bottom:4px;text-align:center;">📋 Copy &amp; Paste Your Payment SMS Here</div>'        + '<div style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:8px;text-align:center;">After paying, open your SMS or WhatsApp confirmation → copy the full message → paste below</div>'        + '<textarea id="drc-inline-text" placeholder="e.g. Trans.ID: PP260130.1024.B01234, Vous avez envoyé 5 USD à DATABUNDL2..." style="width:100%;padding:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(6,182,212,0.4);border-radius:10px;color:#fff;font-size:12px;resize:none;height:72px;box-sizing:border-box;line-height:1.5;" oninput="drcInlineTextInput(this.value)"></textarea>'        + '<div id="drc-inline-preview" style="display:none;"></div>'        + '<div id="drc-inline-status" style="display:none;margin-top:8px;border-radius:8px;padding:10px;font-size:12px;font-weight:600;text-align:center;"></div>'
         + '<button id="drc-inline-submit" onclick="drcInlineSubmit()" style="display:none;width:100%;margin-top:8px;padding:12px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif;">⚡ Submit & Get My Code</button>'
