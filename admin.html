@@ -561,6 +561,18 @@ async function loadCodes(){
         if(Object.keys(_costsFromKV).length === 0){
           console.log('[AI Cost] No cost records found yet — this is normal if no AI features have been used on these codes.');
         }
+        // Write-through into localStorage too, exactly matching the main
+        // admin overlay's proven, working pattern (adminLoadDmStats) —
+        // makes this code path structurally identical to the one already
+        // confirmed working, removing _costsFromKV as a point of failure.
+        Object.keys(_costsFromKV).forEach(function(code){
+          var wc = _costsFromKV[code];
+          var lk = 'saa_cost_'+code;
+          try{
+            var ld = JSON.parse(localStorage.getItem(lk)||'null');
+            if(!ld || (wc.calls||0) >= (ld.calls||0)) localStorage.setItem(lk, JSON.stringify(wc));
+          }catch(e3){ localStorage.setItem(lk, JSON.stringify(wc)); }
+        });
       }
     }catch(e2){
       console.error('[AI Cost] Network/fetch error:', e2.message);
