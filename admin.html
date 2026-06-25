@@ -617,6 +617,7 @@ function renderCodes(){
     // fall back to localStorage for any legacy/local-only cost records.
     var costD = _costsFromKV[c.code] || null;
     if(!costD){ try{ costD=JSON.parse(localStorage.getItem('saa_cost_'+c.code)||'null'); }catch(e){} }
+    console.log('[AI Cost DEBUG] code='+c.code+' costD=', costD, ' _costsFromKV has '+Object.keys(_costsFromKV).length+' keys:', Object.keys(_costsFromKV));
     var cost='—';
     if(costD && costD.totalCost !== undefined && costD.totalCost === 0){
       // Manual/no-AI-cost entry (DRC match, PayFast) — show $0.00 with its source label instead of "—"
