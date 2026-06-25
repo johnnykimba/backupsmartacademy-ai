@@ -617,14 +617,19 @@ function renderCodes(){
     // fall back to localStorage for any legacy/local-only cost records.
     var costD = _costsFromKV[c.code] || null;
     if(!costD){ try{ costD=JSON.parse(localStorage.getItem('saa_cost_'+c.code)||'null'); }catch(e){} }
-    console.log('[AI Cost DEBUG] code='+c.code+' costD=', costD, ' _costsFromKV has '+Object.keys(_costsFromKV).length+' keys:', Object.keys(_costsFromKV));
     var cost='—';
-    if(costD && costD.totalCost !== undefined && costD.totalCost === 0){
-      // Manual/no-AI-cost entry (DRC match, PayFast) — show $0.00 with its source label instead of "—"
-      cost='$0.00'+(costD.source?'<br><span style="font-size:9px;color:rgba(255,255,255,0.3);">'+costD.source+'</span>':'');
-    } else if(costD&&costD.calls>0){
-      var cv = costD.totalCost !== undefined ? costD.totalCost : ((costD.inputTokens||0)*2.5/1e6)+((costD.outputTokens||0)*10/1e6);
+    if(costD && costD.calls > 0){
+      // Real AI usage has occurred — calculate from actual tokens,
+      // regardless of any stale totalCost:0 placeholder field left
+      // over from when this code was first created via DRC/PayFast.
+      // Checking calls>0 FIRST (before totalCost) was the actual fix:
+      // previously totalCost:0 was checked first and never got cleared
+      // by track-cost, so it permanently masked real recorded usage.
+      var cv = ((costD.inputTokens||0)*2.5/1e6)+((costD.outputTokens||0)*10/1e6);
       cost='$'+cv.toFixed(4)+'<br><span style="font-size:9px;color:rgba(255,255,255,0.3);">'+costD.calls+' calls</span>';
+    } else if(costD && costD.totalCost !== undefined && costD.totalCost === 0){
+      // No AI usage yet — show the DRC/PayFast placeholder's $0.00 with its source label
+      cost='$0.00'+(costD.source?'<br><span style="font-size:9px;color:rgba(255,255,255,0.3);">'+costD.source+'</span>':'');
     }
     return '<tr>'
       +'<td><span class="code-val">'+c.code+'</span></td>'
