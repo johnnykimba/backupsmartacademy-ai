@@ -7375,18 +7375,38 @@ async function initQuiz(){
         .replace(/\bapproximately equal to\b/gi,'≈')
         .replace(/\bplus or minus\b/gi,'±')
         .replace(/\bsummation\b/gi,'Σ').replace(/\bproduct\b(?= of|\s+from)/gi,'Π')
-        // ── EXPONENTS TEXT ───────────────────────────────────────
-        .replace(/\bsquared\b/gi,'²').replace(/\bcubed\b/gi,'³')
-        .replace(/\bto the power of (\d+)\b/gi,(m,n)=>{
-          const sup='⁰¹²³⁴⁵⁶⁷⁸⁹';
-          return n.split('').map(d=>sup[d]||d).join('');
-        })
-        // ── e^x ──────────────────────────────────────────────────
-        .replace(/e\^x\b/g,'eˣ')
+        // ── EXPONENTS TEXT — FORCE GENUINE LaTeX, never Unicode ───
+        // Previously these converted "squared"/"cubed"/"to the power of"
+        // INTO the Unicode superscript characters our prompt explicitly
+        // forbids — undoing the normalization that ran earlier in this
+        // same chain. Now they produce real LaTeX \(x^n\) instead, so
+        // every exponent representation the AI might use (a word, a
+        // Unicode character, or already-correct LaTeX) ends up forced
+        // into the same, genuine LaTeX format.
+        .replace(/\b([A-Za-z0-9\)\]]+)\s+squared\b/gi, '\\($1^2\\)')
+        .replace(/\b([A-Za-z0-9\)\]]+)\s+cubed\b/gi, '\\($1^3\\)')
+        .replace(/\bsquared\b/gi,'^2').replace(/\bcubed\b/gi,'^3')
+        .replace(/\b([A-Za-z0-9\)\]]+)\s+to the power of (\d+)\b/gi, '\\($1^{$2}\\)')
+        .replace(/\bto the power of (\d+)\b/gi,'^{$1}')
+        // ── e^x — force genuine LaTeX, not the Unicode eˣ character ──
+        .replace(/e\^x\b/g,'\\(e^x\\)')
+        .replace(/eˣ/g,'\\(e^x\\)')
         // ── CONTRACTIONS ─────────────────────────────────────────
         .replace(/\bdon't\b/gi,'do not').replace(/\bcan't\b/gi,'cannot')
         .replace(/\bisn't\b/gi,'is not').replace(/\bwon't\b/gi,'will not')
-        .replace(/\bdidn't\b/gi,'did not').replace(/\bdoesn't\b/gi,'does not');
+        .replace(/\bdidn't\b/gi,'did not').replace(/\bdoesn't\b/gi,'does not')
+        // ── FINAL SAFETY NET — force any remaining Unicode superscript
+        // to genuine LaTeX, no matter where in this chain it was
+        // introduced. This is the guaranteed last line of defense.
+        .replace(/([A-Za-z0-9\)\]])²/g, '\\($1^2\\)')
+        .replace(/([A-Za-z0-9\)\]])³/g, '\\($1^3\\)')
+        .replace(/([A-Za-z0-9\)\]])⁴/g, '\\($1^4\\)')
+        .replace(/([A-Za-z0-9\)\]])⁵/g, '\\($1^5\\)')
+        .replace(/([A-Za-z0-9\)\]])⁶/g, '\\($1^6\\)')
+        .replace(/([A-Za-z0-9\)\]])⁷/g, '\\($1^7\\)')
+        .replace(/([A-Za-z0-9\)\]])⁸/g, '\\($1^8\\)')
+        .replace(/([A-Za-z0-9\)\]])⁹/g, '\\($1^9\\)')
+        .replace(/([A-Za-z0-9\)\]])⁰/g, '\\($1^0\\)');
     }
     S.questions = S.questions.map(q => ({
       ...q,
