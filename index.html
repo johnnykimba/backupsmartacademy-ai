@@ -2349,6 +2349,7 @@ function showLegalTab(tab){
         <p>Full access for a limited time. No code needed.</p>
         <div id="trial-countdown" style="display:none;">--:--</div>
         <button class="btn-trial" onclick="startTrial()">🚀 Start Free Trial</button>
+        <button class="btn-trial" onclick="startResearchTrial()" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);margin-top:8px;">🔬 Try Research / Professional Free</button>
       </div>
 
       <div class="hero-btns" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;">
@@ -3989,6 +3990,7 @@ window.addEventListener('load', function(){
       <div style="font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">🎁 Free Trial</div>
       <div id="trial-card-desc" style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5;">Try Smart Academy AI free — no code needed. Duration set by administrator.</div>
       <button class="btn-trial" onclick="startTrial()" style="width:100%;padding:12px;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🚀 Start Free Trial →</button>
+      <button class="btn-trial" onclick="startResearchTrial()" style="width:100%;padding:12px;margin-top:8px;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🔬 Try Research / Professional Free →</button>
     </div>
 
     <button onclick="showPage('page-landing')" style="width:100%;padding:13px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;" data-t="back_home">← Back to Home</button>
@@ -12248,6 +12250,27 @@ async function startTrial(){
   }catch(e){toast('Cannot connect to server. Please check your internet.','err');}
 }
 
+async function startResearchTrial(){
+  var fp = typeof getDeviceFingerprint==='function' ? getDeviceFingerprint() : 'unknown';
+  try{
+    var r1=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:APP_SECRET,action:'get-research-trial-code',t:Date.now()})});
+    var trial=await r1.json();
+    if(!trial.active){toast('No active research trial at the moment.','err');return;}
+
+    var r2=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:APP_SECRET,action:'validate-research-trial-code',code:trial.code,fingerprint:fp})});
+    var data=await r2.json();
+    if(!data.valid){
+      toast(data.message||'Research trial not available','err');return;
+    }
+    // Route to research.html with the trial code, same pattern as savedCodeUse
+    sessionStorage.setItem('prof_pending_code', trial.code);
+    toast('Research trial started! You have '+data.minutes+' minutes of free access.','ok');
+    window.location.href = 'research.html?code=' + encodeURIComponent(trial.code);
+  }catch(e){toast('Cannot connect to server. Please check your internet.','err');}
+}
+
 function showTrialExpired(){
   S.code='';S.codeType='';S.codeExpiry=null;
   document.getElementById('trial-expired-overlay').style.display='flex';
@@ -12340,6 +12363,34 @@ async function adminDeactivateTrial(){
       if(c) c.style.display='none';
       if(_trialTimer) clearInterval(_trialTimer);
       toast('Trial deactivated','ok');
+    } else {toast(d.error||'Failed','err');}
+  }catch(e){toast('Network error','err');}
+}
+
+async function adminActivateResearchTrial(){
+  var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
+  var minutes=parseInt(document.getElementById('research-trial-minutes').value)||15;
+  if(minutes>30){toast('Maximum 30 minutes','err');return;}
+  try{
+    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'generate-research-trial-code',adminKey,minutes})});
+    var d=await r.json();
+    if(d.success){
+      var bar=document.getElementById('research-trial-status-bar');
+      if(bar){ bar.innerHTML='&#128994; ACTIVE — '+d.code; bar.style.background='rgba(16,185,129,0.1)'; bar.style.color='#10b981'; }
+      toast('Research trial activated — '+minutes+' min','ok');
+    } else {toast(d.error||'Failed','err');}
+  }catch(e){toast('Network error','err');}
+}
+
+async function adminDeactivateResearchTrial(){
+  var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
+  try{
+    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'deactivate-research-trial',adminKey})});
+    var d=await r.json();
+    if(d.success){
+      var bar=document.getElementById('research-trial-status-bar');
+      if(bar){ bar.innerHTML='&#128308; INACTIVE'; bar.style.background='rgba(239,68,68,0.1)'; bar.style.color='#ef4444'; }
+      toast('Research trial deactivated','ok');
     } else {toast(d.error||'Failed','err');}
   }catch(e){toast('Network error','err');}
 }
@@ -16620,6 +16671,30 @@ window.openGuide = function(tab){
               <button onclick="adminDeactivateTrial()"
                 style="padding:12px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);border-radius:8px;color:#ef4444;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
                 &#10060; Deactivate Trial
+              </button>
+            </div>
+          </div>
+
+          <!-- RESEARCH/PROFESSIONAL TRIAL ADMIN -->
+          <div class="admin-section" style="border:1px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.04);">
+            <div class="admin-section-title" style="color:#a78bfa;">&#128300; Research / Professional Free Trial</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+              <div style="font-size:12px;color:rgba(255,255,255,0.6);">Duration:</div>
+              <input type="number" id="research-trial-minutes" value="15" min="1" max="30"
+                style="width:60px;padding:6px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;">
+              <div style="font-size:12px;color:rgba(255,255,255,0.4);">min (max 30)</div>
+            </div>
+            <div id="research-trial-status-bar" style="text-align:center;padding:8px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:12px;background:rgba(239,68,68,0.1);color:#ef4444;">
+              &#128308; INACTIVE
+            </div>
+            <div style="display:grid;gap:8px;">
+              <button onclick="adminActivateResearchTrial()"
+                style="padding:12px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);border-radius:8px;color:#a78bfa;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
+                &#9989; Activate Research Trial
+              </button>
+              <button onclick="adminDeactivateResearchTrial()"
+                style="padding:12px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);border-radius:8px;color:#ef4444;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
+                &#10060; Deactivate Research Trial
               </button>
             </div>
           </div>
