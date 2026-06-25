@@ -2288,7 +2288,7 @@ function showLegalTab(tab){
     <a href="#features" onclick="closeMenu()" data-i18n="nav_features" class="nav-marketing">Features</a>
     <a href="#" onclick="closeMenu();showPage('page-pricing');" data-i18n="nav_pricing">Pricing</a>
     <a href="#contact" onclick="closeMenu()" data-i18n="nav_contact" class="nav-marketing">Contact</a>
-    <button class="nav-adm nav-non-research" id="nav-admin-btn" onclick="document.querySelectorAll('.page').forEach(function(p){p.style.display='none';});document.getElementById('admin-overlay').style.display='flex';document.getElementById('admin-overlay').style.zIndex='99999';setTimeout(function(){if(typeof adminCheckLayout==='function')adminCheckLayout();if(typeof adminRenderCodesTable==='function')adminRenderCodesTable();if(typeof adminLoadDmStats==='function')adminLoadDmStats();},50);">⚙️ Admin</button>
+    <button class="nav-adm nav-non-research" id="nav-admin-btn" onclick="document.querySelectorAll('.page').forEach(function(p){p.style.display='none';});document.getElementById('admin-overlay').style.display='flex';document.getElementById('admin-overlay').style.zIndex='99999';setTimeout(function(){if(typeof adminCheckLayout==='function')adminCheckLayout();if(typeof adminRenderCodesTable==='function')adminRenderCodesTable();if(typeof adminLoadDmStats==='function')adminLoadDmStats();if(typeof adminRefreshTrialDeviceCount==='function')adminRefreshTrialDeviceCount();if(typeof adminRefreshResearchTrialDeviceCount==='function')adminRefreshResearchTrialDeviceCount();},50);">⚙️ Admin</button>
     <a href="#" id="nav-cta-btn" class="nav-cta" onclick="document.getElementById('admin-overlay').style.display='none'; showPage('page-access');closeMenu();return false;" data-i18n="nav_start">🚀 Learner / Student</a>
     <a href="research.html" id="nav-cta-prof-btn" class="nav-cta" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Research / Professional</a>
   </div>
@@ -3605,21 +3605,21 @@ window.addEventListener('load', function(){
             </div>
             <div id="pf-price-M" style="font-size:16px;font-weight:900;color:#60a5fa;">$10</div>
           </label>
-          <label onclick="pfSelectPlan('Y',100)" id="pf-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+          <label onclick="pfSelectPlan('Y',120)" id="pf-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-Y" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🏆 1 Year</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 365 days · Best value</div></div>
             </div>
-            <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#60a5fa;">$100</div>
+            <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#60a5fa;">$120</div>
           </label>
           <div style="height:1px;background:rgba(255,255,255,0.1);margin:14px 0;"></div>
           <div style="font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;" data-t="p_research_title">🔬 Research / Professional</div>
-          <label onclick="pfSelectPlan('RM',20)" id="pf-plan-RM" style="display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.08);border:2px solid rgba(124,58,237,0.25);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+          <label onclick="pfSelectPlan('RM',25)" id="pf-plan-RM" style="display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.08);border:2px solid rgba(124,58,237,0.25);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-RM" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);" data-t="p_research_desc">🔬 Research Monthly</div><div style="font-size:11px;color:rgba(255,255,255,0.5);" data-t="p_research_sub">Document analysis · 30 days</div></div>
             </div>
-            <div id="pf-price-RM" style="font-size:16px;font-weight:900;color:#a78bfa;">$20</div>
+            <div id="pf-price-RM" style="font-size:16px;font-weight:900;color:#a78bfa;">$25</div>
           </label>
         </div>
 
@@ -3685,25 +3685,25 @@ window.addEventListener('load', function(){
               <div id="mob-cdf-M" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
             </div>
           </label>
-          <label onclick="mobSelectPlan('Y',100)" id="mob-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.4);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
+          <label onclick="mobSelectPlan('Y',120)" id="mob-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.4);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:8px;">
               <div id="mob-radio-Y" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
               <span style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🏆 1 Year</span>
             </div>
             <div style="text-align:right;min-width:90px;">
-              <div style="font-size:16px;font-weight:900;color:#fbbf24;">$100</div>
+              <div style="font-size:16px;font-weight:900;color:#fbbf24;">$120</div>
               <div id="mob-cdf-Y" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
             </div>
           </label>
           <div style="height:1px;background:rgba(255,255,255,0.15);margin:8px 0;"></div>
           <div style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;" data-t="p_research_title">🔬 Research / Professional</div>
-          <label onclick="mobSelectPlan('RM',20)" id="mob-plan-RM" style="display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.15);border:2px solid rgba(167,139,250,0.4);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
+          <label onclick="mobSelectPlan('RM',25)" id="mob-plan-RM" style="display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.15);border:2px solid rgba(167,139,250,0.4);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:8px;">
               <div id="mob-radio-RM" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
               <span style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);" data-t="p_research_desc">🔬 Research Monthly</span>
             </div>
             <div style="text-align:right;min-width:90px;">
-              <div style="font-size:16px;font-weight:900;color:#fbbf24;">$20</div>
+              <div style="font-size:16px;font-weight:900;color:#fbbf24;">$25</div>
               <div id="mob-cdf-RM" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
             </div>
           </label>
@@ -12169,6 +12169,24 @@ async function adminLoadFxRates(){
   }catch(e){}
 }
 
+async function adminRefreshTrialDeviceCount(){
+  try{
+    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'get-trial-code',t:Date.now()})});
+    var d=await r.json();
+    var countEl=document.getElementById('trial-device-count');
+    if(countEl) countEl.textContent = d.active ? ('👥 '+(d.deviceCount||0)+' device(s) have used this trial code') : '';
+  }catch(e){}
+}
+
+async function adminRefreshResearchTrialDeviceCount(){
+  try{
+    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'get-research-trial-code',t:Date.now()})});
+    var d=await r.json();
+    var countEl=document.getElementById('research-trial-device-count');
+    if(countEl) countEl.textContent = d.active ? ('👥 '+(d.deviceCount||0)+' device(s) have used this trial code') : '';
+  }catch(e){}
+}
+
 async function adminActivateTrial(){
   var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
   var minutes=parseInt(document.getElementById('trial-minutes').value)||10;
@@ -12187,6 +12205,7 @@ async function adminActivateTrial(){
       localStorage.setItem('_currentTrialCode', d.code);
       window._pendingTrialExpiry=d.expiresAt;
       toast('Trial activated — '+minutes+' min','ok');
+      if(typeof adminRefreshTrialDeviceCount==='function') adminRefreshTrialDeviceCount();
     } else {toast(d.error||'Failed','err');}
   }catch(e){toast('Network error','err');}
 }
@@ -12218,6 +12237,7 @@ async function adminActivateResearchTrial(){
       var bar=document.getElementById('research-trial-status-bar');
       if(bar){ bar.innerHTML='&#128994; ACTIVE — '+d.code; bar.style.background='rgba(16,185,129,0.1)'; bar.style.color='#10b981'; }
       toast('Research trial activated — '+minutes+' min','ok');
+      if(typeof adminRefreshResearchTrialDeviceCount==='function') adminRefreshResearchTrialDeviceCount();
     } else {toast(d.error||'Failed','err');}
   }catch(e){toast('Network error','err');}
 }
@@ -16446,9 +16466,10 @@ window.openGuide = function(tab){
                 style="width:60px;padding:6px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;">
               <div style="font-size:12px;color:rgba(255,255,255,0.4);">min (max 15)</div>
             </div>
-            <div id="trial-status-bar" style="text-align:center;padding:8px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:12px;background:rgba(239,68,68,0.1);color:#ef4444;">
+            <div id="trial-status-bar" style="text-align:center;padding:8px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:8px;background:rgba(239,68,68,0.1);color:#ef4444;">
               &#128308; INACTIVE
             </div>
+            <div id="trial-device-count" style="text-align:center;font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:12px;"></div>
             <div style="display:grid;gap:8px;">
               <button onclick="adminActivateTrial()"
                 style="padding:12px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:8px;color:#10b981;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
@@ -16470,9 +16491,10 @@ window.openGuide = function(tab){
                 style="width:60px;padding:6px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;">
               <div style="font-size:12px;color:rgba(255,255,255,0.4);">min (max 30)</div>
             </div>
-            <div id="research-trial-status-bar" style="text-align:center;padding:8px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:12px;background:rgba(239,68,68,0.1);color:#ef4444;">
+            <div id="research-trial-status-bar" style="text-align:center;padding:8px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:8px;background:rgba(239,68,68,0.1);color:#ef4444;">
               &#128308; INACTIVE
             </div>
+            <div id="research-trial-device-count" style="text-align:center;font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:12px;"></div>
             <div style="display:grid;gap:8px;">
               <button onclick="adminActivateResearchTrial()"
                 style="padding:12px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);border-radius:8px;color:#a78bfa;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
