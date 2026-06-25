@@ -263,6 +263,7 @@ async function verifyGate(){
     var data = await res.json();
     if(data.valid === true){
       sessionStorage.setItem('prof_unlocked','1');
+      sessionStorage.setItem('prof_verified_code', code); // needed so analyze-document can check this code's spending limit
       document.getElementById('access-gate').style.display = 'none';
       document.getElementById('main-content').style.display = 'block';
       initUploadHandlers();
@@ -473,7 +474,7 @@ async function runAnalysis(){
 
     var res = await fetch(PROF_WORKER_URL, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({_appSecret: PROF_APP_SECRET, action:'analyze-document', question:question, images:images, docText:docText})
+      body: JSON.stringify({_appSecret: PROF_APP_SECRET, action:'analyze-document', question:question, images:images, docText:docText, code: sessionStorage.getItem('prof_verified_code')||''})
     });
     var data = await res.json();
     if(!data.ok){
