@@ -7212,6 +7212,44 @@ async function initQuiz(){
     // ── FIX MATH WORD FORMS → SYMBOLS ────────────────────────────
     function fixMath(s){
       if(!s || typeof s !== 'string') return s;
+      // ── REPAIR: Unicode fraction glyphs (¼ ½ ⅓ ⅔ ¾ ⅕ etc.) → LaTeX ──
+      // Bug fix: the AI sometimes outputs single-character Unicode fraction
+      // glyphs directly (e.g. "¼x^4 + ⅓x^3") instead of LaTeX, mixed in with
+      // otherwise-correct LaTeX terms elsewhere in the same string. These
+      // glyphs render as plain literal characters since MathJax doesn't
+      // typeset them. Must run FIRST, before anything else, for two reasons:
+      // (1) once the string contains \( from another term, the later
+      // "unwrapped caret" safety net skips the whole string, so a bare
+      // glyph would never get wrapped; (2) we want to capture the glyph
+      // TOGETHER with an immediately-following x^N term as a single,
+      // self-contained \(\frac{a}{b}x^n\) — not two separately-wrapped
+      // pieces — to match how a human would actually write the term.
+      (function(){
+        var fractionMap = {
+          '½':['1','2'], '⅓':['1','3'], '⅔':['2','3'],
+          '¼':['1','4'], '¾':['3','4'],
+          '⅕':['1','5'], '⅖':['2','5'], '⅗':['3','5'], '⅘':['4','5'],
+          '⅙':['1','6'], '⅚':['5','6'],
+          '⅛':['1','8'], '⅜':['3','8'], '⅝':['5','8'], '⅞':['7','8'],
+          '⅐':['1','7'], '⅑':['1','9'], '⅒':['1','10']
+        };
+        var glyphClass = Object.keys(fractionMap).join('');
+        // Glyph + power term (e.g. "¼x^4") → one combined wrapped fraction
+        s = s.replace(new RegExp('(['+glyphClass+'])([A-Za-z]\\^\\d+)', 'g'), function(m, glyph, term){
+          var p = fractionMap[glyph];
+          return '\\(\\frac{'+p[0]+'}{'+p[1]+'}'+term+'\\)';
+        });
+        // Glyph + bare variable, no caret (e.g. "¼x") → combined wrapped fraction
+        s = s.replace(new RegExp('(['+glyphClass+'])([A-Za-z])(?!\\^)', 'g'), function(m, glyph, v){
+          var p = fractionMap[glyph];
+          return '\\(\\frac{'+p[0]+'}{'+p[1]+'}'+v+'\\)';
+        });
+        // Any remaining standalone glyph (no following term to attach to)
+        s = s.replace(new RegExp('['+glyphClass+']', 'g'), function(m){
+          var p = fractionMap[m];
+          return '\\(\\frac{'+p[0]+'}{'+p[1]+'}\\)';
+        });
+      })();
       // ── REPAIR: base^N/D → \(\frac{base^N}{D}\) ──────────────
       // Related pre-existing gap, found while fixing the bug below: a caret
       // exponent immediately followed by "/digit" (e.g. "x^3/3") used to get
