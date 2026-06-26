@@ -4281,6 +4281,43 @@ function copyProofCode(){
 
         <!-- PDF PAGE RANGE SELECTOR (shown after PDF upload) -->
         <div id="upload-pdf-section" style="display:block;">
+          <div id="word-range-section" style="display:none;margin-top:16px;">
+            <div style="background:var(--offwhite);border:1px solid var(--border);border-radius:12px;padding:18px;">
+              <div style="font-size:11px;font-weight:700;color:#1a56db;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
+                📖 Select Page Range for Questions
+              </div>
+              <div style="font-size:12px;color:#64748b;margin-bottom:14px;">
+                Word documents don't have fixed pages once read as text — this splits your document into approximate pages so you can select a range, the same way you would with a PDF.
+              </div>
+
+              <!-- PAGE RANGE INPUTS -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:6px;">From Page</label>
+                  <input type="number" id="word-from" min="1" value="1"
+                    style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#1a56db;background:white;outline:none;"
+                    oninput="validateWordRange()">
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:6px;">To Page</label>
+                  <input type="number" id="word-to" min="1" value="30"
+                    style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#1a56db;background:white;outline:none;"
+                    oninput="validateWordRange()">
+                </div>
+              </div>
+
+              <div id="word-range-info" style="font-size:13px;color:#64748b;margin-bottom:14px;padding:10px;background:rgba(37,99,235,0.05);border-radius:8px;border:1px solid rgba(37,99,235,0.15);">
+                📌 Select up to 30 pages for best results
+              </div>
+
+              <button onclick="extractWordPages()" id="btn-extract-word-pages"
+                style="width:100%;padding:12px;background:linear-gradient(135deg,#1a56db,#3b82f6);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">
+                <span id="extract-word-btn-label">✅ Use Selected Pages for Quiz</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
           <div id="pdf-range-section" style="display:none;margin-top:16px;">
             <div style="background:var(--offwhite);border:1px solid var(--border);border-radius:12px;padding:18px;">
               <div style="font-size:11px;font-weight:700;color:#1a56db;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">
@@ -5286,11 +5323,10 @@ async function handlePDF(file){
   }
 
   // ── Handle Word documents — pure text extraction via mammoth ──
-  // Switched from the previous fragile SVG/canvas image-rendering
-  // approach (which depended on browser-specific <foreignObject> XHTML
-  // handling and could silently fail) to plain text extraction, the
-  // same proven, reliable method already working for Research/
-  // Professional and for Excel files in this same function.
+  // Splits the extracted text into approximate pages (using a standard
+  // ~3000-characters-per-page estimate) so the user gets the same
+  // page-range selector experience as PDF, even though Word text has
+  // no fixed page breaks once extracted.
   if(isWord){
     const status = document.getElementById('pdf-status');
     status.textContent = '⏳ Reading Word document...';
@@ -5310,27 +5346,22 @@ async function handlePDF(file){
         return;
       }
 
-      // Store as text document pages, matching Excel's proven pattern
-      saPages = [{b64: btoa(unescape(encodeURIComponent(allText))), type:'text', name:file.name}];
-      saPDFText = allText;
-      // Append to existing session content instead of wiping S.images —
-      // only add a Word placeholder if there's nothing else uploaded yet.
-      if(!S.images || !S.images.length){
-        S.images = [{data: 'data:text/plain;base64,' + btoa(unescape(encodeURIComponent(allText.substring(0,100)))), type:'word'}];
-      }
-      var ctrW = document.getElementById('upload-counter');
-      if(ctrW){ ctrW.textContent = '✅ Word document loaded · ' + allText.split(/\s+/).length + ' words'; ctrW.style.color='#10b981'; }
-      toast('✅ Word document read successfully','ok');
+      // Split into approximate pages — ~3000 characters per page is a
+      // reasonable estimate for typical document formatting.
+      const CHARS_PER_PAGE = 3000;
+      window._wordFullText = allText;
+      window._wordTotalPages = Math.max(1, Math.ceil(allText.length / CHARS_PER_PAGE));
+
       status.textContent = '';
-      // Only hide PDF controls if no PDF pages are already in the session —
-      // otherwise this would wipe out an already-loaded PDF's range picker.
-      var hasPdfPagesW = S.images.some(function(img){ return img.pdfPage !== undefined; });
-      if(!hasPdfPagesW){
-        var pdfSecW = document.getElementById('upload-pdf-section');
-        if(pdfSecW) pdfSecW.style.display = 'none';
-      }
-      var sessionSecW = document.getElementById('session-section');
-      if(sessionSecW) sessionSecW.style.display = 'block';
+      toast('✅ Word document read — ' + window._wordTotalPages + ' approximate page(s)','ok');
+
+      // Show the range selector instead of immediately using the whole document
+      var wordToEl = document.getElementById('word-to');
+      if(wordToEl) wordToEl.value = Math.min(window._wordTotalPages, 30);
+      var wordInfo = document.getElementById('word-range-info');
+      if(wordInfo) wordInfo.textContent = '📌 Document has ' + window._wordTotalPages + ' approximate page(s) — select up to 30';
+      var wordSec = document.getElementById('word-range-section');
+      if(wordSec) wordSec.style.display = 'block';
     } catch(err){
       console.error('Word error:', err);
       var realErrMsg = (err && err.message) ? err.message : String(err);
@@ -5432,6 +5463,69 @@ function toggleThumbSelect(pageNum){
   if(pageNum < from) document.getElementById('pdf-from').value = pageNum;
   if(pageNum > to)   document.getElementById('pdf-to').value = pageNum;
   validatePageRange();
+}
+
+function validateWordRange(){
+  let from = parseInt(document.getElementById('word-from').value) || 1;
+  let to   = parseInt(document.getElementById('word-to').value) || 30;
+  const totalPages = window._wordTotalPages || 1;
+
+  from = Math.max(1, Math.min(from, totalPages));
+  to   = Math.max(from, Math.min(to, totalPages));
+
+  document.getElementById('word-from').value = from;
+  document.getElementById('word-to').value   = to;
+
+  const count = to - from + 1;
+  const info  = document.getElementById('word-range-info');
+  if(info) info.textContent = '📌 ' + count + ' page(s) selected (of ' + totalPages + ' approximate pages)';
+}
+
+async function extractWordPages(){
+  const from = parseInt(document.getElementById('word-from').value) || 1;
+  let to     = parseInt(document.getElementById('word-to').value) || 1;
+  let count  = to - from + 1;
+
+  if(count < 1){
+    toast('Please select at least 1 page','err');
+    return;
+  }
+
+  // Respect the combined 30-item session cap, same as PDF
+  const existingCount = S.images.length;
+  const sessionRemaining = Math.max(1, 30 - existingCount);
+  const effectiveMax = Math.min(30, sessionRemaining);
+  if(count > effectiveMax){
+    to = from + effectiveMax - 1;
+    count = effectiveMax;
+    const toEl = document.getElementById('word-to');
+    if(toEl) toEl.value = to;
+    alert('⚠️ Learning mode is limited to 30 pages.\\n\\nOnly pages ' + from + ' to ' + to + ' will be used.');
+  }
+
+  const CHARS_PER_PAGE = 3000;
+  const fullText = window._wordFullText || '';
+  const startChar = (from - 1) * CHARS_PER_PAGE;
+  const endChar = Math.min(fullText.length, to * CHARS_PER_PAGE);
+  const selectedText = fullText.substring(startChar, endChar);
+
+  saPages = [{b64: btoa(unescape(encodeURIComponent(selectedText))), type:'text', name:'word-document'}];
+  saPDFText = selectedText;
+  if(!S.images || !S.images.length){
+    S.images = [{data: 'data:text/plain;base64,' + btoa(unescape(encodeURIComponent(selectedText.substring(0,100)))), type:'word'}];
+  }
+
+  const ctrW = document.getElementById('upload-counter');
+  if(ctrW){ ctrW.textContent = '✅ Word · pages ' + from + '-' + to + ' · ' + selectedText.split(/\\s+/).length + ' words'; ctrW.style.color='#10b981'; }
+  toast('✅ Pages ' + from + ' to ' + to + ' ready','ok');
+
+  var hasPdfPagesW = S.images.some(function(img){ return img.pdfPage !== undefined; });
+  if(!hasPdfPagesW){
+    var pdfSecW = document.getElementById('upload-pdf-section');
+    if(pdfSecW) pdfSecW.style.display = 'none';
+  }
+  var sessionSecW = document.getElementById('session-section');
+  if(sessionSecW) sessionSecW.style.display = 'block';
 }
 
 function validatePageRange(){
@@ -6618,7 +6712,7 @@ function handleFiles(files){
   // Count only actual photo items (not PDF pages or Excel placeholders,
   // which share the same S.images array but shouldn't count against the
   // photo-specific limit).
-  const photoCount = S.images.filter(function(img){ return img.pdfPage === undefined && img.type !== 'excel'; }).length;
+  const photoCount = S.images.filter(function(img){ return img.pdfPage === undefined && img.type !== 'excel' && img.type !== 'word'; }).length;
   const remainingByType = MAX_IMAGES - photoCount;
   const remainingBySession = MAX_SESSION_TOTAL - S.images.length;
   const remaining = Math.min(remainingByType, remainingBySession);
@@ -7466,7 +7560,7 @@ function buildUserMsg(){
 • Be consistent: do not mix LaTeX notation with plain-text or Unicode math symbols within the same answer`;
 
   // Count real images (excluding the Excel placeholder entry)
-  const realImages = S.images.filter(function(img){ return img.type !== 'excel'; });
+  const realImages = S.images.filter(function(img){ return img.type !== 'excel' && img.type !== 'word'; });
   const hasImages = realImages.length > 0;
   const hasExcel  = !!saPDFText;
 
@@ -8473,7 +8567,7 @@ async function sendTutorMessage(){
     // Skip images if Excel is loaded (type excel = not a real image)
     if(S.images && S.images.length>0 && !saPDFText){
       imgs=S.images.map(function(img){
-        if(img && img.type === 'excel') return null;
+        if(img && (img.type === 'excel' || img.type === 'word')) return null;
         if(img.b64) return img.b64;
         if(img.data) return img.data.split(',')[1];
         return img;
@@ -9659,7 +9753,7 @@ async function startStudySession(mode){
     if(saPDFText){
       imageContent = [{type:'text', text:'[Excel/Document Data]\n' + saPDFText}];
     } else {
-      imageContent = S.images.filter(img => img && img.type !== 'excel').map((img,i) => ([
+      imageContent = S.images.filter(img => img && img.type !== 'excel' && img.type !== 'word').map((img,i) => ([
         {type:'text', text:`--- Page ${i+1} ---`},
         {type:'image_url', image_url:{url:img.data, detail:'high'}}
       ])).flat();
