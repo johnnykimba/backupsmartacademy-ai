@@ -4636,7 +4636,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <!-- TOAST -->
-<div id="toast"></div>
+<div id="toast" onclick="this.className='';clearTimeout(window._tt);" style="cursor:pointer;" title="Tap to dismiss"></div>
 
 <!-- ══════════════════════════════════════════════
      ANNOUNCEMENT BANNER — non-blocking advance notice (e.g. "Maintenance in 2 days")
@@ -12799,7 +12799,7 @@ function pfStartPolling(clientId){
 function pfShowCodeModal(code, plan){
   savePurchasedCode(code, plan, 'payfast');
   // Show toast instead of popup
-  toast('🎉 Payment confirmed! Code: ' + code + ' — check My Codes in Pricing', 'ok');
+  toast('🎉 Payment confirmed! Code: ' + code + ' — check My Codes in Pricing', 'ok', 60000);
   renderMyCodesTable();
   // Also show pricing page so learner sees the table
   setTimeout(function(){ showPage('page-pricing'); }, 500);
