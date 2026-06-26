@@ -479,7 +479,7 @@ nav{
   }
   @keyframes nbFadeIn{from{opacity:0;transform:translateY(20px) rotate(-2.5deg);}to{opacity:1;}}
   .hero-visual{
-    position:absolute;left:62%;top:42%;transform:translate(-50%,-50%);
+    position:absolute;left:74%;top:38%;transform:translate(-50%,-50%);
     display:flex;flex-direction:column;align-items:center;gap:10px;opacity:1;
     z-index:2;
   }
@@ -2284,8 +2284,7 @@ function showLegalTab(tab){
     Smart Academy AI
   </a>
   <div class="nav-links" id="nav-links">
-    <a href="#how" onclick="closeMenu()" data-i18n="nav_how" class="nav-marketing">How It Works</a>
-    <a href="#features" onclick="closeMenu()" data-i18n="nav_features" class="nav-marketing">Features</a>
+    
     <a href="#" onclick="closeMenu();showPage('page-pricing');" data-i18n="nav_pricing">Pricing</a>
     <a href="#contact" onclick="closeMenu()" data-i18n="nav_contact" class="nav-marketing">Contact</a>
     <button class="nav-adm nav-non-research" id="nav-admin-btn" onclick="document.querySelectorAll('.page').forEach(function(p){p.style.display='none';});document.getElementById('admin-overlay').style.display='flex';document.getElementById('admin-overlay').style.zIndex='99999';setTimeout(function(){if(typeof adminCheckLayout==='function')adminCheckLayout();if(typeof adminRenderCodesTable==='function')adminRenderCodesTable();if(typeof adminLoadDmStats==='function')adminLoadDmStats();if(typeof adminRefreshTrialDeviceCount==='function')adminRefreshTrialDeviceCount();if(typeof adminRefreshResearchTrialDeviceCount==='function')adminRefreshResearchTrialDeviceCount();},50);">⚙️ Admin</button>
@@ -2338,13 +2337,12 @@ function showLegalTab(tab){
       <div class="float-el">🔭</div>
     </div>
     <div class="hero-content">
-      <div class="hero-tag"><div class="dot"></div><span data-t="hero_badge">AI-Powered Learning</span></div>
+
       <h1><span data-t="hero_title">Your Personal</span><br><span data-t="hero_title_span">AI Study Coach</span></h1>
       <p class="hero-sub" data-i18n="hero_sub">Upload your notes. Master your subject.</p>
       <p class="hero-sub2" data-t="hero_sub2">Smart Academy AI reads your handwritten or typed notes and creates personalised quizzes — in your language, at your level.</p>
       <!-- Trial Code Card -->
       <div id="trial-card" style="display:block;">
-        <div class="tc-badge">🎁 Free Trial</div>
         <h3>Try Smart Academy AI Free</h3>
         <p>Full access for a limited time. No code needed.</p>
         <div id="trial-countdown" style="display:none;">--:--</div>
@@ -2385,16 +2383,6 @@ function showLegalTab(tab){
         <div class="qc-opt correct"><span class="qc-letter">B</span>Oxygen<span class="qc-tick">✓</span></div>
         <div class="qc-opt"><span class="qc-letter">C</span>Nitrogen</div>
         <div class="qc-bar"><i></i></div>
-      </div>
-    </div>
-    <div class="vc-cards-right" aria-hidden="true">
-      <div class="visual-card"><span class="vc-check">✓</span><span class="vc-icon">📚</span><div class="vc-label" data-t="vc_books">Books</div></div>
-      <div class="visual-card"><span class="vc-check">✓</span><span class="vc-icon">🎯</span><div class="vc-label" data-t="vc_precision">Precision</div></div>
-      <div class="visual-card"><span class="vc-check">✓</span><span class="vc-icon">🌍</span><div class="vc-label" data-t="vc_languages">Languages</div></div>
-      <div class="visual-card"><span class="vc-check">✓</span><span class="vc-icon">🏛️</span><div class="vc-label" data-t="vc_library">Library</div></div>
-      <div class="visual-card featured"><span class="vc-check">★</span>
-        <div class="vc-stat">19+</div>
-        <div class="vc-label" data-t="vc_lang_count">Languages Supported</div>
       </div>
     </div>
   </section>
@@ -4248,7 +4236,7 @@ function copyProofCode(){
         <div id="upload-img-section">
           <!-- Hidden inputs -->
           <input type="file" id="file-input" accept="image/*,.heic,.heif" multiple onchange="handleFiles(this.files)" style="display:none;">
-          <input type="file" id="pdf-input" accept=".pdf,application/pdf,.xlsx,.xls" onchange="handlePDF(this.files[0])" style="display:none;">
+          <input type="file" id="pdf-input" accept=".pdf,application/pdf,.xlsx,.xls,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onchange="handlePDF(this.files[0])" style="display:none;">
 
           <!-- Single upload zone -->
           <div class="upload-zone" id="upload-zone"
@@ -4272,7 +4260,7 @@ function copyProofCode(){
             <button onclick="document.getElementById('pdf-input').click()"
               style="padding:13px 10px;background:linear-gradient(135deg,#0891b2,#06b6d4);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(6,182,212,0.4);transition:opacity 0.2s;"
               onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
-              <span data-t="upload_pdf">📑 PDF / Excel</span>
+              <span data-t="upload_pdf">📑 PDF / Excel / Word</span>
             </button>
             <button onclick="clearAllUploads()"
               id="btn-reset-uploads"
