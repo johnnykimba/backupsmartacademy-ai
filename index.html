@@ -3348,27 +3348,6 @@ function adminLoadSettingsFromKV(callback){
 // Render WhatsApp contact card from saved number (deferred until function is defined)
 window.addEventListener('load', function(){ if(typeof _renderWaContactCard==='function') _renderWaContactCard(); });
 
-// ── RESUME PAYFAST POLLING AFTER RETURN REDIRECT ──────────────────
-// PayFast's return_url is a genuine full-page navigation back to this
-// site, not a same-tab JS continuation — this destroys the in-memory
-// polling loop that pfCheckout() started before redirecting away. The
-// pending clientId was already being saved to localStorage correctly;
-// this was the missing piece that actually resumes polling for it.
-window.addEventListener('load', function(){
-  if(window.location.hash === '#payment-success'){
-    var pendingClient = localStorage.getItem('pf_pending_client');
-    var pendingTs = parseInt(localStorage.getItem('pf_pending_ts')) || 0;
-    var ageMs = Date.now() - pendingTs;
-    // Only resume if genuinely still within a reasonable window (1 hour,
-    // matching pfStartPolling's own timeout) — avoids resuming a stale,
-    // already-claimed, or abandoned pending payment indefinitely.
-    if(pendingClient && ageMs < 3600000 && typeof pfStartPolling === 'function'){
-      toast('⏳ Confirming your payment, please wait...', 'ok');
-      pfStartPolling(pendingClient);
-    }
-  }
-});
-
 // ════════════════════════════════════════════════
 // AUTO-LOAD ADMIN SETTINGS FROM KV ON PAGE LOAD
 // ════════════════════════════════════════════════
@@ -3592,7 +3571,7 @@ window.addEventListener('load', function(){
         <div style="font-size:56px;margin-bottom:8px;">📱</div>
         <div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:4px;">Mobile Money</div>
         <div style="font-size:11px;color:rgba(255,255,255,0.7);">Airtel · M-Pesa · Orange</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.7);">Illicocash (Rawbank)</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.7);">Mama Money</div>
         <div style="margin-top:10px;background:rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;color:#fff;">Africa & DRC →</div>
       </div>
     </div>
@@ -3610,29 +3589,28 @@ window.addEventListener('load', function(){
         </div>
 
         <!-- Plan selector -->
-        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Select Plan</div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:8px;">≈ Prices shown in USD — PayFast charges in ZAR, so the final amount may vary slightly with the exchange rate.</div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Select Plan</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
           <label onclick="pfSelectPlan('W',5)" id="pf-plan-W" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-W" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">📅 1 Week</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 7 days</div></div>
             </div>
-            <div id="pf-price-W" style="font-size:16px;font-weight:900;color:#60a5fa;">≈$5</div>
+            <div id="pf-price-W" style="font-size:16px;font-weight:900;color:#60a5fa;">$5</div>
           </label>
           <label onclick="pfSelectPlan('M',10)" id="pf-plan-M" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-M" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🗓 1 Month</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 30 days</div></div>
             </div>
-            <div id="pf-price-M" style="font-size:16px;font-weight:900;color:#60a5fa;">≈$10</div>
+            <div id="pf-price-M" style="font-size:16px;font-weight:900;color:#60a5fa;">$10</div>
           </label>
           <label onclick="pfSelectPlan('Y',120)" id="pf-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-Y" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🏆 1 Year</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 365 days · Best value</div></div>
             </div>
-            <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#60a5fa;">≈$120</div>
+            <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#60a5fa;">$120</div>
           </label>
           <div style="height:1px;background:rgba(255,255,255,0.1);margin:14px 0;"></div>
           <div style="font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;" data-t="p_research_title">🔬 Research / Professional</div>
@@ -3641,7 +3619,7 @@ window.addEventListener('load', function(){
               <div id="pf-radio-RM" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);" data-t="p_research_desc">🔬 Research Monthly</div><div style="font-size:11px;color:rgba(255,255,255,0.5);" data-t="p_research_sub">Document analysis · 30 days</div></div>
             </div>
-            <div id="pf-price-RM" style="font-size:16px;font-weight:900;color:#a78bfa;">≈$25</div>
+            <div id="pf-price-RM" style="font-size:16px;font-weight:900;color:#a78bfa;">$25</div>
           </label>
         </div>
 
@@ -4636,7 +4614,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <!-- TOAST -->
-<div id="toast" onclick="this.className='';clearTimeout(window._tt);" style="cursor:pointer;" title="Tap to dismiss"></div>
+<div id="toast"></div>
 
 <!-- ══════════════════════════════════════════════
      ANNOUNCEMENT BANNER — non-blocking advance notice (e.g. "Maintenance in 2 days")
@@ -7309,20 +7287,6 @@ async function initQuiz(){
         .replace(/(?<!\\frac\{[^}]*\}\{[^}]*)(?<![0-9])(\d+)\/(\d+)(?![0-9}])/g, function(m,n,d){
           return '\\(\\frac{'+n+'}{'+d+'}\\)';
         })
-        // x/2, 3/y, x/y — single-letter variable on either/both sides of
-        // the slash. Real, confirmed gap: the digit-only regex above
-        // never caught algebra-style variable fractions, which are
-        // extremely common in school-level math content.
-        .replace(/(?<!\\frac\{[^}]*\}\{[^}]*)\b([A-Za-z]|\d+)\/([A-Za-z]|\d+)\b(?![0-9}])/g, function(m,n,d){
-          // Skip if both sides are digits — already handled above.
-          if(/^\d+$/.test(n) && /^\d+$/.test(d)) return m;
-          // Skip common non-math abbreviations that happen to match the
-          // letter/letter or letter/digit shape (w/o = without, c/o =
-          // care of, etc.) — found via direct testing before deploy.
-          var common = ['w/o','c/o','a/c','n/a','b/w','i/o'];
-          if(common.indexOf((n+'/'+d).toLowerCase()) !== -1) return m;
-          return '\\(\\frac{'+n+'}{'+d+'}\\)';
-        })
         // ── INTEGRAL NOTATION ────────────────────────────────────
         .replace(/\*dx\b/gi,' dx')
         .replace(/\*dy\b/gi,' dy')
@@ -7375,38 +7339,18 @@ async function initQuiz(){
         .replace(/\bapproximately equal to\b/gi,'≈')
         .replace(/\bplus or minus\b/gi,'±')
         .replace(/\bsummation\b/gi,'Σ').replace(/\bproduct\b(?= of|\s+from)/gi,'Π')
-        // ── EXPONENTS TEXT — FORCE GENUINE LaTeX, never Unicode ───
-        // Previously these converted "squared"/"cubed"/"to the power of"
-        // INTO the Unicode superscript characters our prompt explicitly
-        // forbids — undoing the normalization that ran earlier in this
-        // same chain. Now they produce real LaTeX \(x^n\) instead, so
-        // every exponent representation the AI might use (a word, a
-        // Unicode character, or already-correct LaTeX) ends up forced
-        // into the same, genuine LaTeX format.
-        .replace(/\b([A-Za-z0-9\)\]]+)\s+squared\b/gi, '\\($1^2\\)')
-        .replace(/\b([A-Za-z0-9\)\]]+)\s+cubed\b/gi, '\\($1^3\\)')
-        .replace(/\bsquared\b/gi,'^2').replace(/\bcubed\b/gi,'^3')
-        .replace(/\b([A-Za-z0-9\)\]]+)\s+to the power of (\d+)\b/gi, '\\($1^{$2}\\)')
-        .replace(/\bto the power of (\d+)\b/gi,'^{$1}')
-        // ── e^x — force genuine LaTeX, not the Unicode eˣ character ──
-        .replace(/e\^x\b/g,'\\(e^x\\)')
-        .replace(/eˣ/g,'\\(e^x\\)')
+        // ── EXPONENTS TEXT ───────────────────────────────────────
+        .replace(/\bsquared\b/gi,'²').replace(/\bcubed\b/gi,'³')
+        .replace(/\bto the power of (\d+)\b/gi,(m,n)=>{
+          const sup='⁰¹²³⁴⁵⁶⁷⁸⁹';
+          return n.split('').map(d=>sup[d]||d).join('');
+        })
+        // ── e^x ──────────────────────────────────────────────────
+        .replace(/e\^x\b/g,'eˣ')
         // ── CONTRACTIONS ─────────────────────────────────────────
         .replace(/\bdon't\b/gi,'do not').replace(/\bcan't\b/gi,'cannot')
         .replace(/\bisn't\b/gi,'is not').replace(/\bwon't\b/gi,'will not')
-        .replace(/\bdidn't\b/gi,'did not').replace(/\bdoesn't\b/gi,'does not')
-        // ── FINAL SAFETY NET — force any remaining Unicode superscript
-        // to genuine LaTeX, no matter where in this chain it was
-        // introduced. This is the guaranteed last line of defense.
-        .replace(/([A-Za-z0-9\)\]])²/g, '\\($1^2\\)')
-        .replace(/([A-Za-z0-9\)\]])³/g, '\\($1^3\\)')
-        .replace(/([A-Za-z0-9\)\]])⁴/g, '\\($1^4\\)')
-        .replace(/([A-Za-z0-9\)\]])⁵/g, '\\($1^5\\)')
-        .replace(/([A-Za-z0-9\)\]])⁶/g, '\\($1^6\\)')
-        .replace(/([A-Za-z0-9\)\]])⁷/g, '\\($1^7\\)')
-        .replace(/([A-Za-z0-9\)\]])⁸/g, '\\($1^8\\)')
-        .replace(/([A-Za-z0-9\)\]])⁹/g, '\\($1^9\\)')
-        .replace(/([A-Za-z0-9\)\]])⁰/g, '\\($1^0\\)');
+        .replace(/\bdidn't\b/gi,'did not').replace(/\bdoesn't\b/gi,'does not');
     }
     S.questions = S.questions.map(q => ({
       ...q,
@@ -12799,7 +12743,7 @@ function pfStartPolling(clientId){
 function pfShowCodeModal(code, plan){
   savePurchasedCode(code, plan, 'payfast');
   // Show toast instead of popup
-  toast('🎉 Payment confirmed! Code: ' + code + ' — check My Codes in Pricing', 'ok', 60000);
+  toast('🎉 Payment confirmed! Code: ' + code + ' — check My Codes in Pricing', 'ok');
   renderMyCodesTable();
   // Also show pricing page so learner sees the table
   setTimeout(function(){ showPage('page-pricing'); }, 500);
@@ -12926,7 +12870,6 @@ function mobProceed(){
         + '<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:9px;font-weight:800;color:#f97316;letter-spacing:1px;">AIRTEL MONEY</span><span style="font-size:15px;font-weight:900;color:#fff;letter-spacing:1px;">0973201231</span></div>'
         + '<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:9px;font-weight:800;color:#10b981;letter-spacing:1px;">M-PESA DRC</span><span style="font-size:15px;font-weight:900;color:#fff;letter-spacing:1px;">0862716000</span></div>'
         + '<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:9px;font-weight:800;color:#f59e0b;letter-spacing:1px;">ORANGE MONEY</span><span style="font-size:15px;font-weight:900;color:#fff;letter-spacing:1px;">0850275466</span></div>'
-        + '<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:9px;font-weight:800;color:#a78bfa;letter-spacing:1px;">ILLICOCASH (RAWBANK)</span><span style="font-size:15px;font-weight:900;color:#fff;letter-spacing:1px;">0821469683</span></div>'
         + '</div>'
         + '<div style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:10px;padding:10px;">'        + '<div style="font-size:11px;font-weight:700;color:#06b6d4;margin-bottom:4px;text-align:center;">📋 Copy &amp; Paste Your Payment SMS Here</div>'        + '<div style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:8px;text-align:center;">After paying, open your SMS or WhatsApp confirmation → copy the full message → paste below</div>'        + '<textarea id="drc-inline-text" placeholder="e.g. Trans.ID: PP260130.1024.B01234, Vous avez envoyé 5 USD à DATABUNDL2..." style="width:100%;padding:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(6,182,212,0.4);border-radius:10px;color:#fff;font-size:12px;resize:none;height:72px;box-sizing:border-box;line-height:1.5;" oninput="drcInlineTextInput(this.value)"></textarea>'        + '<div id="drc-inline-preview" style="display:none;"></div>'        + '<div id="drc-inline-status" style="display:none;margin-top:8px;border-radius:8px;padding:10px;font-size:12px;font-weight:600;text-align:center;"></div>'
         + '<button id="drc-inline-submit" onclick="drcInlineSubmit()" style="display:none;width:100%;margin-top:8px;padding:12px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif;">⚡ Submit & Get My Code</button>'
