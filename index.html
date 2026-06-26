@@ -37,7 +37,7 @@
 <script>
 window.MathJax = {
   tex: {inlineMath:[['\\(','\\)'],['$','$']], displayMath:[['\\[','\\]'],['$$','$$']]},
-  options:{skipHtmlTags:['script','noscript','style','textarea','pre']},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre'], enableMenu:false},
   startup:{typeset:false}
 };
 </script>
@@ -15464,7 +15464,7 @@ function dmExportSession(){
     +'<title>DualMind Report</title>'
     +'<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:wght@300;400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">'
     +'<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></scr'+'ipt>'
-    +'<script>window.MathJax={tex:{inlineMath:[["$","$"],["\\\\(","\\\\)"]],displayMath:[["$$","$$"],["\\\\[","\\\\]"]],processEscapes:true}};</scr'+'ipt>'
+    +'<script>window.MathJax={tex:{inlineMath:[["$","$"],["\\\\(","\\\\)"]],displayMath:[["$$","$$"],["\\\\[","\\\\]"]],processEscapes:true},options:{enableMenu:false}};</scr'+'ipt>'
     +'<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></scr'+'ipt>'
     +'<style>'
     +'*{margin:0;padding:0;box-sizing:border-box;}'
