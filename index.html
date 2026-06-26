@@ -5332,11 +5332,23 @@ async function handlePDF(file){
   // no fixed page breaks once extracted.
   if(isWord){
     const status = document.getElementById('pdf-status');
-    status.textContent = '⏳ Reading Word document...';
-    status.style.color = '#1a56db';
+    if(status){ status.textContent = '⏳ Reading Word document...'; status.style.color = '#1a56db'; }
     try{
       if(!window.mammoth){
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');
+        // Two different CDN providers as fallback — if one is blocked by a
+        // browser extension, firewall, or regional network filter (this
+        // has been seen with Kaspersky's web protection intercepting
+        // dynamically-injected <script> tags), the other still loads.
+        // Each attempt times out rather than hanging forever, so a
+        // silently-dropped request can no longer leave this step stuck
+        // with no error and no visible feedback.
+        await loadScriptWithFallback([
+          'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js',
+          'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js'
+        ], 8000);
+      }
+      if(!window.mammoth){
+        throw new Error('Word document reader failed to load. This is usually caused by a browser extension, antivirus web-shield, or firewall blocking the request — try disabling those temporarily, or use a different browser/network.');
       }
       const arrayBuf = await file.arrayBuffer();
       const result = await mammoth.extractRawText({arrayBuffer: arrayBuf});
@@ -5344,8 +5356,7 @@ async function handlePDF(file){
 
       if(!allText || !allText.trim()){
         toast('This Word document appears to be empty or unreadable.','err');
-        status.textContent = '❌ No text found in Word document';
-        status.style.color = '#ef4444';
+        if(status){ status.textContent = '❌ No text found in Word document'; status.style.color = '#ef4444'; }
         return;
       }
 
@@ -5369,8 +5380,7 @@ async function handlePDF(file){
       console.error('Word error:', err);
       var realErrMsg = (err && err.message) ? err.message : String(err);
       toast('Failed to read Word document: ' + realErrMsg,'err');
-      status.textContent = '❌ Word reading failed: ' + realErrMsg;
-      status.style.color = '#ef4444';
+      if(status){ status.textContent = '❌ Word reading failed: ' + realErrMsg; status.style.color = '#ef4444'; }
     }
     return;
   }
@@ -5494,41 +5504,51 @@ async function extractWordPages(){
     return;
   }
 
-  // Respect the combined 30-item session cap, same as PDF
-  const existingCount = S.images.length;
-  const sessionRemaining = Math.max(1, 30 - existingCount);
-  const effectiveMax = Math.min(30, sessionRemaining);
-  if(count > effectiveMax){
-    to = from + effectiveMax - 1;
-    count = effectiveMax;
-    const toEl = document.getElementById('word-to');
-    if(toEl) toEl.value = to;
-    alert('⚠️ Learning mode is limited to 30 pages.\\n\\nOnly pages ' + from + ' to ' + to + ' will be used.');
+  try{
+    // Respect the combined 30-item session cap, same as PDF
+    const existingCount = S.images.length;
+    const sessionRemaining = Math.max(1, 30 - existingCount);
+    const effectiveMax = Math.min(30, sessionRemaining);
+    if(count > effectiveMax){
+      to = from + effectiveMax - 1;
+      count = effectiveMax;
+      const toEl = document.getElementById('word-to');
+      if(toEl) toEl.value = to;
+      alert('⚠️ Learning mode is limited to 30 pages.\\n\\nOnly pages ' + from + ' to ' + to + ' will be used.');
+    }
+
+    const CHARS_PER_PAGE = 3000;
+    const fullText = window._wordFullText || '';
+    const startChar = (from - 1) * CHARS_PER_PAGE;
+    const endChar = Math.min(fullText.length, to * CHARS_PER_PAGE);
+    const selectedText = fullText.substring(startChar, endChar);
+
+    saPages = [{b64: btoa(unescape(encodeURIComponent(selectedText))), type:'text', name:'word-document'}];
+    saPDFText = selectedText;
+    if(!S.images || !S.images.length){
+      S.images = [{data: 'data:text/plain;base64,' + btoa(unescape(encodeURIComponent(selectedText.substring(0,100)))), type:'word'}];
+    }
+
+    const ctrW = document.getElementById('upload-counter');
+    if(ctrW){ ctrW.textContent = '✅ Word · pages ' + from + '-' + to + ' · ' + selectedText.split(/\\s+/).length + ' words'; ctrW.style.color='#10b981'; }
+    toast('✅ Pages ' + from + ' to ' + to + ' ready','ok');
+
+    var hasPdfPagesW = S.images.some(function(img){ return img.pdfPage !== undefined; });
+    if(!hasPdfPagesW){
+      var pdfSecW = document.getElementById('upload-pdf-section');
+      if(pdfSecW) pdfSecW.style.display = 'none';
+    }
+    var sessionSecW = document.getElementById('session-section');
+    if(sessionSecW) sessionSecW.style.display = 'block';
+  }catch(err){
+    // Without this catch, ANY unexpected failure here (e.g. unusual
+    // Unicode from the document breaking the base64 encoding step) would
+    // abort the function with no toast and no visible feedback at all —
+    // exactly the "nothing happens" symptom this is meant to prevent.
+    console.error('extractWordPages error:', err);
+    var wpErrMsg = (err && err.message) ? err.message : String(err);
+    toast('Failed to prepare Word document pages: ' + wpErrMsg, 'err');
   }
-
-  const CHARS_PER_PAGE = 3000;
-  const fullText = window._wordFullText || '';
-  const startChar = (from - 1) * CHARS_PER_PAGE;
-  const endChar = Math.min(fullText.length, to * CHARS_PER_PAGE);
-  const selectedText = fullText.substring(startChar, endChar);
-
-  saPages = [{b64: btoa(unescape(encodeURIComponent(selectedText))), type:'text', name:'word-document'}];
-  saPDFText = selectedText;
-  if(!S.images || !S.images.length){
-    S.images = [{data: 'data:text/plain;base64,' + btoa(unescape(encodeURIComponent(selectedText.substring(0,100)))), type:'word'}];
-  }
-
-  const ctrW = document.getElementById('upload-counter');
-  if(ctrW){ ctrW.textContent = '✅ Word · pages ' + from + '-' + to + ' · ' + selectedText.split(/\\s+/).length + ' words'; ctrW.style.color='#10b981'; }
-  toast('✅ Pages ' + from + ' to ' + to + ' ready','ok');
-
-  var hasPdfPagesW = S.images.some(function(img){ return img.pdfPage !== undefined; });
-  if(!hasPdfPagesW){
-    var pdfSecW = document.getElementById('upload-pdf-section');
-    if(pdfSecW) pdfSecW.style.display = 'none';
-  }
-  var sessionSecW = document.getElementById('session-section');
-  if(sessionSecW) sessionSecW.style.display = 'block';
 }
 
 function validatePageRange(){
@@ -5634,12 +5654,46 @@ async function extractPDFPages(){
   toast(`✅ ${count} pages ready from PDF`,'ok');
 }
 
-function loadScript(src){
+function loadScript(src, timeoutMs){
+  timeoutMs = timeoutMs || 8000;
   return new Promise((resolve,reject)=>{
+    // Guard against loading the same script twice if a previous attempt
+    // already succeeded (e.g. user re-opens the upload picker).
+    var existing = document.querySelector('script[src="'+src+'"]');
+    if(existing && existing.getAttribute('data-loaded') === 'true'){
+      resolve();
+      return;
+    }
     const s = document.createElement('script');
-    s.src = src; s.onload = resolve; s.onerror = reject;
+    var timer = setTimeout(function(){
+      // Without this, a script request silently dropped by a security
+      // extension, ad-blocker, or network filter (rather than cleanly
+      // erroring) leaves this Promise pending forever — the calling
+      // await never resolves OR rejects, so the surrounding try/catch
+      // never runs and the user sees no error at all, just a frozen step.
+      reject(new Error('Timed out loading ' + src + ' (took longer than ' + (timeoutMs/1000) + 's — a browser extension or firewall may be blocking it)'));
+    }, timeoutMs);
+    s.src = src;
+    s.onload = function(){ clearTimeout(timer); s.setAttribute('data-loaded','true'); resolve(); };
+    s.onerror = function(){ clearTimeout(timer); reject(new Error('Failed to load ' + src + ' (network error or blocked by browser/extension)')); };
     document.head.appendChild(s);
   });
+}
+
+// Tries each URL in order until one succeeds — used for libraries with a
+// CDN fallback, so a single blocked/down CDN doesn't break the feature.
+async function loadScriptWithFallback(urls, timeoutMs){
+  var lastErr = null;
+  for(var i=0;i<urls.length;i++){
+    try{
+      await loadScript(urls[i], timeoutMs);
+      return;
+    }catch(e){
+      lastErr = e;
+      console.warn('[loadScript] failed: ' + urls[i] + ' — ' + e.message);
+    }
+  }
+  throw lastErr || new Error('All script sources failed to load');
 }
 
 // ════════════════════════════════════════════════
