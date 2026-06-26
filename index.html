@@ -1546,6 +1546,17 @@ footer{
   color:#ffffff;
   overflow-wrap:break-word;word-wrap:break-word;word-break:break-word;
 }
+/* MathJax can render a fraction/expression wider than the bubble itself
+   (e.g. a long \frac{...}{...} term) and, unlike plain text, it doesn't
+   break mid-expression — without this it visually spills outside the blue
+   box. Scope the scroll to just the math element so surrounding text still
+   wraps normally; allow it to shrink to fit when there's room, scroll only
+   when the rendered expression is genuinely wider than the bubble. */
+.msg-bub mjx-container{
+  max-width:100%;
+  overflow-x:auto;
+  display:inline-block;
+}
 .typing-ind{
   display:flex;gap:5px;align-items:center;
   padding:12px 16px;background:rgba(255,255,255,0.06);
@@ -9313,12 +9324,14 @@ async function buildFeedback(q, correct, conf){
     const corLet  = d.correctLetter || q.correct || '?';
     const corText = d.correctText  || (q.options && q.options[corLet]) || '?';
 
-    const prevQ      = `📌 **${saT('prev_q')||'Previous question:'}**\n${quizFracDisplay(q.text || '')}`;
+    const qLabel = `Q${S.currentQ + 1} of ${S.questions.length}`;
+
+    const prevQ      = `📌 **${saT('prev_q')||'Previous question:'}** (${qLabel})\n${quizFracDisplay(q.text || '')}`;
     const yourAns    = `\n\n👤 **${saT('your_ans')||'Your answer:'}** ${selOpt}) ${quizFracDisplay(selText)}`;
     const correctAns = `\n✅ **${saT('correct_ans')||'Correct answer:'}** ${corLet}) ${quizFracDisplay(corText)}`;
 
     const proof = q.internalProof
-      ? `\n\n🔢 **${saT('ai_calc')||'AI calculation:'}**\n${quizFracDisplay(q.internalProof)}`
+      ? `\n\n🔢 **${saT('ai_calc')||'AI calculation:'}** (${qLabel})\n${quizFracDisplay(q.internalProof)}`
       : '';
 
     const comparison = correct
@@ -9330,7 +9343,7 @@ async function buildFeedback(q, correct, conf){
       : `\n\n❌ **${saT('you_wrong')||'You are WRONG.'}**`;
 
     const solution = (!correct && q.explanation)
-      ? `\n\n📖 **${saT('solution_lbl')||'Solution:'}** ${quizFracDisplay(typeof fixMath==='function'?fixMath(q.explanation):q.explanation)}`
+      ? `\n\n📖 **${saT('solution_lbl')||'Solution:'}** (${qLabel}) ${quizFracDisplay(typeof fixMath==='function'?fixMath(q.explanation):q.explanation)}`
       : '';
 
     // Request detailed solution from AI if wrong
@@ -9361,7 +9374,7 @@ async function buildFeedback(q, correct, conf){
             if(solConfMatch) solAnswer = solAnswer.replace(/\s*\[CONFIDENCE:\d+\]/i,'').trimEnd();
             // Use shared helper — same defensive math-formatting fix applied to hints/challenges
             var stillStuckTip = '\n\n<span style="color:#06b6d4;font-style:italic;">💬 '+(saT('still_stuck_tip')||'Still not clear? Scroll down and ask the same question to your virtual tutor (**Ask the Tutor**) for a more detailed, conversational explanation. You can also switch to Claude using the toggle there to see a different explanation style.')+'</span>';
-            addAI(`📐 **${saT('solution_lbl')||'Detailed Solution:'}**\n\n${fixFreeTextMath(solAnswer)}${stillStuckTip}`);
+            addAI(`📐 **${saT('solution_lbl')||'Detailed Solution:'}** (${qLabel})\n\n${fixFreeTextMath(solAnswer)}${stillStuckTip}`);
             // Show confidence bar
             if(solConfidence !== null){
               var tutorBox = document.getElementById('chat-box');
