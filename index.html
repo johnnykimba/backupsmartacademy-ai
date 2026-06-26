@@ -7716,7 +7716,49 @@ function fixFreeTextMath(s){
     out = out.replace(/(?<!\\)frac\{/g, '\\frac{');
     out = out.replace(/(?<!\\)cdot\b/g, '\\cdot');
 
+    // Ensure sqrt has its backslash, including bracket-degree roots the AI
+    // sometimes writes as "sqrt[4]x" (4th root of x) instead of proper LaTeX
+    // \sqrt[4]{x}. Found via a real case: "sqrtx + sqrt[4]x + sqrt[9]x" showed
+    // as raw text since neither backslash nor braces were present.
+    out = out.replace(/(?<!\\)sqrt\[(\d+)\]([A-Za-z0-9]+)/g, function(m, deg, base){
+      return '\\sqrt['+deg+']{'+base+'}';
+    });
+    out = out.replace(/(?<!\\)sqrt\(([^()]+)\)/g, function(m, inner){
+      return '\\sqrt{'+inner+'}';
+    });
+    out = out.replace(/(?<!\\)sqrt([A-Za-z0-9]+)/g, function(m, base){
+      return '\\sqrt{'+base+'}';
+    });
+
+    // Ensure a bare "int" used as the integral operator gets its backslash,
+    // beyond the parenthesized "(int ...)" case already handled above. Two
+    // shapes: "int_0^1" (subscript bounds glued on, no word-boundary gap)
+    // and a standalone "int" followed by a differential like dx/dy/dt within
+    // a short span — deliberately narrow so plain-English "int" (an int
+    // variable, going into, interest, print, mint) is never touched.
+    out = out.replace(/(?<!\\)\bint(_[^\s]+)/g, function(m, bounds){
+      return '\\int' + bounds;
+    });
+    out = out.replace(/(?<!\\)\bint\b([^.\n]{0,60}?\bd[a-z]\b)/g, function(m, rest){
+      return '\\int' + rest;
+    });
+
     var wrappedWholeParen = /\\\(/.test(out); // already wrapped by the int-handling above?
+
+    // If a (now-backslashed) \int is immediately followed by a parenthesized
+    // expression — e.g. "\int(\sqrt{x} + \sqrt[4]{x}) dx" — wrap the WHOLE
+    // \int(...) dx unit together as one piece. Without this, the generic
+    // paren-wrap rule just below would wrap only the parenthesized part,
+    // leaving the \int glued directly onto the wrap with no separator
+    // (e.g. "\int\(\sqrt{x}...\)"), which is a real collision found in testing.
+    if(!wrappedWholeParen){
+      var intParenMatch = out.match(/\\int\s*\(((?:[^()]|\([^()]*\))*)\)([^.\n]{0,30}?\bd[a-z]\b)?/);
+      if(intParenMatch){
+        wrappedWholeParen = true;
+        out = out.replace(intParenMatch[0], '\\(' + intParenMatch[0] + '\\)');
+      }
+    }
+
     if(!wrappedWholeParen){
       out = out.replace(/\(((?:[^()]|\([^()]*\))*\\(?:frac|cdot|sqrt|sin|cos|tan|lim|sum|pi|theta|alpha|beta|delta)\b[\s\S]*?)\)/, function(m, inner){
         wrappedWholeParen = true;
@@ -7724,12 +7766,39 @@ function fixFreeTextMath(s){
       });
     }
 
-    // Wrap any remaining bare \frac{a}{b} not part of an already-wrapped zone
+    // Wrap a bare \int ... dx (or dy/dt/du etc.) expression that isn't
+    // already inside a wrapped zone — covers the case where the AI writes
+    // a full integral (potentially containing its own \frac, ^, _) with no
+    // surrounding \( \) or parentheses at all, e.g.
+    // "\int x^n \, dx = \frac{x^{n+1}}{n+1} + C" showing as raw text.
     if(!wrappedWholeParen){
-      out = out.replace(/\\frac\{((?:[^{}]|\{[^{}]*\})*)\}\{((?:[^{}]|\{[^{}]*\})*)\}/g, function(m, n, d){
-        return '\\(\\frac{'+n+'}{'+d+'}\\)';
+      out = out.replace(/\\int([^.\n]{0,80}?\bd[a-z]\b)/g, function(m){
+        return '\\(' + m + '\\)';
       });
     }
+
+    // Wrap any remaining bare \frac{a}{b} not part of an already-wrapped zone.
+    // Position-aware (checks unmatched \( before this point in the line) so
+    // multiple fractions on the same line are each handled correctly — some
+    // may already be wrapped (e.g. from the \int-wrap just above) while
+    // others later in the line are still bare and need their own wrap.
+    out = out.replace(/\\frac\{((?:[^{}]|\{[^{}]*\})*)\}\{((?:[^{}]|\{[^{}]*\})*)\}/g, function(m, n, d, offset, full){
+      var before = full.slice(0, offset);
+      var opens = (before.match(/\\\(/g)||[]).length;
+      var closes = (before.match(/\\\)/g)||[]).length;
+      if(opens > closes) return m; // already inside a wrapped zone
+      return '\\(\\frac{'+n+'}{'+d+'}\\)';
+    });
+
+    // Wrap any remaining bare \sqrt{...} or \sqrt[n]{...} not already wrapped —
+    // same position-aware check as the \frac wrap just above.
+    out = out.replace(/\\sqrt(\[\d+\])?\{((?:[^{}]|\{[^{}]*\})*)\}/g, function(m, deg, inner, offset, full){
+      var before = full.slice(0, offset);
+      var opens = (before.match(/\\\(/g)||[]).length;
+      var closes = (before.match(/\\\)/g)||[]).length;
+      if(opens > closes) return m;
+      return '\\(' + m + '\\)';
+    });
 
     // x^4 → x⁴ (simple single-digit exponents only)
     out = out.replace(/\^(\d)(?!\d)/g, function(m, d){ return supMap3[d]||m; });
