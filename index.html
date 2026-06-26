@@ -10083,6 +10083,157 @@ function toggleStudySpeak(){
   else { speakText(S.studyText || ''); }
 }
 
+// ── Recursively resolve \frac{a}{b} → "(a) over (b)" with full brace
+// matching, so nested content (e.g. the quadratic formula, where the
+// numerator itself contains \sqrt{...}) is handled correctly instead of
+// being skipped by a naive regex that can't see past nested braces. ──
+function matchBalancedFrac(s){
+  var result = '';
+  var i = 0;
+  while(i < s.length){
+    var fracIdx = s.indexOf('\\frac{', i);
+    if(fracIdx === -1){ result += s.slice(i); break; }
+    result += s.slice(i, fracIdx);
+    var pos = fracIdx + 6;
+    var depth = 1;
+    var numStart = pos;
+    while(pos < s.length && depth > 0){
+      if(s[pos] === '{') depth++;
+      else if(s[pos] === '}') depth--;
+      pos++;
+    }
+    var numerator = s.slice(numStart, pos - 1);
+    if(s[pos] !== '{'){ result += '\\frac{' + numerator + '}'; i = pos; continue; }
+    pos++;
+    depth = 1;
+    var denStart = pos;
+    while(pos < s.length && depth > 0){
+      if(s[pos] === '{') depth++;
+      else if(s[pos] === '}') depth--;
+      pos++;
+    }
+    var denominator = s.slice(denStart, pos - 1);
+    result += '(' + matchBalancedFrac(numerator) + ') over (' + matchBalancedFrac(denominator) + ')';
+    i = pos;
+  }
+  return result;
+}
+
+// ── Converts LaTeX/math notation into natural spoken language before
+// handing text to the browser's speech synthesis. Without this, the
+// speech engine reads LaTeX source literally — e.g. "\int" comes out as
+// "backslash i n t" — since fixMath() upstream only prepares text for
+// VISUAL rendering (wrapping it in \(...\) for MathJax), not for speech.
+// Used by every read-aloud entry point: Tutor "Listen" buttons, quiz
+// auto-read and the question "Listen" button, and the Study Session
+// (Summarize/Key Points) "Read Aloud" button. ──
+function cleanForSpeech(text){
+  if(!text || typeof text !== 'string') return text;
+  var s = text;
+
+  // Strip inline/display math delimiters — keep the content inside
+  s = s.replace(/\\\(/g, ' ').replace(/\\\)/g, ' ');
+  s = s.replace(/\\\[/g, ' ').replace(/\\\]/g, ' ');
+  s = s.replace(/\$\$?/g, ' ');
+
+  // Fractions FIRST, with full nesting support — must run before the
+  // \sqrt/\pm/exponent passes below so content nested inside a fraction's
+  // numerator or denominator (e.g. the quadratic formula) still gets
+  // correctly processed by those later passes.
+  s = matchBalancedFrac(s);
+
+  s = s.replace(/\\sqrt\{([^{}]*)\}/g, 'the square root of ($1)');
+  s = s.replace(/\\sqrt\[(\d+)\]\{([^{}]*)\}/g, function(m, n, inner){
+    var ord = {2:'square',3:'cube',4:'fourth',5:'fifth'}[n] || (n+'th');
+    return 'the ' + ord + ' root of (' + inner + ')';
+  });
+
+  s = s.replace(/\\int_\{([^{}]*)\}\^\{([^{}]*)\}/g, 'the integral from $1 to $2 of ');
+  s = s.replace(/\\int_(\S+)\^(\S+)/g, 'the integral from $1 to $2 of ');
+  s = s.replace(/\\int/g, 'the integral of ');
+  s = s.replace(/\\sum_\{([^{}]*)\}\^\{([^{}]*)\}/g, 'the sum from $1 to $2 of ');
+  s = s.replace(/\\sum/g, 'the sum of ');
+  s = s.replace(/\\prod_\{([^{}]*)\}\^\{([^{}]*)\}/g, 'the product from $1 to $2 of ');
+  s = s.replace(/\\prod/g, 'the product of ');
+  s = s.replace(/\\lim_\{([^{}]*)\}/g, 'the limit as $1 of ');
+  s = s.replace(/\\lim/g, 'the limit of ');
+
+  s = s.replace(/\\(sin|cos|tan|cot|sec|csc|sinh|cosh|tanh|arcsin|arccos|arctan|log|ln)\^?\{?(\d)?\}?\(/g, function(m, fn, power){
+    var label = fn;
+    if(power === '2') label = fn + ' squared';
+    return label + ' of (';
+  });
+  s = s.replace(/\\(sin|cos|tan|cot|sec|csc|sinh|cosh|tanh|arcsin|arccos|arctan|log|ln)\b/g, '$1 of ');
+
+  // Exponents — run AFTER fractions/sqrt so e.g. b^2 inside a sqrt is caught
+  s = s.replace(/([A-Za-z0-9\)\]])\^\{?2\}?(?![0-9])/g, '$1 squared');
+  s = s.replace(/([A-Za-z0-9\)\]])\^\{?3\}?(?![0-9])/g, '$1 cubed');
+  s = s.replace(/([A-Za-z0-9\)\]])\^\{([^{}]+)\}/g, '$1 to the power of $2');
+  s = s.replace(/([A-Za-z0-9\)\]])\^(-?[A-Za-z0-9]+)/g, '$1 to the power of $2');
+
+  s = s.replace(/([A-Za-z])_\{([^{}]+)\}/g, '$1 sub $2');
+  s = s.replace(/([A-Za-z])_(\w)/g, '$1 sub $2');
+
+  var speechGreek = {
+    'alpha':'alpha','beta':'beta','gamma':'gamma','delta':'delta',
+    'epsilon':'epsilon','theta':'theta','lambda':'lambda','mu':'mu',
+    'pi':'pi','sigma':'sigma','phi':'phi','omega':'omega',
+    'Delta':'Delta','Sigma':'Sigma','Omega':'Omega','infty':'infinity'
+  };
+  Object.keys(speechGreek).forEach(function(k){
+    s = s.replace(new RegExp('\\\\' + k + '\\b', 'g'), ' ' + speechGreek[k] + ' ');
+  });
+
+  s = s.replace(/\\times/g, ' times ');
+  s = s.replace(/\\cdot/g, ' times ');
+  s = s.replace(/\\div/g, ' divided by ');
+  s = s.replace(/\\pm/g, ' plus or minus ');
+  s = s.replace(/\\neq/g, ' is not equal to ');
+  s = s.replace(/\\leq/g, ' is less than or equal to ');
+  s = s.replace(/\\geq/g, ' is greater than or equal to ');
+  s = s.replace(/\\approx/g, ' is approximately ');
+  s = s.replace(/\\equiv/g, ' is equivalent to ');
+  s = s.replace(/\\to/g, ' approaches ');
+  s = s.replace(/\\rightarrow/g, ' approaches ');
+  s = s.replace(/\\Rightarrow/g, ' implies ');
+  s = s.replace(/\\Leftrightarrow/g, ' if and only if ');
+  s = s.replace(/\\in/g, ' is in ');
+  s = s.replace(/\\notin/g, ' is not in ');
+  s = s.replace(/\\subset/g, ' is a subset of ');
+  s = s.replace(/\\cup/g, ' union ');
+  s = s.replace(/\\cap/g, ' intersect ');
+  s = s.replace(/\\forall/g, ' for all ');
+  s = s.replace(/\\exists/g, ' there exists ');
+  s = s.replace(/\\emptyset/g, ' the empty set ');
+  s = s.replace(/\\partial/g, ' partial ');
+  s = s.replace(/\\nabla/g, ' nabla ');
+
+  s = s.replace(/\bd([xyzt])\b/g, 'd $1');
+
+  var speechUnicodeMap = {
+    '×':' times ', '÷':' divided by ', '±':' plus or minus ', '≠':' is not equal to ',
+    '≤':' is less than or equal to ', '≥':' is greater than or equal to ',
+    '≈':' is approximately ', '∞':' infinity ', '√':' the square root of ',
+    '∫':' the integral of ', '∑':' the sum of ', '∏':' the product of ',
+    '°':' degrees ', '∂':' partial ', '∇':' nabla ', '→':' approaches ',
+    'π':' pi ', 'θ':' theta ', 'α':' alpha ', 'β':' beta ', 'Δ':' Delta ',
+    '½':' one half ', '⅓':' one third ', '⅔':' two thirds ', '¼':' one quarter ',
+    '¾':' three quarters '
+  };
+  Object.keys(speechUnicodeMap).forEach(function(ch){
+    s = s.split(ch).join(speechUnicodeMap[ch]);
+  });
+
+  // Catch-all safety net for anything unhandled above — strip the
+  // backslash so a leftover LaTeX command doesn't get spoken as the
+  // literal word "backslash", while leaving the rest of the word audible.
+  s = s.replace(/\\([a-zA-Z]+)/g, '$1');
+  s = s.replace(/[{}]/g, '');
+  s = s.replace(/\s+/g, ' ').trim();
+
+  return s;
+}
+
 function speakText(text){
   if(!window.speechSynthesis){ toast('Read aloud not supported on this browser','err'); return; }
   stopSpeak();
@@ -10092,8 +10243,10 @@ function speakText(text){
   const btn = document.getElementById('btn-study-speak');
   if(btn) btn.textContent = '⏹ Stop Reading';
 
-  // Clean text for speech
-  const clean = text.replace(/\*\*/g,'').replace(/#+/g,'').replace(/```[^`]*```/g,'').trim();
+  // Clean text for speech — strip markdown, then convert any LaTeX/math
+  // notation into natural spoken language (e.g. "\int" → "the integral
+  // of", "\frac{a}{b}" → "a over b") instead of being read literally.
+  const clean = cleanForSpeech(text.replace(/\*\*/g,'').replace(/#+/g,'').replace(/```[^`]*```/g,'').trim());
 
   _speechUtterance = new SpeechSynthesisUtterance(clean);
   _speechUtterance.lang = getLangCode(S.lang);
@@ -10710,14 +10863,15 @@ function tutorAutoSpeak(text){
   if(!window._tutorAutoSpeak || !text) return;
   // Cancel any current speech
   if(window.speechSynthesis) window.speechSynthesis.cancel();
-  // Clean text — strip markdown, emojis, confidence tags
-  var clean = text
+  // Clean text — strip markdown, emojis, confidence tags, then convert
+  // any LaTeX/math notation into natural spoken language.
+  var clean = cleanForSpeech(text
     .replace(/\*\*/g,'').replace(/\*/g,'').replace(/#+\s*/g,'')
     .replace(/\[CONFIDENCE:\d+\]/gi,'')
     .replace(/[\u{1F300}-\u{1FFFF}]/gu,'')
     .replace(/[\u2600-\u27BF]/g,'')
     .replace(/[✅❌📐📖🔊🎤🏆📌💪⭐🧑👤🤖📄⬇️🎓🔒🔓]/g,'')
-    .replace(/\n+/g,' ').replace(/\s+/g,' ').trim();
+    .replace(/\n+/g,' ').replace(/\s+/g,' ').trim());
   if(!clean) return;
   var u = new SpeechSynthesisUtterance(clean);
   u.lang = getLangBCP47(typeof saLang !== 'undefined' ? saLang : 'en');
@@ -10787,12 +10941,14 @@ function speakTutorMsg(btn, msgId){
   });
   var text = _tutorMsgTexts[msgId];
   if(!text) return;
-  // Strip emojis and markdown before speaking
-  text = text
+  // Strip emojis and markdown, then convert LaTeX/math notation to
+  // natural spoken language (e.g. "\int" → "the integral of") before
+  // speaking — without this, math is read literally as raw LaTeX source.
+  text = cleanForSpeech(text
     .replace(/[\u{1F300}-\u{1FFFF}]/gu,'')
     .replace(/[\u2600-\u27BF]/g,'')
     .replace(/[✅❌📐📖🔊🎤🏆📌💪⭐🧑👤🤖📄⬇️🎓🔒🔓]/g,'')
-    .replace(/\*\*/g,'').replace(/\*/g,'').replace(/\s+/g,' ').trim();
+    .replace(/\*\*/g,'').replace(/\*/g,'').replace(/\s+/g,' ').trim());
   if(!text) return;
   var u = new SpeechSynthesisUtterance(text);
   u.lang = getLangBCP47(typeof saLang !== 'undefined' ? saLang : 'en');
@@ -14527,8 +14683,8 @@ function quizReadQuestion(text, options){
   if(!quizAutoRead) return;
   if(!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  var toRead = text + '. ';
-  options.forEach(function(opt){ toRead += opt[0] + '. ' + opt[1] + '. '; });
+  var toRead = cleanForSpeech(text) + '. ';
+  options.forEach(function(opt){ toRead += opt[0] + '. ' + cleanForSpeech(opt[1]) + '. '; });
   var utt = new SpeechSynthesisUtterance(toRead);
   utt.lang = getLangBCP47(S.lang || 'English');
   utt.rate = 0.95;
