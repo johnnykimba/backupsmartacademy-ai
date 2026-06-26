@@ -7029,9 +7029,15 @@ async function initQuiz(){
     S.isNewQRetry = false; // reset retry flag
     removeTyping();
 
-    // Track OpenAI cost for this session
-    if(data.usage && S.code){
-      saaTrackCost(S.code, data.usage, 'quiz');
+    // Track OpenAI cost for this session — falls back to S.researchCode
+    // for Research/Professional sessions (RM-/RS-/RY- codes), since those
+    // store their code in a separate variable from Learner/Student's
+    // S.code. Without this fallback, the guard below was always false for
+    // Research sessions, so RM- codes never got their AI Cost/call count
+    // tracked in the admin panel even after genuine usage.
+    var trackCode = S.code || S.researchCode;
+    if(data.usage && trackCode){
+      saaTrackCost(trackCode, data.usage, 'quiz');
     }
 
     // Log response status for debugging
@@ -9875,7 +9881,8 @@ async function startStudySession(mode){
 
     const data = await res.json();
     const text = data.choices?.[0]?.message?.content || '';
-    if(data.usage && S.code) saaTrackCost(S.code, data.usage, 'study');
+    var studyTrackCode = S.code || S.researchCode;
+    if(data.usage && studyTrackCode) saaTrackCost(studyTrackCode, data.usage, 'study');
 
     if(!text || text.toLowerCase().includes("i'm sorry") || text.toLowerCase().includes("i cannot assist") || text.toLowerCase().includes("can't assist with this image")){
       content.innerHTML = `<div style="color:#ef4444;padding:20px;text-align:center;">
@@ -11043,7 +11050,8 @@ async function callAPI(prompt){
   });
 
   const data = await res.json();
-  if(data.usage && S.code) saaTrackCost(S.code, data.usage, 'tutor');
+  var tutorTrackCode = S.code || S.researchCode;
+  if(data.usage && tutorTrackCode) saaTrackCost(tutorTrackCode, data.usage, 'tutor');
   if(data.error) throw new Error(data.error.message);
   return data.choices?.[0]?.message?.content || '';
 }
