@@ -4498,7 +4498,7 @@ function copyProofCode(){
     <span id="prog-lbl" style="color:rgba(255,255,255,0.7);font-size:13px;font-weight:700;white-space:nowrap;">0/0</span>
     <span id="streak-badge" style="display:none;color:#f59e0b;font-size:12px;font-weight:700;">🔥<span id="streak-num">0</span></span>
     <span id="quiz-timer-display" style="display:none;font-size:13px;font-weight:800;color:#10b981;font-family:'DM Sans',monospace;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:4px 10px;border-radius:8px;">⏰ --:--</span>
-    <button id="btn-autoread" onclick="toggleAutoRead()" style="padding:6px 10px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.2);border-radius:6px;color:rgba(255,255,255,0.4);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;" title="Auto-read questions aloud">🔊</button>
+    <button id="btn-autoread" onclick="toggleAutoRead()" style="padding:6px 10px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.2);border-radius:6px;color:rgba(255,255,255,0.4);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;" title="Auto-read questions aloud — some math notation may not be read perfectly">🔊</button>
     <button id="btn-voicemode" onclick="toggleVoiceMode()" style="padding:6px 10px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);border-radius:6px;color:rgba(255,255,255,0.4);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;" title="Voice answer mode">🎤</button>
     <button onclick="exitToHome();" style="padding:6px 12px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px;" data-t="quiz_exit">🏠 Exit</button>
     <button onclick="resetSession()" style="padding:6px 12px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px;">🗑️ Reset</button>
@@ -10080,7 +10080,13 @@ let _speechUtterance = null;
 
 function toggleStudySpeak(){
   if(window._studySpeakOn){ stopSpeak(); }
-  else { speakText(S.studyText || ''); }
+  else {
+    if(!window._mathSpeechNoticeShown){
+      window._mathSpeechNoticeShown = true;
+      toast('🔊 Reading aloud — some math notation may not be read perfectly', 'ok', 4500);
+    }
+    speakText(S.studyText || '');
+  }
 }
 
 // ── Recursively resolve \frac{a}{b} → "(a) over (b)" with full brace
@@ -10889,6 +10895,10 @@ function tutorAutoSpeak(text){
 function toggleAutoSpeak(btn){
   window._tutorAutoSpeak = !window._tutorAutoSpeak;
   if(window._tutorAutoSpeak){
+    if(!window._mathSpeechNoticeShown){
+      window._mathSpeechNoticeShown = true;
+      toast('🔊 Auto-Read ON — some math notation may not be read perfectly', 'ok', 4500);
+    }
     // Unlock audio immediately on this user tap
     if(window.speechSynthesis){
       // Speak a silent utterance to unlock audio context
@@ -10939,6 +10949,10 @@ function speakTutorMsg(btn, msgId){
   document.querySelectorAll('[id^="btn-tmsg-"]').forEach(function(b){
     b.textContent = '🔊 Listen'; b.style.color = '#06b6d4';
   });
+  if(!window._mathSpeechNoticeShown){
+    window._mathSpeechNoticeShown = true;
+    toast('🔊 Reading aloud — some math notation may not be read perfectly', 'ok', 4500);
+  }
   var text = _tutorMsgTexts[msgId];
   if(!text) return;
   // Strip emojis and markdown, then convert LaTeX/math notation to
@@ -14663,7 +14677,12 @@ function toggleAutoRead(){
     btn.style.color = quizAutoRead ? '#06b6d4' : 'rgba(255,255,255,0.4)';
     btn.style.border = quizAutoRead ? '1px solid #06b6d4' : '1px solid rgba(6,182,212,0.2)';
   }
-  toast(quizAutoRead ? '🔊 Auto-Read ON' : '🔊 Auto-Read OFF', 'ok');
+  if(quizAutoRead && !window._mathSpeechNoticeShown){
+    window._mathSpeechNoticeShown = true;
+    toast('🔊 Auto-Read ON — some math notation may not be read perfectly', 'ok', 4500);
+  } else {
+    toast(quizAutoRead ? '🔊 Auto-Read ON' : '🔊 Auto-Read OFF', 'ok');
+  }
   if(!quizAutoRead) window.speechSynthesis && window.speechSynthesis.cancel();
 }
 
