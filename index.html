@@ -5333,6 +5333,12 @@ async function handlePDF(file){
   if(isWord){
     const status = document.getElementById('pdf-status');
     if(status){ status.textContent = '⏳ Reading Word document...'; status.style.color = '#1a56db'; }
+    // Defense in depth against stale content: clear any text left over
+    // from a PREVIOUSLY uploaded document before reading this new one, so
+    // a fresh Word upload can never accidentally inherit old saPDFText
+    // even if the user didn't click "Clear All" first.
+    window._wordFullText = '';
+    window._wordTotalPages = 0;
     try{
       if(!window.mammoth){
         // Two different CDN providers as fallback — if one is blocked by a
@@ -6831,11 +6837,24 @@ function clearAllUploads(){
   S.images = [];
   pdfDoc = null;
   pdfTotalPages = 0;
+  // Bug fix: this function used to only clear S.images (the visual
+  // thumbnails) but never touched saPages/saPDFText — the variables that
+  // actually hold the extracted Word/Excel text sent to the AI for quiz
+  // generation. That meant clicking "Clear All" and uploading a new
+  // document could still leave the PREVIOUS document's text in saPDFText,
+  // so the quiz would silently be generated from stale content even
+  // though the upload UI correctly showed the new file's page count.
+  saPages = [];
+  saPDFText = '';
+  window._wordFullText = '';
+  window._wordTotalPages = 0;
   // Hide PDF UI elements
   var pdfSection = document.getElementById('pdf-range-section');
   if(pdfSection) pdfSection.style.display = 'none';
   var pdfThumbsRow = document.getElementById('pdf-thumbs-row');
   if(pdfThumbsRow) pdfThumbsRow.innerHTML = '';
+  var wordSec = document.getElementById('word-range-section');
+  if(wordSec) wordSec.style.display = 'none';
   var status = document.getElementById('pdf-status');
   if(status){ status.textContent = ''; }
   // Reset counter
@@ -7277,6 +7296,21 @@ async function initQuiz(){
     // ── FIX MATH WORD FORMS → SYMBOLS ────────────────────────────
     function fixMath(s){
       if(!s || typeof s !== 'string') return s;
+      // ── PROTECT: date-like patterns (DD/MM/YYYY etc) from fraction conversion ──
+      // Bug fix: a date such as "10/07/2024" was being misread by the
+      // fraction converters below as the fraction "10/07" followed by a
+      // dangling "/2024", which a later pass then wrapped AGAIN into an
+      // illegal nested fraction — e.g. a tender document's date rendering
+      // as \(\frac{(\frac{10}{07}\)}{2024}\) instead of staying a plain
+      // date. Swap any two-slash numeric date pattern for a placeholder
+      // BEFORE any fraction logic runs, then restore the original text
+      // verbatim at the very end of this function, completely untouched.
+      var _dateRepairPlaceholders = [];
+      s = s.replace(/\b(\d{1,2}\/\d{1,2}\/\d{2,4})\b/g, function(m){
+        var idx = _dateRepairPlaceholders.length;
+        _dateRepairPlaceholders.push(m);
+        return '\u0001DATE' + idx + '\u0001';
+      });
       // ── REPAIR: Unicode fraction glyphs (¼ ½ ⅓ ⅔ ¾ ⅕ etc.) → LaTeX ──
       // Bug fix: the AI sometimes outputs single-character Unicode fraction
       // glyphs directly (e.g. "¼x^4 + ⅓x^3") instead of LaTeX, mixed in with
@@ -7466,6 +7500,13 @@ async function initQuiz(){
           s = s.replace(/([A-Za-z0-9\)\]])\^(\{[^}]+\}|-?[A-Za-z0-9]+)/g, function(m, base, exp){
             var cleanExp = exp.replace(/^\{|\}$/g, '');
             return '\\('+base+'^{'+cleanExp+'}\\)';
+          });
+        }
+        // Restore any date patterns that were shielded from fraction
+        // conversion at the start of this function, completely unchanged.
+        if(_dateRepairPlaceholders.length){
+          s = s.replace(/\u0001DATE(\d+)\u0001/g, function(m, idx){
+            return _dateRepairPlaceholders[parseInt(idx,10)];
           });
         }
         return s;
