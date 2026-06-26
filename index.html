@@ -4356,15 +4356,6 @@ function copyProofCode(){
           </div>
         </div>
 
-        <!-- PHOTO TIPS -->
-        <div style="margin-top:14px;padding:14px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;">
-          <div style="font-size:11px;font-weight:700;color:#f59e0b;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;" data-t="tips_title">💡 Tips for Best Results</div>
-          <div style="font-size:12px;color:#64748b;line-height:1.8;">
-            <span data-t="tip1">✓ Images: Good lighting, camera directly above, page flat, sharp focus</span><br>
-            <span data-t="tip2">✓ PDF: Select only the pages covering the topic you want to be tested on</span><br>
-            <span data-t="tip3">✓ Best results: 3–5 focused pages rather than entire chapters</span>
-          </div>
-        </div>
       </div>
 
 
@@ -7221,6 +7212,31 @@ async function initQuiz(){
     // ── FIX MATH WORD FORMS → SYMBOLS ────────────────────────────
     function fixMath(s){
       if(!s || typeof s !== 'string') return s;
+      // ── REPAIR: base^N/D → \(\frac{base^N}{D}\) ──────────────
+      // Related pre-existing gap, found while fixing the bug below: a caret
+      // exponent immediately followed by "/digit" (e.g. "x^3/3") used to get
+      // mis-split by the later generic fraction converter, which only saw the
+      // trailing "3/3" and converted just that, leaving the "x^" orphaned in
+      // front of it (e.g. "x^4 - x^3/3 + C" → "x^4 - x^\(\frac{3}{3}\) + C").
+      // Must run BEFORE the generic n/d converter further down, so that
+      // converter never gets a chance to see (and wrongly split) this digit.
+      s = s.replace(/([A-Za-z])\^(\d+)\/(\d+)(?![0-9}])/g, function(m, base, exp, den){
+        return '\\(\\frac{'+base+'^'+exp+'}{'+den+'}\\)';
+      });
+      // ── REPAIR: base^\frac{N}{D} → \(\frac{base^N}{D}\) ──────
+      // Bug fix: the AI sometimes conflates "this power term is divided
+      // by a number" (e.g. an integration result like x⁴/16) with "the
+      // exponent itself is a fraction", producing invalid/meaningless
+      // LaTeX like "x^\frac{4}{16}" instead of "\frac{x^4}{16}". This is
+      // self-contained (wraps its own \(...\)) and runs BEFORE everything
+      // else below, because once the string contains any \( elsewhere,
+      // the later "unwrapped caret" safety net (bottom of this function)
+      // skips the whole string and would otherwise leave this broken
+      // fragment completely unrendered, exactly as raw text.
+      s = s.replace(/(\(?[A-Za-z](?:\^\d+)?\)?)\^\\frac\{(\d+)\}\{(\d+)\}/g, function(m, base, num, den){
+        var cleanBase = base.replace(/^\(|\)$/g, '');
+        return '\\(\\frac{'+cleanBase+'^'+num+'}{'+den+'}\\)';
+      });
       s = s
         // Always normalize any stray Unicode superscripts to proper LaTeX,
         // since the prompt now strictly forbids them but the AI may still
@@ -7359,6 +7375,7 @@ async function initQuiz(){
       explanation: fixMath(q.explanation || ''),
       options: q.options ? Object.fromEntries(Object.entries(q.options).map(([k,v])=>[k,fixMath(String(v||''))])) : q.options,
       correctAnswer: fixMath(q.correctAnswer || ''),
+      internalProof: fixMath(q.internalProof || ''),
       correct: q.correct || q.correctAnswer || ''
     }));
 
@@ -7398,6 +7415,19 @@ async function initQuiz(){
     // safely skipped — never partially parsed, so no garbage/false matches.
     var normalizeToValue = function(str){
       var s = String(str||'').trim();
+      // Unwrap a single LaTeX fraction (e.g. "\(\frac{3}{4}\) cm") back into
+      // plain "3/4 cm" before the numeric parsing below. Necessary because
+      // q.options/q.internalProof are run through fixMath() above, which
+      // converts plain fractions like "3/4" into "\(\frac{3}{4}\)" — without
+      // this unwrap, every fraction-valued option would fail to parse here,
+      // silently breaking the whole proof cross-check below for any question
+      // with a fractional answer. Only unwraps when the LaTeX frac is the
+      // entire relevant content (with an optional trailing unit/degree/percent);
+      // anything more complex correctly falls through and is skipped below.
+      var fracMatch = s.match(/^\\\(\\frac\{(-?\d+(?:\.\d+)?)\}\{(\d+(?:\.\d+)?)\}\\\)\s*([a-zA-Z°%]{0,4})$/);
+      if(fracMatch){
+        s = fracMatch[1] + '/' + fracMatch[2] + (fracMatch[3] ? ' ' + fracMatch[3] : '');
+      }
       var m;
       // nπ/m, π/m, nπ  (e.g. "π/4", "-π/3", "2π/3", "π")
       m = s.match(/^(-?)(\d*\.?\d*)\s*π\s*(?:\/\s*(\d+(?:\.\d+)?))?$/);
@@ -7550,6 +7580,7 @@ function buildUserMsg(){
   const mathSymbolInstruction = `CRITICAL MATH NOTATION RULES — always use these symbols directly:
 • Fractions: ALWAYS use LaTeX \\(\\frac{a}{b}\\) format. Write \\(\\frac{2}{4}x^4\\) NOT "(2/4)x^4" and NOT a slash-style fraction like "2/4"
 • Powers/exponents: ALWAYS use LaTeX \\(x^2\\) format consistently. Write \\(x^2\\) NOT "x squared", NOT "x^2" as plain unformatted text, and NOT the Unicode superscript character ². Every exponent must be wrapped in \\(...\\)
+• CRITICAL — when a power term itself is divided by a number (e.g. an integration result like x⁴/16), put the fraction OUTSIDE the power, never inside the exponent: write \\(\\frac{x^4}{16}\\) — NEVER \\(x^\\frac{4}{16}\\) or "x^\\frac{4}{16}". The exponent of x must always be the plain integer power (4), never a fraction itself, unless the original math genuinely has a fractional/rational exponent (e.g. \\(x^{1/2}\\) for a square root) — in that one case, the fraction goes inside braces as the exponent: \\(x^{\\frac{1}{2}}\\), still never as \\(x^\\frac{1}{2}\\) without braces.
 • Integrals: use ∫ symbol. Write ∫(2x-6)⁴ dx NOT "integral of (2x-6)^4*dx"
 • Derivatives: write d/dx[f(x)] NOT "the derivative of"
 • Limits: write lim(x→a) NOT "the limit as x approaches"
