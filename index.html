@@ -7417,18 +7417,46 @@ async function initQuiz(){
       correct: q.correct || q.correctAnswer || ''
     }));
 
-    // ── DUPLICATE OPTIONS CHECK — flag if the AI repeated an option's text ──
-    // (the prompt explicitly forbids this, but LLMs occasionally do it anyway).
-    // We don't auto-fix the duplicate (risky without another AI call), but we log
-    // it clearly so it's visible during testing/QA rather than silently shipped.
+    // ── DUPLICATE OPTIONS CHECK + AUTO-FIX — the AI occasionally repeats an
+    // option's text verbatim (the prompt explicitly forbids this), which
+    // makes a question unanswerable since two letters share one value. Fixed
+    // here by nudging the denominators of \frac{a}{b} terms in the duplicate
+    // by a small amount until it's distinct from every other option — keeps
+    // the same algebraic SHAPE (so it still looks like a plausible wrong
+    // answer / common mistake) without needing a second AI call. The
+    // correct answer's text is NEVER the one mutated: if it happens to be
+    // the duplicate, the earlier-seen WRONG option is varied instead.
+    function mutateDuplicateOption(text, allExistingValues, seedOffset){
+      var attempt = text, mutated = text;
+      for(var t = 1; t <= 6; t++){
+        var nudge = seedOffset + t;
+        mutated = attempt.replace(/\\frac\{(-?\d+)\}\{(\d+)\}/g, function(m, num, den){
+          var newDen = parseInt(den, 10) + nudge;
+          if(newDen <= 0) newDen = parseInt(den, 10) + nudge + 2;
+          return '\\frac{'+num+'}{'+newDen+'}';
+        });
+        var normalizedMutated = mutated.trim().toLowerCase();
+        if(allExistingValues.indexOf(normalizedMutated) === -1) return mutated;
+        attempt = text;
+      }
+      return mutated; // best effort if every nudge somehow still collided
+    }
     S.questions.forEach(function(q, qi){
       if(!q.options) return;
+      var letters = Object.keys(q.options);
       var seen = {};
-      Object.keys(q.options).forEach(function(letter){
+      letters.forEach(function(letter, idx){
         var val = String(q.options[letter]||'').trim().toLowerCase();
         if(!val) return;
         if(seen[val]){
-          console.warn('[Quiz] Duplicate option text detected in Q'+(qi+1)+': option '+letter+' repeats option '+seen[val]+' ("'+q.options[letter]+'")');
+          var earlierLetter = seen[val];
+          var letterToMutate = (letter === q.correct) ? earlierLetter : letter;
+          var allValues = letters.map(function(l){ return String(q.options[l]||'').trim().toLowerCase(); });
+          var mutated = mutateDuplicateOption(q.options[letterToMutate], allValues, idx);
+          console.warn('[Quiz] Duplicate option text in Q'+(qi+1)+': "'+letterToMutate+'" auto-varied to stay distinct.');
+          q.options[letterToMutate] = mutated;
+          seen[mutated.trim().toLowerCase()] = letterToMutate;
+          if(letterToMutate === earlierLetter) seen[val] = letter;
         } else {
           seen[val] = letter;
         }
