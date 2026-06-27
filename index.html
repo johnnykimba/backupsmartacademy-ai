@@ -2113,14 +2113,12 @@ footer{
 /* ══ END PARENTAL PIN ══ */
 
 /* TRIAL CODE */
-#trial-card{margin:0 auto 16px;max-width:480px;background:linear-gradient(135deg,rgba(26,86,219,0.15),rgba(0,212,224,0.1));border:2px solid rgba(0,212,224,0.4);border-radius:14px;padding:12px 18px;text-align:center;display:none;box-shadow:0 0 30px rgba(0,212,224,0.12);}
-#trial-card .tc-badge{display:inline-block;background:rgba(0,212,224,0.15);border:1px solid rgba(0,212,224,0.4);border-radius:20px;padding:2px 10px;font-size:10px;font-weight:700;color:#00d4e0;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+#trial-card{margin:0 auto 16px;max-width:480px;background:linear-gradient(135deg,rgba(26,86,219,0.15),rgba(0,212,224,0.1));border:2px solid rgba(0,212,224,0.4);border-radius:14px;padding:12px 18px;text-align:center;box-shadow:0 0 30px rgba(0,212,224,0.12);}
 #trial-card h3{color:#fff;font-size:14px;margin:0 0 3px;}
 #trial-card p{color:rgba(255,255,255,0.65);font-size:11px;margin:0 0 8px;}
-#trial-countdown{font-size:28px;font-weight:900;color:#00d4e0;font-family:monospace;letter-spacing:2px;margin-bottom:14px;}
-#trial-countdown.warning{color:#f59e0b;animation:pulse 1s infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
 .btn-trial{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-trial:disabled{opacity:0.6;cursor:not-allowed;}
+
 #trial-expired-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999998;display:none;align-items:center;justify-content:center;padding:20px;}
 #trial-expired-box{background:#0d1f3e;border:2px solid rgba(245,158,11,0.4);border-radius:20px;padding:36px 28px;max-width:360px;width:100%;text-align:center;}
 /* END TRIAL */
@@ -2299,7 +2297,7 @@ function showLegalTab(tab){
     
     <a href="#" onclick="closeMenu();showPage('page-pricing');" data-i18n="nav_pricing">Pricing</a>
     <a href="#contact" onclick="closeMenu()" data-i18n="nav_contact" class="nav-marketing">Contact</a>
-    <button class="nav-adm nav-non-research" id="nav-admin-btn" onclick="document.querySelectorAll('.page').forEach(function(p){p.style.display='none';});document.getElementById('admin-overlay').style.display='flex';document.getElementById('admin-overlay').style.zIndex='99999';setTimeout(function(){if(typeof adminCheckLayout==='function')adminCheckLayout();if(typeof adminRenderCodesTable==='function')adminRenderCodesTable();if(typeof adminLoadDmStats==='function')adminLoadDmStats();if(typeof adminRefreshTrialDeviceCount==='function')adminRefreshTrialDeviceCount();if(typeof adminRefreshResearchTrialDeviceCount==='function')adminRefreshResearchTrialDeviceCount();},50);">⚙️ Admin</button>
+    <button class="nav-adm nav-non-research" id="nav-admin-btn" onclick="document.querySelectorAll('.page').forEach(function(p){p.style.display='none';});document.getElementById('admin-overlay').style.display='flex';document.getElementById('admin-overlay').style.zIndex='99999';setTimeout(function(){if(typeof adminCheckLayout==='function')adminCheckLayout();if(typeof adminRenderCodesTable==='function')adminRenderCodesTable();if(typeof adminLoadDmStats==='function')adminLoadDmStats();},50);">⚙️ Admin</button>
     <a href="#" id="nav-cta-btn" class="nav-cta" onclick="document.getElementById('admin-overlay').style.display='none'; showPage('page-access');closeMenu();return false;" data-i18n="nav_start">🚀 Learner / Student</a>
     <a href="research.html" id="nav-cta-prof-btn" class="nav-cta" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Research / Professional</a>
   </div>
@@ -2353,14 +2351,14 @@ function showLegalTab(tab){
       <h1><span data-t="hero_title">Your Personal</span><br><span data-t="hero_title_span">AI Study Coach</span></h1>
       <p class="hero-sub" data-i18n="hero_sub">Upload your notes. Master your subject.</p>
       <p class="hero-sub2" data-t="hero_sub2">Smart Academy AI reads your handwritten or typed notes and creates personalised quizzes — in your language, at your level.</p>
+
       <!-- Trial Code Card -->
       <div id="trial-card" style="display:block;">
         <h3>Try Smart Academy AI Free</h3>
-        <p>Full access for a limited time. No code needed.</p>
-        <div id="trial-countdown" style="display:none;">--:--</div>
+        <p>15 minutes of full access. No code needed.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
-          <button class="btn-trial" onclick="startTrial()" style="flex:1;min-width:140px;padding:10px 16px;font-size:13px;">🚀 Start Free Trial</button>
-          <button class="btn-trial" onclick="startResearchTrial()" style="flex:1;min-width:140px;padding:10px 16px;font-size:13px;background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Try Research Free</button>
+          <button class="btn-trial" id="btn-start-trial" onclick="startTrial()" style="flex:1;min-width:140px;padding:10px 16px;font-size:13px;">🚀 Start Free Trial</button>
+          <button class="btn-trial" id="btn-start-research-trial" onclick="startResearchTrial()" style="flex:1;min-width:140px;padding:10px 16px;font-size:13px;background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Try Research Free</button>
         </div>
       </div>
 
@@ -3884,13 +3882,6 @@ window.addEventListener('load', function(){
 
     </div>
 
-    <div id="trial-card" style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(6,182,212,0.05));border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:18px;margin-bottom:16px;">
-      <div style="font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">🎁 Free Trial</div>
-      <div id="trial-card-desc" style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5;">Try Smart Academy AI free — no code needed. Duration set by administrator.</div>
-      <button class="btn-trial" onclick="startTrial()" style="width:100%;padding:12px;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🚀 Start Free Trial →</button>
-      <button class="btn-trial" onclick="startResearchTrial()" style="width:100%;padding:12px;margin-top:8px;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🔬 Try Research / Professional Free →</button>
-    </div>
-
     <button onclick="showPage('page-landing')" style="width:100%;padding:13px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;" data-t="back_home">← Back to Home</button>
   <div style="text-align:center;padding:12px 0;"><a href="#" onclick="window.open('legal.html','_blank');return false;" style="color:#06b6d4;font-size:13px;font-weight:700;text-decoration:none;">📄 Terms · Refund · Privacy</a></div>
   </div>
@@ -3906,10 +3897,6 @@ function switchPayPanel(c){
   });
 }
 function scrollPricingTop(){
-  // Update trial card description with current admin duration
-  var mins = parseInt(localStorage.getItem('saa_trial_minutes') || '10');
-  var desc = document.getElementById('trial-card-desc');
-  if(desc) desc.textContent = 'Try Smart Academy AI free for ' + mins + ' minute' + (mins===1?'':'s') + ' — no code needed.';
   // Restore any pending payment slots
   var slots=JSON.parse(localStorage.getItem('saa_ua_slots')||'[]');
   var validSlots=slots.filter(function(s){return !s.code&&(Date.now()-s.ts)<7200000;});
@@ -6161,9 +6148,9 @@ async function validateCode(){
   // Check if classroom/group code (starts with C- or G-)
   const isClassCode = raw.startsWith('C-') || raw.startsWith('G-');
 
-  const pattern = /^([WMYCG])-([A-Z0-9]{4,12})$/;
+  const pattern = /^([WMYHCG])-([A-Z0-9]{4,12})$/;
   if(!pattern.test(raw)){
-    showErr(errEl,'❌ Invalid code format. Must start with W-, M-, Y-, C-, or G-');
+    showErr(errEl,'❌ Invalid code format. Must start with W-, M-, Y-, H-, C-, or G-');
     return;
   }
 
@@ -6245,7 +6232,7 @@ async function validateCode(){
       if(!storedFp) localStorage.setItem('saa_fp_'+raw, fingerprint);
     }
     // Valid — proceed
-    const typeMap = {W:'Weekly',M:'Monthly'};
+    const typeMap = {W:'Weekly',M:'Monthly',Y:'Yearly',H:'Trial'};
     S.code     = raw;
     S.codeType = localMatch.type || typeMap[raw[0]] || 'Weekly';
     S.codeExpiry = expDate;
@@ -6324,7 +6311,7 @@ async function validateCode(){
     }
 
     // ✅ Valid server code
-    const typeMap = {W:'Weekly',M:'Monthly'};
+    const typeMap = {W:'Weekly',M:'Monthly',Y:'Yearly',H:'Trial'};
     S.code           = raw;
     S.codeType       = typeMap[raw[0]] || 'Weekly';
     S.codeExpiry     = new Date(data.expiresAt);
@@ -12288,131 +12275,85 @@ window.addEventListener('load', pinUpdateUI);
 </div>
 
 <script>
-// TRIAL CODE SYSTEM
 // Ensure S is available (declared in main script block)
 if(typeof S === 'undefined') window.S = {code:'',researchCode:'',codeType:'',name:'',lang:'',images:[],questions:[],answers:[]};
-var _trialTimer=null,_trialWarned=false,_trialEndTime=null;
 var WU='https://smartacademy-ai.kasongokimba.workers.dev';
 
-async function checkTrialCode(){
-  try{
-    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'get-trial-code'})});
-    var d=await r.json();
-    if(d.active){
-      var cd=document.getElementById('trial-countdown');
-      if(cd){cd.style.display='block';cd.textContent='FREE';cd.style.fontSize='18px';}
-      window._pendingTrialExpiry=d.expiresAt;
-      setTrialStatusBar(true);
-    } else {
-      setTrialStatusBar(false);
-    }
-  }catch(e){}
-}
-
-function showTrialCard(expiresAt){
-  // Called only after client taps Start Free Trial
-  _trialEndTime=expiresAt;
-  var c=document.getElementById('trial-card');
-  if(c) c.style.display='block';
-  var cd=document.getElementById('trial-countdown');
-  if(cd){cd.style.fontSize='28px';}
-  updateTrialCountdown();
-  if(_trialTimer) clearInterval(_trialTimer);
-  _trialTimer=setInterval(updateTrialCountdown,1000);
-}
-
-function updateTrialCountdown(){
-  var rem=Math.max(0,Math.ceil((_trialEndTime-Date.now())/1000));
-  var m=Math.floor(rem/60),s=rem%60;
-  var el=document.getElementById('trial-countdown');
-  if(el){el.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;el.className=rem<=120?'warning':'';}
-  if(rem===120&&!_trialWarned){_trialWarned=true;toast('Warning: Trial ends in 2 minutes! Get full access for $5/week.','inf');}
-  if(rem===0){clearInterval(_trialTimer);showTrialExpired();}
-}
-
-async function startTrial(){
-  var fp = typeof getDeviceFingerprint==='function' ? getDeviceFingerprint() : 'unknown';
-  try{
-    var r1=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({_appSecret:APP_SECRET,action:'get-trial-code',t:Date.now()})});
-    var trial=await r1.json();
-    if(!trial.active){toast('No active trial at the moment.','err');return;}
-
-    var storedCode = localStorage.getItem('_currentTrialCode');
-    var isSameCode = S.code === trial.code;
-    var isStillValid = S.codeExpiry && Math.ceil((new Date(S.codeExpiry)-Date.now())/1000)>0;
-    if(storedCode && storedCode !== trial.code){
-      S.code=''; S.codeExpiry=null;
-    }
-    if(isSameCode && isStillValid && (!storedCode || storedCode===trial.code)){
-      showPage('page-profile');
-      return;
-    }
-
-    var r2=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({_appSecret:APP_SECRET,action:'validate-trial-code',code:trial.code,fingerprint:fp})});
-    var data=await r2.json();
-    if(!data.valid){
-      if(data.error==='already_used'||data.error==='expired'){showTrialExpired();return;}
-      toast(data.message||'Trial not available','err');return;
-    }
-    S.code=trial.code; S.codeType='Trial'; S.codeExpiry=new Date(data.expiresAt);
-    localStorage.setItem('saa_expiry_'+trial.code, data.expiresAt);
-    localStorage.setItem('_currentTrialCode', trial.code);
-    showTrialCard(data.expiresAt);
-    var btn=document.querySelector('#trial-card .btn-trial');
-    if(btn) btn.textContent='Continue Trial →';
-    showPage('page-profile');
-    toast('Trial started! You have '+data.minutes+' minutes of free access.','ok');
-  }catch(e){toast('Cannot connect to server. Please check your internet.','err');}
-}
-
-async function startResearchTrial(){
-  var fp = typeof getDeviceFingerprint==='function' ? getDeviceFingerprint() : 'unknown';
-  try{
-    var r1=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({_appSecret:APP_SECRET,action:'get-research-trial-code',t:Date.now()})});
-    var trial=await r1.json();
-    if(!trial.active){toast('No active research trial at the moment.','err');return;}
-
-    var r2=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({_appSecret:APP_SECRET,action:'validate-research-trial-code',code:trial.code,fingerprint:fp})});
-    var data=await r2.json();
-    if(!data.valid){
-      toast(data.message||'Research trial not available','err');return;
-    }
-    // Route to research.html with the trial code, same pattern as savedCodeUse
-    sessionStorage.setItem('prof_pending_code', trial.code);
-    toast('Research trial started! You have '+data.minutes+' minutes of free access.','ok');
-    window.location.href = 'research.html?code=' + encodeURIComponent(trial.code);
-  }catch(e){toast('Cannot connect to server. Please check your internet.','err');}
-}
-
-function showTrialExpired(){
+function showCodeExpired(){
   S.code='';S.codeType='';S.codeExpiry=null;
-  document.getElementById('trial-expired-overlay').style.display='flex';
+  var overlay = document.getElementById('trial-expired-overlay');
+  if(overlay) overlay.style.display='flex';
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');p.style.display='none';});
 }
 
-setInterval(function(){
-  if(!S.code||!S.code.startsWith('TRIAL-')||!S.codeExpiry) return;
-  if(Math.ceil((new Date(S.codeExpiry)-Date.now())/1000)<=0) showTrialExpired();
-},5000);
-
-function setTrialStatusBar(active){
-  var bar=document.getElementById('trial-status-bar');
-  if(!bar) return;
-  if(active){
-    bar.style.background='rgba(16,185,129,0.12)';
-    bar.style.color='#10b981';
-    bar.textContent='&#128994; ACTIVE';
-    bar.innerHTML='&#128994; ACTIVE';
-  } else {
-    bar.style.background='rgba(239,68,68,0.1)';
-    bar.style.color='#ef4444';
-    bar.innerHTML='&#128308; INACTIVE';
+// ── SELF-SERVE FREE TRIAL BUTTON ────────────────────────────────
+// One click = one fresh 15-minute trial, opened immediately. No admin
+// step, no shared/global trial state to go stale or deactivate itself —
+// each click generates its own code on the worker, fingerprint-locked
+// right away so the SAME device can't click it again for another free
+// round, but every other device gets its own full 15 minutes.
+async function startTrial(){
+  var btn = document.getElementById('btn-start-trial');
+  var fp = typeof getDeviceFingerprint==='function' ? getDeviceFingerprint() : 'unknown';
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Starting...'; }
+  try{
+    var r = await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:APP_SECRET,action:'start-free-trial',fingerprint:fp})});
+    var data = await r.json();
+    if(!data.valid){
+      toast(data.error==='already_used' ? 'This device has already used the free trial.' : (data.message||data.error||'Could not start trial'), 'err');
+      if(btn){ btn.disabled=false; btn.textContent='🚀 Start Free Trial'; }
+      return;
+    }
+    S.code = data.code; S.codeType = 'Trial'; S.codeExpiry = new Date(data.expiresAt);
+    S.fingerprint = fp;
+    localStorage.setItem('saa_expiry_'+data.code, data.expiresAt);
+    localStorage.setItem('saa_fp_'+data.code, fp);
+    localStorage.removeItem('_ph');
+    localStorage.removeItem('_pu');
+    localStorage.removeItem('_pe');
+    localStorage.removeItem('_ph_set');
+    if(typeof pinUpdateUI === 'function') pinUpdateUI();
+    showPage('page-profile');
+    toast('Trial started! You have '+data.minutes+' minutes of free access.','ok');
+  }catch(e){
+    toast('Cannot connect to server. Please check your internet.','err');
   }
+  if(btn){ btn.disabled=false; btn.textContent='🚀 Start Free Trial'; }
 }
+
+async function startResearchTrial(){
+  var btn = document.getElementById('btn-start-research-trial');
+  var fp = typeof getDeviceFingerprint==='function' ? getDeviceFingerprint() : 'unknown';
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Starting...'; }
+  try{
+    var r = await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:APP_SECRET,action:'start-research-free-trial',fingerprint:fp})});
+    var data = await r.json();
+    if(!data.valid){
+      toast(data.error==='already_used' ? 'This device has already used the research trial.' : (data.message||data.error||'Could not start trial'), 'err');
+      if(btn){ btn.disabled=false; btn.textContent='🔬 Try Research Free'; }
+      return;
+    }
+    sessionStorage.setItem('prof_pending_code', data.code);
+    toast('Research trial started! You have '+data.minutes+' minutes of free access.','ok');
+    window.location.href = 'research.html?code=' + encodeURIComponent(data.code);
+  }catch(e){
+    toast('Cannot connect to server. Please check your internet.','err');
+  }
+  if(btn){ btn.disabled=false; btn.textContent='🔬 Try Research Free'; }
+}
+
+// Bug fix: this used to only check S.code.startsWith('TRIAL-') — a prefix
+// that no longer exists now that trial codes are real H- codes going
+// through the standard code system. Generalized to check ANY active
+// code's expiry, so access actively stops mid-session the moment a code
+// (trial or paid) expires, rather than only being caught on next page
+// navigation via exitToHome()'s one-off check.
+setInterval(function(){
+  if(!S.code||!S.codeExpiry) return;
+  if(Math.ceil((new Date(S.codeExpiry)-Date.now())/1000)<=0) showCodeExpired();
+},5000);
 
 async function adminSaveFxRates(){
   var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
@@ -12446,120 +12387,57 @@ async function adminLoadFxRates(){
   }catch(e){}
 }
 
-async function adminRefreshTrialDeviceCount(){
-  try{
-    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'get-trial-code',t:Date.now()})});
-    var d=await r.json();
-    var countEl=document.getElementById('trial-device-count');
-    if(countEl) countEl.textContent = d.active ? ('👥 '+(d.deviceCount||0)+' device(s) have used this trial code') : '';
-  }catch(e){}
-}
-
-async function adminRefreshResearchTrialDeviceCount(){
-  try{
-    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'get-research-trial-code',t:Date.now()})});
-    var d=await r.json();
-    var countEl=document.getElementById('research-trial-device-count');
-    if(countEl) countEl.textContent = d.active ? ('👥 '+(d.deviceCount||0)+' device(s) have used this trial code') : '';
-  }catch(e){}
-}
-
-async function adminActivateTrial(){
+async function adminGenerateTrialLink(){
   var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
-  var minutes=parseInt(document.getElementById('trial-minutes').value)||10;
-  if(minutes>15){toast('Maximum 15 minutes','err');return;}
-  localStorage.setItem('saa_trial_minutes', minutes); // save for pricing page display
   try{
-    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'generate-trial-code',adminKey,minutes})});
+    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'generate-trial-code',adminKey,minutes:15})});
     var d=await r.json();
     if(d.success){
-      setTrialStatusBar(true);
-      // Show card on landing but don't start countdown yet
-      var c=document.getElementById('trial-card');
-      if(c) c.style.display='block';
-      var cd=document.getElementById('trial-countdown');
-      if(cd){cd.textContent='FREE';cd.style.fontSize='18px';}
-      localStorage.setItem('_currentTrialCode', d.code);
-      window._pendingTrialExpiry=d.expiresAt;
-      toast('Trial activated — '+minutes+' min','ok');
-      if(typeof adminRefreshTrialDeviceCount==='function') adminRefreshTrialDeviceCount();
+      var link = window.location.origin + window.location.pathname + '?code=' + encodeURIComponent(d.code);
+      var box = document.getElementById('trial-link-result');
+      var txt = document.getElementById('trial-link-text');
+      if(box) box.style.display='block';
+      if(txt) txt.textContent = link;
+      window._lastTrialLink = link;
+      toast('Trial link generated — '+d.minutes+' min from first use','ok');
     } else {toast(d.error||'Failed','err');}
   }catch(e){toast('Network error','err');}
 }
 
-async function adminDeactivateTrial(){
+function adminCopyTrialLink(){
+  if(!window._lastTrialLink) return;
+  navigator.clipboard.writeText(window._lastTrialLink).then(function(){
+    toast('Link copied','ok');
+  }).catch(function(){
+    toast('Could not copy — select and copy manually','err');
+  });
+}
+
+async function adminGenerateResearchTrialLink(){
   var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
   try{
-    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'deactivate-trial',adminKey})});
+    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'generate-research-trial-code',adminKey,minutes:30})});
     var d=await r.json();
     if(d.success){
-      setTrialStatusBar(false);
-      // Hide trial card
-      var c=document.getElementById('trial-card');
-      if(c) c.style.display='none';
-      if(_trialTimer) clearInterval(_trialTimer);
-      toast('Trial deactivated','ok');
+      var link = window.location.origin + '/research.html?code=' + encodeURIComponent(d.code);
+      var box = document.getElementById('research-trial-link-result');
+      var txt = document.getElementById('research-trial-link-text');
+      if(box) box.style.display='block';
+      if(txt) txt.textContent = link;
+      window._lastResearchTrialLink = link;
+      toast('Research trial link generated — '+d.minutes+' min from first use','ok');
     } else {toast(d.error||'Failed','err');}
   }catch(e){toast('Network error','err');}
 }
 
-async function adminActivateResearchTrial(){
-  var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
-  var minutes=parseInt(document.getElementById('research-trial-minutes').value)||15;
-  if(minutes>30){toast('Maximum 30 minutes','err');return;}
-  try{
-    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'generate-research-trial-code',adminKey,minutes})});
-    var d=await r.json();
-    if(d.success){
-      var bar=document.getElementById('research-trial-status-bar');
-      if(bar){ bar.innerHTML='&#128994; ACTIVE — '+d.code; bar.style.background='rgba(16,185,129,0.1)'; bar.style.color='#10b981'; }
-      toast('Research trial activated — '+minutes+' min','ok');
-      if(typeof adminRefreshResearchTrialDeviceCount==='function') adminRefreshResearchTrialDeviceCount();
-    } else {toast(d.error||'Failed','err');}
-  }catch(e){toast('Network error','err');}
+function adminCopyResearchTrialLink(){
+  if(!window._lastResearchTrialLink) return;
+  navigator.clipboard.writeText(window._lastResearchTrialLink).then(function(){
+    toast('Link copied','ok');
+  }).catch(function(){
+    toast('Could not copy — select and copy manually','err');
+  });
 }
-
-async function adminDeactivateResearchTrial(){
-  var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
-  try{
-    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'deactivate-research-trial',adminKey})});
-    var d=await r.json();
-    if(d.success){
-      var bar=document.getElementById('research-trial-status-bar');
-      if(bar){ bar.innerHTML='&#128308; INACTIVE'; bar.style.background='rgba(239,68,68,0.1)'; bar.style.color='#ef4444'; }
-      toast('Research trial deactivated','ok');
-    } else {toast(d.error||'Failed','err');}
-  }catch(e){toast('Network error','err');}
-}
-
-async function adminRefreshTrial(){
-  var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
-  var minutes=parseInt(document.getElementById('trial-minutes').value)||10;
-  if(minutes>15){toast('Maximum 15 minutes','err');return;}
-  try{
-    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'generate-trial-code',adminKey,minutes})});
-    var d=await r.json();
-    if(d.success){
-      // Clear session and reset UI
-      S.code=''; S.codeType=''; S.codeExpiry=null;
-      if(_trialTimer) clearInterval(_trialTimer);
-      _trialWarned=false;
-      // Store new code so client-side knows it changed
-      localStorage.setItem('_currentTrialCode', d.code);
-      setTrialStatusBar(true);
-      var c=document.getElementById('trial-card');
-      if(c) c.style.display='block';
-      var cd=document.getElementById('trial-countdown');
-      if(cd){cd.textContent='FREE';cd.style.fontSize='18px';cd.className='';}
-      var btn=c?c.querySelector('.btn-trial'):null;
-      if(btn) btn.innerHTML='&#128640; Start Free Trial';
-      window._pendingTrialExpiry=d.expiresAt;
-      toast('Trial refreshed — all devices can try again','ok');
-    } else {toast(d.error||'Failed','err');}
-  }catch(e){toast('Network error','err');}
-}
-
-window.addEventListener('load',checkTrialCode);
 // END TRIAL CODE
 </script>
 
@@ -13018,11 +12896,20 @@ function pfStartPolling(clientId){
 
 function pfShowCodeModal(code, plan){
   savePurchasedCode(code, plan, 'payfast');
-  // Show toast instead of popup
-  toast('🎉 Payment confirmed! Code: ' + code + ' — check My Codes in Pricing', 'ok', 60000);
+  toast('🎉 Payment confirmed! Opening your access now...', 'ok', 6000);
   renderMyCodesTable();
-  // Also show pricing page so learner sees the table
-  setTimeout(function(){ showPage('page-pricing'); }, 500);
+  // Auto-open the app with the new code immediately, instead of leaving
+  // the client to find and re-type it from the pricing page's saved-codes
+  // table themselves. Uses the exact same fill-and-submit mechanism as
+  // the ?code= URL auto-load, so it benefits from the same validation,
+  // device-locking, and error handling as manual entry.
+  var input = document.getElementById('code-input');
+  if(input && typeof validateCode === 'function'){
+    input.value = code;
+    validateCode();
+  } else {
+    setTimeout(function(){ showPage('page-pricing'); }, 500);
+  }
 }
 
 function savePurchasedCode(code, plan, source){
@@ -13052,12 +12939,18 @@ function showDrcCodeOverlay(code){
     var check = JSON.parse(localStorage.getItem('saa_saved_codes')||'[]');
     console.log('[DRC] saa_saved_codes now contains:', check.length, 'codes', check);
   }catch(e){ console.error('[DRC] Failed to verify save:', e); }
-  // Show toast notification — longer duration so it's not missed
-  toast('🎉 Code ready: ' + code + ' — saved in My Codes (Pricing page)', 'ok', 6000);
-  // If pricing page is open, refresh the table
+  toast('🎉 Payment confirmed! Opening your access now...', 'ok', 6000);
   renderMyCodesTable();
-  // Also navigate to pricing page automatically so the client SEES the saved code
-  setTimeout(function(){ showPage('page-pricing'); }, 1200);
+  // Auto-open the app with the new code immediately — same mechanism as
+  // the card-payment path above, so the client doesn't have to find and
+  // re-type the code themselves from the pricing page's saved-codes table.
+  var input = document.getElementById('code-input');
+  if(input && typeof validateCode === 'function'){
+    input.value = code;
+    validateCode();
+  } else {
+    setTimeout(function(){ showPage('page-pricing'); }, 1200);
+  }
 }
 
 // Auto-resume DRC code check — runs on every page load, non-blocking
@@ -16320,14 +16213,6 @@ function guideLearnerHTML(){
     +'</div></div>';
   var html = note;
 
-  // Free trial banner
-  html += '<div style="background:linear-gradient(135deg,rgba(6,182,212,0.15),rgba(124,58,237,0.15));border:1px solid rgba(6,182,212,0.3);border-radius:16px;padding:20px;margin-bottom:24px;text-align:center;">'
-    +'<div style="font-size:28px;margin-bottom:8px;">⚡</div>'
-    +'<div style="font-size:16px;font-weight:900;color:#fff;margin-bottom:6px;">'+t('free_trial')+'</div>'
-    +'<div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:14px;">'+t('free_trial_desc')+'</div>'
-    +'<button onclick="document.getElementById(\'guide-overlay\').style.display=\'none\';startTrial();" style="padding:10px 24px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif;">'+t('free_trial_btn')+'</button>'
-    +'</div>';
-
   // Section 1: Access
   html += '<div class="guide-section-title" style="color:#06b6d4;">'+t('section_access')+'</div>';
 
@@ -16743,50 +16628,34 @@ window.openGuide = function(tab){
           <!-- TRIAL CODE ADMIN -->
           <div class="admin-section" style="border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.04);">
             <div class="admin-section-title" style="color:#f59e0b;">&#127919; Free Trial</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-              <div style="font-size:12px;color:rgba(255,255,255,0.6);">Duration:</div>
-              <input type="number" id="trial-minutes" value="10" min="1" max="15"
-                style="width:60px;padding:6px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;">
-              <div style="font-size:12px;color:rgba(255,255,255,0.4);">min (max 15)</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;">
+              Generates a one-time link that auto-opens the app with 15 minutes of free access — no code typing needed. The 15-minute countdown starts the moment the client opens the link, not when you generate it. Share it directly (WhatsApp, SMS, etc.) to whoever you want to try the app.
             </div>
-            <div id="trial-status-bar" style="text-align:center;padding:8px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:8px;background:rgba(239,68,68,0.1);color:#ef4444;">
-              &#128308; INACTIVE
-            </div>
-            <div id="trial-device-count" style="text-align:center;font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:12px;"></div>
-            <div style="display:grid;gap:8px;">
-              <button onclick="adminActivateTrial()"
-                style="padding:12px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:8px;color:#10b981;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
-                &#9989; Activate Trial
-              </button>
-              <button onclick="adminDeactivateTrial()"
-                style="padding:12px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);border-radius:8px;color:#ef4444;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
-                &#10060; Deactivate Trial
-              </button>
+            <button onclick="adminGenerateTrialLink()"
+              style="width:100%;padding:12px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);border-radius:8px;color:#f59e0b;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
+              &#127919; Generate Trial Link
+            </button>
+            <div id="trial-link-result" style="display:none;margin-top:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;">
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:6px;">Share this link:</div>
+              <div id="trial-link-text" style="font-size:12px;color:#f59e0b;word-break:break-all;margin-bottom:8px;font-family:monospace;"></div>
+              <button onclick="adminCopyTrialLink()" style="width:100%;padding:8px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);border-radius:6px;color:#f59e0b;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">📋 Copy Link</button>
             </div>
           </div>
 
           <!-- RESEARCH/PROFESSIONAL TRIAL ADMIN -->
           <div class="admin-section" style="border:1px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.04);">
             <div class="admin-section-title" style="color:#a78bfa;">&#128300; Research / Professional Free Trial</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-              <div style="font-size:12px;color:rgba(255,255,255,0.6);">Duration:</div>
-              <input type="number" id="research-trial-minutes" value="15" min="1" max="30"
-                style="width:60px;padding:6px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;">
-              <div style="font-size:12px;color:rgba(255,255,255,0.4);">min (max 30)</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;">
+              Generates a one-time link that auto-opens Research/Professional with 30 minutes of free access. Countdown starts when the client opens the link.
             </div>
-            <div id="research-trial-status-bar" style="text-align:center;padding:8px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:8px;background:rgba(239,68,68,0.1);color:#ef4444;">
-              &#128308; INACTIVE
-            </div>
-            <div id="research-trial-device-count" style="text-align:center;font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:12px;"></div>
-            <div style="display:grid;gap:8px;">
-              <button onclick="adminActivateResearchTrial()"
-                style="padding:12px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);border-radius:8px;color:#a78bfa;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
-                &#9989; Activate Research Trial
-              </button>
-              <button onclick="adminDeactivateResearchTrial()"
-                style="padding:12px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);border-radius:8px;color:#ef4444;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
-                &#10060; Deactivate Research Trial
-              </button>
+            <button onclick="adminGenerateResearchTrialLink()"
+              style="width:100%;padding:12px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);border-radius:8px;color:#a78bfa;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
+              &#128300; Generate Research Trial Link
+            </button>
+            <div id="research-trial-link-result" style="display:none;margin-top:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;">
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:6px;">Share this link:</div>
+              <div id="research-trial-link-text" style="font-size:12px;color:#a78bfa;word-break:break-all;margin-bottom:8px;font-family:monospace;"></div>
+              <button onclick="adminCopyResearchTrialLink()" style="width:100%;padding:8px;background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.4);border-radius:6px;color:#a78bfa;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">📋 Copy Link</button>
             </div>
           </div>
 
@@ -17491,6 +17360,56 @@ async function adminLoadDrcPending(){
      by the main Smart Academy worker (existing verifyResearchGate
      logic) — only the experience AFTER the gate is different.
 ════════════════════════════════════════════════════════════════ -->
+
+<script>
+// ── AUTO-OPEN WITH CODE VIA URL PARAMETER ───────────────────────
+// Supports a link like smartacademy-ai.com/?code=H-AB3X9K that
+// automatically fills the access-code box and submits it — no
+// manual typing required. Used for:
+//   (1) Free trial links generated by admin (H- codes, 15 min,
+//       expiry calculated from first use — see worker.js)
+//   (2) Auto-opening the app immediately after a successful
+//       payment, instead of making the client copy/type their
+//       new code manually.
+// Runs after a short delay on full page load to guarantee every
+// other script block (validateCode, S, APP_SECRET, WORKER_URL,
+// getDeviceFingerprint, etc.) has already initialized, since this
+// script sits at the very end of the file specifically so all of
+// those dependencies are guaranteed to exist by the time it runs.
+(function(){
+  function autoLoadCodeFromUrl(){
+    try{
+      var params = new URLSearchParams(window.location.search);
+      var urlCode = params.get('code');
+      if(!urlCode) return;
+      urlCode = urlCode.toUpperCase().trim();
+      var input = document.getElementById('code-input');
+      if(!input || typeof validateCode !== 'function'){
+        // Dependencies not ready yet — retry shortly rather than
+        // silently giving up (this mirrors the resilience added to
+        // loadScript() for the same reason: a race on first load
+        // should not look like the feature simply not working).
+        setTimeout(autoLoadCodeFromUrl, 200);
+        return;
+      }
+      input.value = urlCode;
+      // Remove the code from the visible URL so refreshing the page
+      // doesn't re-submit it, and so the code isn't left sitting in
+      // the address bar / browser history any longer than necessary.
+      var cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, document.title, cleanUrl);
+      validateCode();
+    }catch(e){
+      console.warn('[AutoLoadCode] failed:', e);
+    }
+  }
+  if(document.readyState === 'complete'){
+    setTimeout(autoLoadCodeFromUrl, 300);
+  } else {
+    window.addEventListener('load', function(){ setTimeout(autoLoadCodeFromUrl, 300); });
+  }
+})();
+</script>
 
 </body>
 </html>
