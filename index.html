@@ -5767,7 +5767,18 @@ function adminLogin(){
   if(btn){ btn.textContent='⏳ Verifying...'; btn.disabled=true; }
 
   function _openAdminDashboard(){
-    localStorage.setItem('saa_admin_key','SmartAdmin2024');
+    // Bug fix: this used to unconditionally overwrite saa_admin_key with
+    // the stale hardcoded fallback 'SmartAdmin2024' EVERY time the
+    // dashboard opened — including immediately after a successful login
+    // had just stored the real, current adminKey from the server. That
+    // clobbered the correct key, so every subsequent admin action
+    // requiring adminKey (e.g. saving the Global Cost Limit Percentage)
+    // silently failed server-side as Unauthorized. The save would then
+    // show "Failed to save" and the displayed value would stay at
+    // whatever was last successfully saved (the original default),
+    // looking exactly like the setting "reverting itself" on its own.
+    // Only set the fallback here if no key has been stored at all yet.
+    if(!localStorage.getItem('saa_admin_key')) localStorage.setItem('saa_admin_key','SmartAdmin2024');
     adminLoggedIn = true;
     document.getElementById('admin-login-form').style.display = 'none';
     document.getElementById('admin-dashboard').style.display = 'block';
@@ -13624,7 +13635,7 @@ function runComparison(){
 // ══════════════════════════════════════════════
 
 function adminUpdateLimitPreview(){
-  var pct = parseFloat(document.getElementById('cost-limit-pct').value) || 70;
+  var pct = parseFloat(document.getElementById('cost-limit-pct').value) || 100;
   document.getElementById('cost-limit-slider').value = pct;
   var prices = {'W (Week)':5.50,'M (Month)':11,'RM- Research':22};
   try {
@@ -13651,7 +13662,7 @@ function adminUpdateLimitPreview(){
 }
 
 function adminSaveCostLimitPct(){
-  var pct = parseFloat(document.getElementById('cost-limit-pct').value) || 70;
+  var pct = parseFloat(document.getElementById('cost-limit-pct').value) || 100;
   if(pct < 10 || pct > 200){ toast('Percentage must be between 10% and 200%','warn'); return; }
   var adminKey = localStorage.getItem('saa_admin_key')||'';
   var s = document.getElementById('cost-limit-pct-status');
@@ -13690,7 +13701,7 @@ function adminLoadCostLimitPct(){
     localStorage.setItem('saa_cost_limit_pct', String(pct));
     adminUpdateLimitPreview();
   }).catch(function(){
-    var saved = parseFloat(localStorage.getItem('saa_cost_limit_pct')||'70');
+    var saved = parseFloat(localStorage.getItem('saa_cost_limit_pct')||'100');
     var inp = document.getElementById('cost-limit-pct');
     var sld = document.getElementById('cost-limit-slider');
     if(inp) inp.value = saved;
@@ -16881,11 +16892,11 @@ window.openGuide = function(tab){
         <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:14px;margin-bottom:14px;">
           <div style="font-size:11px;font-weight:700;color:#fca5a5;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🎛 Global Cost Limit Percentage</div>
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <input type="range" id="cost-limit-slider" min="10" max="150" value="70" step="5"
+            <input type="range" id="cost-limit-slider" min="10" max="150" value="100" step="5"
               oninput="adminUpdateLimitPreview()"
               style="flex:1;accent-color:#ef4444;">
             <div style="display:flex;align-items:center;gap:4px;min-width:70px;">
-              <input type="number" id="cost-limit-pct" min="10" max="150" value="70" step="5"
+              <input type="number" id="cost-limit-pct" min="10" max="150" value="100" step="5"
                 oninput="document.getElementById('cost-limit-slider').value=this.value;adminUpdateLimitPreview()"
                 style="width:54px;padding:6px 8px;background:rgba(255,255,255,0.07);border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:#fff;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;text-align:center;">
               <span style="font-size:14px;color:#fca5a5;font-weight:700;">%</span>
