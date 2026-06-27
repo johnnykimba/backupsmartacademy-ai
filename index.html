@@ -12466,7 +12466,7 @@ async function adminRefreshResearchTrialDeviceCount(){
 
 async function adminActivateTrial(){
   var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
-  var minutes=parseInt(document.getElementById('trial-minutes').value)||10;
+  var minutes=parseInt(document.getElementById('trial-minutes').value)||15;
   if(minutes>15){toast('Maximum 15 minutes','err');return;}
   localStorage.setItem('saa_trial_minutes', minutes); // save for pricing page display
   try{
@@ -12512,7 +12512,7 @@ async function adminActivateResearchTrial(){
     var d=await r.json();
     if(d.success){
       var bar=document.getElementById('research-trial-status-bar');
-      if(bar){ bar.innerHTML='&#128994; ACTIVE — '+d.code; bar.style.background='rgba(16,185,129,0.1)'; bar.style.color='#10b981'; }
+      if(bar){ bar.innerHTML='&#128994; ACTIVE'; bar.style.background='rgba(16,185,129,0.1)'; bar.style.color='#10b981'; }
       toast('Research trial activated — '+minutes+' min','ok');
       if(typeof adminRefreshResearchTrialDeviceCount==='function') adminRefreshResearchTrialDeviceCount();
     } else {toast(d.error||'Failed','err');}
@@ -12534,7 +12534,7 @@ async function adminDeactivateResearchTrial(){
 
 async function adminRefreshTrial(){
   var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
-  var minutes=parseInt(document.getElementById('trial-minutes').value)||10;
+  var minutes=parseInt(document.getElementById('trial-minutes').value)||15;
   if(minutes>15){toast('Maximum 15 minutes','err');return;}
   try{
     var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'generate-trial-code',adminKey,minutes})});
@@ -16745,7 +16745,7 @@ window.openGuide = function(tab){
             <div class="admin-section-title" style="color:#f59e0b;">&#127919; Free Trial</div>
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
               <div style="font-size:12px;color:rgba(255,255,255,0.6);">Duration:</div>
-              <input type="number" id="trial-minutes" value="10" min="1" max="15"
+              <input type="number" id="trial-minutes" value="15" min="1" max="15"
                 style="width:60px;padding:6px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;">
               <div style="font-size:12px;color:rgba(255,255,255,0.4);">min (max 15)</div>
             </div>
