@@ -2298,7 +2298,7 @@ function showLegalTab(tab){
     <a href="#" onclick="closeMenu();showPage('page-pricing');" data-i18n="nav_pricing">Pricing</a>
     <a href="#contact" onclick="closeMenu()" data-i18n="nav_contact" class="nav-marketing">Contact</a>
     <button class="nav-adm nav-non-research" id="nav-admin-btn" onclick="document.querySelectorAll('.page').forEach(function(p){p.style.display='none';});document.getElementById('admin-overlay').style.display='flex';document.getElementById('admin-overlay').style.zIndex='99999';setTimeout(function(){if(typeof adminCheckLayout==='function')adminCheckLayout();if(typeof adminRenderCodesTable==='function')adminRenderCodesTable();if(typeof adminLoadDmStats==='function')adminLoadDmStats();},50);">⚙️ Admin</button>
-    <a href="#" id="nav-cta-btn" class="nav-cta" onclick="document.getElementById('admin-overlay').style.display='none'; showPage('page-access');closeMenu();return false;" data-i18n="nav_start">🚀 Learner / Student</a>
+    <a href="#" id="nav-cta-btn" class="nav-cta" onclick="document.getElementById('admin-overlay').style.display='none'; goToLearnerArea();closeMenu();return false;" data-i18n="nav_start">🚀 Learner / Student</a>
     <a href="research.html" id="nav-cta-prof-btn" class="nav-cta" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Research / Professional</a>
   </div>
   <div style="display:flex;align-items:center;gap:6px;">
@@ -2363,7 +2363,7 @@ function showLegalTab(tab){
       </div>
 
       <div class="hero-btns" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">
-        <button class="btn-hero-primary" onclick="showPage('page-access')" data-i18n="hero_cta" style="flex:1;min-width:180px;">🎓 Learner / Student</button>
+        <button class="btn-hero-primary" onclick="goToLearnerArea()" data-i18n="hero_cta" style="flex:1;min-width:180px;">🎓 Learner / Student</button>
         <button onclick="document.getElementById('section-learning').scrollIntoView({behavior:'smooth'})" style="flex:1;min-width:160px;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;background:linear-gradient(135deg,#1a56db,#0891b2);border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
           <span>📘</span>
           <span data-t="btn_guide_learner">User Guide — Student</span>
@@ -2495,7 +2495,7 @@ function showLegalTab(tab){
       </div>
 
       <div style="margin-top:24px;text-align:center;">
-        <button onclick="showPage('page-access')" style="background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:12px;color:#fff;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🎓 Learner / Student</button>
+        <button onclick="goToLearnerArea()" style="background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:12px;color:#fff;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🎓 Learner / Student</button>
       </div>
     </div>
   </div>
@@ -2752,7 +2752,7 @@ function showLegalTab(tab){
           </div>
         </div>
       </div>
-      <button class="btn-hero-primary" onclick="showPage('page-access')" data-i18n="hero_cta">🎓 Start Learning Today</button>
+      <button class="btn-hero-primary" onclick="goToLearnerArea()" data-i18n="hero_cta">🎓 Start Learning Today</button>
     </div>
   </div>
 
@@ -5601,6 +5601,19 @@ function showLegalTab(tab){
     btn.style.background = t===tab ? '#0f2044' : 'transparent';
     btn.style.color = t===tab ? '#fff' : '#64748b';
   });
+}
+
+// If the learner already has a valid, unexpired code active in this
+// session, skip straight to the app instead of making them re-enter
+// their code every time they tap "Learner / Student" again after
+// visiting Pricing, Help, or any other page. Falls back to the normal
+// code-entry page if there's no active session or it has expired.
+function goToLearnerArea(){
+  if(S.code && S.codeExpiry && new Date(S.codeExpiry) > new Date()){
+    showPage('page-profile');
+  } else {
+    showPage('page-access');
+  }
 }
 
 function showPage(id){
@@ -12294,28 +12307,34 @@ function showCodeExpired(){
 // round, but every other device gets its own full 15 minutes.
 async function startTrial(){
   var btn = document.getElementById('btn-start-trial');
-  var fp = typeof getDeviceFingerprint==='function' ? getDeviceFingerprint() : 'unknown';
+  // Simplest possible "once per device" rule: a local flag in THIS
+  // browser. Not server-enforced (a determined user could clear
+  // localStorage), but matches the actual ask — stop the same person
+  // casually clicking the button repeatedly for unlimited fresh trials.
+  if(localStorage.getItem('saa_trial_used')){
+    toast('You have already used the free trial on this device.', 'err');
+    return;
+  }
   if(btn){ btn.disabled=true; btn.textContent='⏳ Starting...'; }
   try{
     var r = await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({_appSecret:APP_SECRET,action:'start-free-trial',fingerprint:fp})});
+      body:JSON.stringify({_appSecret:APP_SECRET,action:'start-free-trial'})});
     var data = await r.json();
-    if(!data.valid){
-      toast(data.error==='already_used' ? 'This device has already used the free trial.' : (data.message||data.error||'Could not start trial'), 'err');
+    if(!data.success){
+      toast(data.error||'Could not start trial', 'err');
       if(btn){ btn.disabled=false; btn.textContent='🚀 Start Free Trial'; }
       return;
     }
-    S.code = data.code; S.codeType = 'Trial'; S.codeExpiry = new Date(data.expiresAt);
-    S.fingerprint = fp;
-    localStorage.setItem('saa_expiry_'+data.code, data.expiresAt);
-    localStorage.setItem('saa_fp_'+data.code, fp);
-    localStorage.removeItem('_ph');
-    localStorage.removeItem('_pu');
-    localStorage.removeItem('_pe');
-    localStorage.removeItem('_ph_set');
-    if(typeof pinUpdateUI === 'function') pinUpdateUI();
-    showPage('page-profile');
-    toast('Trial started! You have '+data.minutes+' minutes of free access.','ok');
+    localStorage.setItem('saa_trial_used', '1');
+    // Feed the freshly generated trial code through the EXACT same
+    // validateCode() flow as a manually-typed code — same device-lock,
+    // same expiry handling, same everything. A trial code is just a
+    // normal 15-minute code; there is no separate trial logic at all.
+    var input = document.getElementById('code-input');
+    if(input && typeof validateCode === 'function'){
+      input.value = data.code;
+      validateCode();
+    }
   }catch(e){
     toast('Cannot connect to server. Please check your internet.','err');
   }
@@ -12324,19 +12343,24 @@ async function startTrial(){
 
 async function startResearchTrial(){
   var btn = document.getElementById('btn-start-research-trial');
+  if(localStorage.getItem('saa_research_trial_used')){
+    toast('You have already used the research trial on this device.', 'err');
+    return;
+  }
   var fp = typeof getDeviceFingerprint==='function' ? getDeviceFingerprint() : 'unknown';
   if(btn){ btn.disabled=true; btn.textContent='⏳ Starting...'; }
   try{
     var r = await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({_appSecret:APP_SECRET,action:'start-research-free-trial',fingerprint:fp})});
     var data = await r.json();
-    if(!data.valid){
-      toast(data.error==='already_used' ? 'This device has already used the research trial.' : (data.message||data.error||'Could not start trial'), 'err');
+    if(!data.success){
+      toast(data.error||'Could not start trial', 'err');
       if(btn){ btn.disabled=false; btn.textContent='🔬 Try Research Free'; }
       return;
     }
+    localStorage.setItem('saa_research_trial_used', '1');
     sessionStorage.setItem('prof_pending_code', data.code);
-    toast('Research trial started! You have '+data.minutes+' minutes of free access.','ok');
+    toast('Research trial started! 30 minutes of free access.','ok');
     window.location.href = 'research.html?code=' + encodeURIComponent(data.code);
   }catch(e){
     toast('Cannot connect to server. Please check your internet.','err');
@@ -12387,57 +12411,6 @@ async function adminLoadFxRates(){
   }catch(e){}
 }
 
-async function adminGenerateTrialLink(){
-  var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
-  try{
-    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'generate-trial-code',adminKey,minutes:15})});
-    var d=await r.json();
-    if(d.success){
-      var link = window.location.origin + window.location.pathname + '?code=' + encodeURIComponent(d.code);
-      var box = document.getElementById('trial-link-result');
-      var txt = document.getElementById('trial-link-text');
-      if(box) box.style.display='block';
-      if(txt) txt.textContent = link;
-      window._lastTrialLink = link;
-      toast('Trial link generated — '+d.minutes+' min from first use','ok');
-    } else {toast(d.error||'Failed','err');}
-  }catch(e){toast('Network error','err');}
-}
-
-function adminCopyTrialLink(){
-  if(!window._lastTrialLink) return;
-  navigator.clipboard.writeText(window._lastTrialLink).then(function(){
-    toast('Link copied','ok');
-  }).catch(function(){
-    toast('Could not copy — select and copy manually','err');
-  });
-}
-
-async function adminGenerateResearchTrialLink(){
-  var adminKey=localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
-  try{
-    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'generate-research-trial-code',adminKey,minutes:30})});
-    var d=await r.json();
-    if(d.success){
-      var link = window.location.origin + '/research.html?code=' + encodeURIComponent(d.code);
-      var box = document.getElementById('research-trial-link-result');
-      var txt = document.getElementById('research-trial-link-text');
-      if(box) box.style.display='block';
-      if(txt) txt.textContent = link;
-      window._lastResearchTrialLink = link;
-      toast('Research trial link generated — '+d.minutes+' min from first use','ok');
-    } else {toast(d.error||'Failed','err');}
-  }catch(e){toast('Network error','err');}
-}
-
-function adminCopyResearchTrialLink(){
-  if(!window._lastResearchTrialLink) return;
-  navigator.clipboard.writeText(window._lastResearchTrialLink).then(function(){
-    toast('Link copied','ok');
-  }).catch(function(){
-    toast('Could not copy — select and copy manually','err');
-  });
-}
 // END TRIAL CODE
 </script>
 
@@ -16625,38 +16598,9 @@ window.openGuide = function(tab){
             </div>
           </div>
 
-          <!-- TRIAL CODE ADMIN -->
-          <div class="admin-section" style="border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.04);">
-            <div class="admin-section-title" style="color:#f59e0b;">&#127919; Free Trial</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;">
-              Generates a one-time link that auto-opens the app with 15 minutes of free access — no code typing needed. The 15-minute countdown starts the moment the client opens the link, not when you generate it. Share it directly (WhatsApp, SMS, etc.) to whoever you want to try the app.
-            </div>
-            <button onclick="adminGenerateTrialLink()"
-              style="width:100%;padding:12px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);border-radius:8px;color:#f59e0b;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
-              &#127919; Generate Trial Link
-            </button>
-            <div id="trial-link-result" style="display:none;margin-top:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;">
-              <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:6px;">Share this link:</div>
-              <div id="trial-link-text" style="font-size:12px;color:#f59e0b;word-break:break-all;margin-bottom:8px;font-family:monospace;"></div>
-              <button onclick="adminCopyTrialLink()" style="width:100%;padding:8px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);border-radius:6px;color:#f59e0b;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">📋 Copy Link</button>
-            </div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);text-align:center;margin:-8px 0 16px;padding:0 8px;">
+            💡 Free trial codes (15 min, type H) and research trial codes (30 min, type RM) started by visitors from the homepage appear automatically in the codes table below — no separate trial management needed.
           </div>
-
-          <!-- RESEARCH/PROFESSIONAL TRIAL ADMIN -->
-          <div class="admin-section" style="border:1px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.04);">
-            <div class="admin-section-title" style="color:#a78bfa;">&#128300; Research / Professional Free Trial</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;">
-              Generates a one-time link that auto-opens Research/Professional with 30 minutes of free access. Countdown starts when the client opens the link.
-            </div>
-            <button onclick="adminGenerateResearchTrialLink()"
-              style="width:100%;padding:12px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);border-radius:8px;color:#a78bfa;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
-              &#128300; Generate Research Trial Link
-            </button>
-            <div id="research-trial-link-result" style="display:none;margin-top:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;">
-              <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:6px;">Share this link:</div>
-              <div id="research-trial-link-text" style="font-size:12px;color:#a78bfa;word-break:break-all;margin-bottom:8px;font-family:monospace;"></div>
-              <button onclick="adminCopyResearchTrialLink()" style="width:100%;padding:8px;background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.4);border-radius:6px;color:#a78bfa;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">📋 Copy Link</button>
-            </div>
           </div>
 
           <!-- RESET DEVICE LOCK -->
