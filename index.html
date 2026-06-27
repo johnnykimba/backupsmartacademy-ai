@@ -13025,11 +13025,21 @@ function pfStartPolling(clientId){
 
 function pfShowCodeModal(code, plan){
   savePurchasedCode(code, plan, 'payfast');
-  // Show toast instead of popup
-  toast('🎉 Payment confirmed! Code: ' + code + ' — check My Codes in Pricing', 'ok', 60000);
+  toast('🎉 Payment confirmed! Opening your access now...', 'ok', 6000);
   renderMyCodesTable();
-  // Also show pricing page so learner sees the table
-  setTimeout(function(){ showPage('page-pricing'); }, 500);
+  // Auto-open the app with the new code immediately, using the exact
+  // same validateCode() path as typing it manually — so it gets the same
+  // device-lock and expiry handling automatically, and will correctly
+  // refuse to unlock once the code's validity period has passed. If for
+  // any reason the code box isn't available yet, fall back to showing
+  // the Pricing page where the code is saved and can be used manually.
+  var input = document.getElementById('code-input');
+  if(input && typeof validateCode === 'function'){
+    input.value = code;
+    validateCode();
+  } else {
+    setTimeout(function(){ showPage('page-pricing'); }, 500);
+  }
 }
 
 function savePurchasedCode(code, plan, source){
@@ -13059,12 +13069,18 @@ function showDrcCodeOverlay(code){
     var check = JSON.parse(localStorage.getItem('saa_saved_codes')||'[]');
     console.log('[DRC] saa_saved_codes now contains:', check.length, 'codes', check);
   }catch(e){ console.error('[DRC] Failed to verify save:', e); }
-  // Show toast notification — longer duration so it's not missed
-  toast('🎉 Code ready: ' + code + ' — saved in My Codes (Pricing page)', 'ok', 6000);
-  // If pricing page is open, refresh the table
+  toast('🎉 Payment confirmed! Opening your access now...', 'ok', 6000);
   renderMyCodesTable();
-  // Also navigate to pricing page automatically so the client SEES the saved code
-  setTimeout(function(){ showPage('page-pricing'); }, 1200);
+  // Auto-open the app with the new code immediately — same mechanism as
+  // the card-payment path above. Falls back to Pricing (where the code
+  // is saved in My Codes) if the code box isn't available yet.
+  var input = document.getElementById('code-input');
+  if(input && typeof validateCode === 'function'){
+    input.value = code;
+    validateCode();
+  } else {
+    setTimeout(function(){ showPage('page-pricing'); }, 1200);
+  }
 }
 
 // Auto-resume DRC code check — runs on every page load, non-blocking
@@ -17498,6 +17514,42 @@ async function adminLoadDrcPending(){
      by the main Smart Academy worker (existing verifyResearchGate
      logic) — only the experience AFTER the gate is different.
 ════════════════════════════════════════════════════════════════ -->
+
+<script>
+// ── AUTO-OPEN WITH CODE VIA URL PARAMETER ───────────────────────
+// Supports a link like smartacademy-ai.com/?code=W-AB3X9K that
+// automatically fills the access-code box and submits it — no manual
+// typing required. Acts as a fallback path for payment auto-open (e.g.
+// if a payment confirmation page is reloaded fresh, or the code arrives
+// via a link rather than the live in-page flow) — same validateCode()
+// path either way, so device-lock and expiry are always respected.
+(function(){
+  function autoLoadCodeFromUrl(){
+    try{
+      var params = new URLSearchParams(window.location.search);
+      var urlCode = params.get('code');
+      if(!urlCode) return;
+      urlCode = urlCode.toUpperCase().trim();
+      var input = document.getElementById('code-input');
+      if(!input || typeof validateCode !== 'function'){
+        setTimeout(autoLoadCodeFromUrl, 200);
+        return;
+      }
+      input.value = urlCode;
+      var cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, document.title, cleanUrl);
+      validateCode();
+    }catch(e){
+      console.warn('[AutoLoadCode] failed:', e);
+    }
+  }
+  if(document.readyState === 'complete'){
+    setTimeout(autoLoadCodeFromUrl, 300);
+  } else {
+    window.addEventListener('load', function(){ setTimeout(autoLoadCodeFromUrl, 300); });
+  }
+})();
+</script>
 
 </body>
 </html>
