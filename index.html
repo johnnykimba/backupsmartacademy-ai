@@ -5645,9 +5645,18 @@ function goToLearnerArea(){
   }
   try{
     var saved = JSON.parse(localStorage.getItem('saa_saved_codes')||'[]');
-    if(saved.length){
+    // Bug fix: this previously considered ANY saved code regardless of
+    // prefix, so a Research code (RM-/RS-/RY-) could end up being
+    // auto-filled into the Learner/Student access page if it happened
+    // to be the most recently saved one. Learner/Student only ever
+    // accepts W-/M-/Y- (paid) or H- (free trial) codes — filter to just
+    // those, matching the same prefixes validateCode() itself accepts.
+    var learnerCodes = saved.filter(function(c){
+      return c.code && /^(W|M|Y|H)-/i.test(c.code);
+    });
+    if(learnerCodes.length){
       // Most recently saved code (highest savedAt timestamp)
-      var mostRecent = saved.reduce(function(a,b){ return (b.savedAt||0) > (a.savedAt||0) ? b : a; });
+      var mostRecent = learnerCodes.reduce(function(a,b){ return (b.savedAt||0) > (a.savedAt||0) ? b : a; });
       if(mostRecent && mostRecent.code){
         showPage('page-access');
         setTimeout(function(){
