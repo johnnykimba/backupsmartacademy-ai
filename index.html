@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18282761331"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-18282761331');
+</script>
 <meta charset="UTF-8">
 <script>
 // ── FORCE FRESH VERSION v2.2.9 ──
@@ -13186,11 +13195,12 @@ window.addEventListener('load', function(){
 // ── END PAYMENT TOGGLE ─────────────────────────────────────────
 var _uaPlan = null, _uaRegion = null, _uaAmount = null, _uaClientId = null, _uaExpiry = null, _uaPollTimer = null;
 
-var _mobPlan = null, _mobRegion = 'DRC'; // DRC only
+var _mobPlan = null, _mobPrice = null, _mobRegion = 'DRC'; // DRC only
 function mobCheckProceed(){
   var btn = document.getElementById('mob-proceed-btn');
   if(_mobPlan){
-    var planLabel = _mobPlan==='W'?'1 Week — $5':_mobPlan==='M'?'1 Month — $10':_mobPlan==='RM'?'Research Monthly — $20':'1 Year — $90';
+    var planNames = {W:'1 Week', M:'1 Month', Y:'1 Year', RM:'Research Monthly'};
+    var planLabel = (planNames[_mobPlan] || _mobPlan) + ' — $' + (_mobPrice || '');
     btn.textContent = '🇨🇩 Continue — ' + planLabel;
     btn.style.background = 'linear-gradient(135deg,#0891b2,#0e7490)';
     btn.style.color = '#fff';
@@ -13206,6 +13216,7 @@ function mobCheckProceed(){
 }
 function mobSelectPlan(plan, price){
   _mobPlan = plan;
+  _mobPrice = price;
   _mobRegion = 'DRC';
   _uaPlan = plan;
   _uaRegion = 'DRC';
@@ -13225,8 +13236,13 @@ function mobProceed(){
 
   var fxZar = parseFloat(localStorage.getItem('saa_fx_zar'))||17;
   var fxCdf = parseFloat(localStorage.getItem('saa_fx_cdf'))||2800;
-  var prices = {W:5, M:10, Y:90, RM:20};
-  var price = prices[_mobPlan] || 5;
+  // Bug fix: this used to be a separate hardcoded price table
+  // ({W:5, M:10, Y:90, RM:20}) that disagreed with the actual price shown
+  // on the plan-selection buttons (e.g. Yearly was selectable at $120 but
+  // this table said $90) — the Continue/proceed step would silently show
+  // the wrong, stale price. Now uses the real price captured when the
+  // plan was selected via mobSelectPlan(plan, price).
+  var price = _mobPrice || 5;
 
   if(_mobRegion === 'DRC'){
     // Show: DRC numbers + code box. Hide: unique amount widget, proof upload
