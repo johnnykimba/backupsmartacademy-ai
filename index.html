@@ -2388,6 +2388,16 @@ function showLegalTab(tab){
           <span style="font-size:16px;font-weight:900;">?</span><span>Help</span>
         </button>
       </div>
+
+      <!-- Install App button with trust explanation -->
+      <div id="hero-install-row" style="display:none;margin-top:14px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <button onclick="pwaBtnInstall()" id="hero-install-btn" style="padding:10px 18px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0;">
+          📲 Install This App
+        </button>
+        <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.5;flex:1;min-width:180px;">
+          Adds a shortcut to your home screen — <strong style="color:rgba(255,255,255,0.85);">no app store needed, no account required, no permissions.</strong> Works offline. Your data stays on your device. This is 100% free and safe.
+        </div>
+      </div>
     </div>
     <div class="hero-visual" aria-hidden="true">
       <div class="nb-card">
@@ -12711,9 +12721,12 @@ function _pwaTranslate(){
 window.addEventListener('beforeinstallprompt', function(e){
   e.preventDefault();
   _pwaPrompt = e;
-  // Don't show if already dismissed
+  // Always show the hero install row when install is available
+  var heroRow = document.getElementById('hero-install-row');
+  if(heroRow) heroRow.style.display = 'flex';
+  // Don't show the bottom bar if already dismissed
   if(localStorage.getItem('pwa_dismissed')) return;
-  // Show after 3 seconds
+  // Show bottom bar after 3 seconds
   setTimeout(function(){
     _pwaTranslate();
     var bar = document.getElementById('pwa-install-bar');
@@ -12733,6 +12746,8 @@ function pwaBtnInstall(){
   _pwaPrompt.userChoice.then(function(result){
     if(result.outcome === 'accepted'){
       toast('✅ App installed successfully!','ok');
+      var heroRow = document.getElementById('hero-install-row');
+      if(heroRow) heroRow.style.display = 'none';
     }
     _pwaPrompt = null;
   });
@@ -12757,6 +12772,8 @@ window.addEventListener('load', function(){
 window.addEventListener('appinstalled', function(){
   var bar = document.getElementById('pwa-install-bar');
   if(bar) bar.style.display = 'none';
+  var heroRow = document.getElementById('hero-install-row');
+  if(heroRow) heroRow.style.display = 'none';
   toast('✅ Smart Academy AI installed!','ok');
 });
 // ════ END PWA INSTALL ════════════════════════════════════════════
