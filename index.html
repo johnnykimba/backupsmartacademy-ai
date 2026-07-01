@@ -1305,20 +1305,43 @@ footer{
   min-height:calc(100vh - 120px);
 }
 
-@media(max-width:900px){
+@media(max-width:1024px){
   .quiz-layout{
     grid-template-columns:1fr;
     grid-template-rows:auto auto;
     height:auto;
+    overflow:hidden;
   }
   #question-ui{
     border-right:none !important;
     border-bottom:1px solid rgba(255,255,255,0.08);
     order:1;
+    overflow:hidden;
+    max-width:100vw;
+    box-sizing:border-box;
+    word-break:break-word;
+    overflow-wrap:break-word;
   }
-  .quiz-chat-panel{
-    height:350px;
+  /* Toggle button only visible on mobile */
+  #quiz-explanation-toggle{
+    display:none; /* shown via JS after answer submitted */
     order:2;
+  }
+  /* Chat panel hidden on mobile by default — shown when toggle is tapped */
+  #chat-box{
+    position:static !important; /* remove sticky — fixes overlap */
+    max-height:none !important;
+    order:3;
+    display:none; /* hidden by default on mobile */
+    max-width:100vw;
+    box-sizing:border-box;
+  }
+  #chat-box.mobile-visible{
+    display:flex !important;
+  }
+  #question-ui *{
+    max-width:100%;
+    box-sizing:border-box;
   }
 }
 
@@ -4538,6 +4561,12 @@ function copyProofCode(){
       <!-- QUESTION -->
       <div id="question-ui" style="min-height:100px;"></div>
 
+      <!-- Mobile toggle button — only visible on small screens, appears after submitting an answer -->
+      <button id="quiz-explanation-toggle" onclick="toggleQuizExplanation()"
+        style="display:none;margin:0 16px 8px;padding:12px 16px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;width:calc(100% - 32px);text-align:left;">
+        📖 See Explanation &amp; Tutor ▼
+      </button>
+
       <!-- CHAT -->
       <div id="chat-box" style="background:#111827;border-radius:14px;padding:14px;min-height:200px;max-height:calc(100vh - 160px);overflow-y:auto;display:flex;flex-direction:column;gap:12px;position:sticky;top:65px;"></div>
 
@@ -4836,6 +4865,46 @@ function saaTotalCost(){
     var d = saaGetCost(c.code);
     return sum + (d ? d.cost : 0);
   }, 0);
+}
+
+// ── MOBILE EXPLANATION TOGGLE ────────────────────────────────────
+var _quizExplVisible = false;
+function toggleQuizExplanation(){
+  var box = document.getElementById('chat-box');
+  var btn = document.getElementById('quiz-explanation-toggle');
+  if(!box || !btn) return;
+  _quizExplVisible = !_quizExplVisible;
+  if(_quizExplVisible){
+    box.classList.add('mobile-visible');
+    btn.innerHTML = '📖 Hide Explanation &amp; Tutor ▲';
+    setTimeout(function(){ box.scrollIntoView({behavior:'smooth', block:'start'}); }, 100);
+  } else {
+    box.classList.remove('mobile-visible');
+    btn.innerHTML = '📖 See Explanation &amp; Tutor ▼';
+  }
+}
+
+function showMobileExplanationToggle(){
+  if(window.innerWidth > 1024) return;
+  var btn = document.getElementById('quiz-explanation-toggle');
+  if(btn){
+    btn.style.display = 'block';
+    var box = document.getElementById('chat-box');
+    if(box && !_quizExplVisible){
+      _quizExplVisible = true;
+      box.classList.add('mobile-visible');
+      btn.innerHTML = '📖 Hide Explanation &amp; Tutor ▲';
+      setTimeout(function(){ box.scrollIntoView({behavior:'smooth', block:'start'}); }, 300);
+    }
+  }
+}
+
+function hideMobileExplanationToggle(){
+  var btn = document.getElementById('quiz-explanation-toggle');
+  var box = document.getElementById('chat-box');
+  if(btn) btn.style.display = 'none';
+  if(box) box.classList.remove('mobile-visible');
+  _quizExplVisible = false;
 }
 
 // ════════════════════════════════════════════════
@@ -7896,6 +7965,8 @@ function presentQ(idx){
   selectedOpt=null;
   hintUsed=false;
   updateProg();
+  // Reset mobile explanation toggle for each new question
+  hideMobileExplanationToggle();
 
   // Clear stale hints/challenges/explanations from the PREVIOUS question.
   // Without this, the chat-box (sticky-positioned to the right on wide screens)
@@ -9408,6 +9479,8 @@ async function buildFeedback(q, correct, conf){
     } else {
       addAI(`${prevQ}${yourAns}${correctAns}${proof}${comparison}${resultLine}${solution}${scoreLine}\n\n📌 ${saT('may_retry')||'This may reappear in retry!'} 💪`);
     }
+    // On mobile, show the toggle button and auto-reveal the explanation panel
+    showMobileExplanationToggle();
   } catch(err){
     // Safety net — even if feedback fails, quiz must continue
     console.warn('buildFeedback error:', err);
