@@ -285,7 +285,7 @@ nav{
 .hero-content{
   position:relative;z-index:1;
   max-width:560px;
-  margin-top:-30px;
+  margin-top:-60px;
   animation:fadeUp 0.8s ease forwards;
   opacity:1;
 }
@@ -2389,15 +2389,7 @@ function showLegalTab(tab){
         </button>
       </div>
 
-      <!-- Install App button with trust explanation -->
-      <div id="hero-install-row" style="display:none;margin-top:14px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <button onclick="pwaBtnInstall()" id="hero-install-btn" style="padding:10px 18px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0;">
-          📲 Install This App
-        </button>
-        <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.5;flex:1;min-width:180px;">
-          Adds a shortcut to your home screen — <strong style="color:rgba(255,255,255,0.85);">no app store needed, no account required, no permissions.</strong> Works offline. Your data stays on your device. This is 100% free and safe.
-        </div>
-      </div>
+      
     </div>
     <div class="hero-visual" aria-hidden="true">
       <div class="nb-card">
@@ -12669,7 +12661,7 @@ window.addEventListener('load',checkTrialCode);
   <div class="pwa-icon">📲</div>
   <div class="pwa-text">
     <strong id="pwa-install-title">Install Smart Academy AI</strong>
-    <span id="pwa-install-desc">Add to your home screen for the best experience</span>
+    <span id="pwa-install-desc">Optional — adds a shortcut to your home screen. No account needed, nothing is downloaded.</span>
   </div>
   <button id="pwa-btn-install" onclick="pwaBtnInstall()">Install App</button>
   <button id="pwa-btn-dismiss" onclick="pwaDismiss()">✕</button>
@@ -12695,16 +12687,17 @@ function _pwaTranslate(){
     hi:'Smart Academy AI इंस्टॉल करें'
   };
   var descs = {
-    en:'Add to your home screen for the best experience',
-    fr:'Ajoutez à votre écran d\'accueil pour la meilleure expérience',
-    pt:'Adicione ao ecrã inicial para a melhor experiência',
-    es:'Añade a tu pantalla de inicio para la mejor experiencia',
-    sw:'Ongeza kwenye skrini yako ya nyumbani kwa uzoefu bora',
-    de:'Zum Startbildschirm hinzufügen für das beste Erlebnis',
-    zh:'添加到主屏幕以获得最佳体验',
-    ru:'Добавьте на главный экран для лучшего опыта',
-    hi:'सर्वश्रेष्ठ अनुभव के लिए होम स्क्रीन पर जोड़ें'
+    en:'Optional — adds a shortcut to your home screen. No account needed, nothing is downloaded.',
+    fr:'Optionnel — ajoute un raccourci à votre écran d\'accueil. Aucun compte requis.',
+    pt:'Opcional — adiciona um atalho ao ecrã inicial. Nenhuma conta necessária.',
+    es:'Opcional — agrega un acceso directo a tu pantalla de inicio. Sin cuenta necesaria.',
+    sw:'Hiari — inaongeza mkato kwenye skrini yako ya nyumbani. Hakuna akaunti inayohitajika.',
+    de:'Optional — fügt eine Verknüpfung zu Ihrem Startbildschirm hinzu. Kein Konto erforderlich.',
+    zh:'可选 — 在主屏幕添加快捷方式，无需账户，无需下载。',
+    ru:'Необязательно — добавляет ярлык на главный экран. Аккаунт не нужен.',
+    hi:'वैकल्पिक — होम स्क्रीन पर एक शॉर्टकट जोड़ता है। कोई खाता आवश्यक नहीं।'
   };
+
   var btns = {
     en:'Install App', fr:'Installer', pt:'Instalar', es:'Instalar',
     sw:'Sakinisha', de:'Installieren', zh:'安装', ru:'Установить', hi:'इंस्टॉल करें'
@@ -12721,12 +12714,9 @@ function _pwaTranslate(){
 window.addEventListener('beforeinstallprompt', function(e){
   e.preventDefault();
   _pwaPrompt = e;
-  // Always show the hero install row when install is available
-  var heroRow = document.getElementById('hero-install-row');
-  if(heroRow) heroRow.style.display = 'flex';
-  // Don't show the bottom bar if already dismissed
+  // Don't show if already dismissed
   if(localStorage.getItem('pwa_dismissed')) return;
-  // Show bottom bar after 3 seconds
+  // Show after 3 seconds
   setTimeout(function(){
     _pwaTranslate();
     var bar = document.getElementById('pwa-install-bar');
@@ -12737,17 +12727,20 @@ window.addEventListener('beforeinstallprompt', function(e){
 function pwaBtnInstall(){
   var bar = document.getElementById('pwa-install-bar');
   if(bar) bar.style.display = 'none';
-  if(!_pwaPrompt){ 
-    // iOS fallback — show instructions
-    alert('To install: Tap Share button then select Add to Home Screen');
+  if(!_pwaPrompt){
+    // No install prompt available — give context-appropriate instructions
+    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if(isMobile){
+      alert('To install on iPhone: tap the Share button (□↑) then select "Add to Home Screen".\n\nOn Android: tap the 3-dot menu then "Add to Home Screen".');
+    } else {
+      alert('To install on your computer:\n\n• Chrome/Edge: look for the install icon (⊕) in the address bar on the right, then click "Install".\n\n• If you don\'t see it, make sure you are on www.smartacademy-ai.com in Chrome or Edge — Firefox and Safari do not support app installation.');
+    }
     return;
   }
   _pwaPrompt.prompt();
   _pwaPrompt.userChoice.then(function(result){
     if(result.outcome === 'accepted'){
       toast('✅ App installed successfully!','ok');
-      var heroRow = document.getElementById('hero-install-row');
-      if(heroRow) heroRow.style.display = 'none';
     }
     _pwaPrompt = null;
   });
@@ -12772,8 +12765,6 @@ window.addEventListener('load', function(){
 window.addEventListener('appinstalled', function(){
   var bar = document.getElementById('pwa-install-bar');
   if(bar) bar.style.display = 'none';
-  var heroRow = document.getElementById('hero-install-row');
-  if(heroRow) heroRow.style.display = 'none';
   toast('✅ Smart Academy AI installed!','ok');
 });
 // ════ END PWA INSTALL ════════════════════════════════════════════
