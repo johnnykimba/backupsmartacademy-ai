@@ -10716,15 +10716,7 @@ async function saveReportAsPDF(){
       <div style="font-size:18px;font-weight:600;color:#0f2044;margin:8px 0;">${c} / ${t} correct</div>
       <div style="display:inline-block;padding:8px 24px;border-radius:999px;font-size:14px;font-weight:700;background:rgba(26,86,219,0.1);color:#1a56db;border:1px solid rgba(26,86,219,0.3);margin-top:8px;">${g.label}</div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
-      <div style="background:#f8fafc;border-radius:8px;padding:14px;text-align:center;border:1px solid #e2e8f0;">
-        <div style="font-size:24px;font-weight:800;color:#10b981;">${conf.length}</div>
-        <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Mastered</div>
-      </div>
-      <div style="background:#f8fafc;border-radius:8px;padding:14px;text-align:center;border:1px solid #e2e8f0;">
-        <div style="font-size:24px;font-weight:800;color:#f59e0b;">${guessed.length}</div>
-        <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Developing</div>
-      </div>
+    <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:20px;">
       <div style="background:#f8fafc;border-radius:8px;padding:14px;text-align:center;border:1px solid #e2e8f0;">
         <div style="font-size:24px;font-weight:800;color:#ef4444;">${inc.length}</div>
         <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Needs Attention</div>
@@ -10822,8 +10814,6 @@ function showReport(){
       <div class="grade-pill ${g.cls}" style="margin:12px auto;display:inline-block;">${g.label}</div>
     </div>
     <div class="report-3grid">
-      <div class="r3c"><div class="r3n" style="color:#10b981">${conf.length}</div><div class="r3l">Mastered</div></div>
-      <div class="r3c"><div class="r3n" style="color:#f59e0b">${guessed.length}</div><div class="r3l">Developing</div></div>
       <div class="r3c"><div class="r3n" style="color:#ef4444">${inc.length}</div><div class="r3l">Needs Attention</div></div>
     </div>
     <div class="report-section">
