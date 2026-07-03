@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{--bg:#0a0f1e;--card:#0f172a;--card2:#1e293b;--blue:#1a56db;--cyan:#06b6d4;--purple:#7c3aed;--green:#10b981;--yellow:#f59e0b;--text:#f8fafc;--muted:rgba(248,250,252,0.55);--border:rgba(255,255,255,0.08);}
+:root{--bg:#0a0f1e;--card:#0f172a;--card2:#1e293b;--blue:#1a56db;--cyan:#06b6d4;--purple:#7c3aed;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--text:#f8fafc;--muted:rgba(248,250,252,0.55);--border:rgba(255,255,255,0.08);}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:60px;}
 .nav{background:rgba(10,15,30,0.95);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
 .nav-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;background:linear-gradient(135deg,#fff,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
@@ -37,6 +37,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .btn-green{background:linear-gradient(135deg,#059669,#10b981);color:#fff;}
 .btn-purple{background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;}
 .btn-gray{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);}
+/* RED RING — the "circle in red" annotation shown around buttons to click */
+.ring{outline:3px solid var(--red);outline-offset:3px;border-radius:12px;box-shadow:0 0 0 6px rgba(239,68,68,0.18);}
+.ring-sm{outline:3px solid var(--red);outline-offset:2px;border-radius:8px;box-shadow:0 0 0 5px rgba(239,68,68,0.15);}
+/* Red label underneath a ringed element */
+.ring-label{font-size:11px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;margin-top:8px;display:block;}
 .plan-pill{border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 14px;font-size:12px;font-weight:700;color:var(--muted);cursor:default;margin-bottom:6px;display:block;}
 .plan-pill.selected{border-color:var(--cyan);color:var(--cyan);background:rgba(6,182,212,0.08);}
 .screen{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px;margin:10px 0;}
@@ -48,6 +53,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .code-box{background:rgba(0,0,0,0.4);border:1px solid rgba(6,182,212,0.3);border-radius:10px;padding:14px;text-align:center;margin:10px 0;}
 .code-box .code{font-size:22px;font-weight:900;color:var(--cyan);letter-spacing:3px;font-family:monospace;}
 .code-box p{font-size:11px;color:var(--muted);margin-top:6px;}
+.success-box{background:rgba(16,185,129,0.1);border:2px solid rgba(16,185,129,0.4);border-radius:12px;padding:16px;text-align:center;margin:10px 0;}
+.success-box .icon{font-size:28px;margin-bottom:8px;}
+.success-box .title{font-size:15px;font-weight:800;color:var(--green);margin-bottom:4px;}
+.success-box .sub{font-size:12px;color:var(--muted);line-height:1.6;}
 .divider{border:none;border-top:1px solid var(--border);margin:24px 0;}
 .pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
 .price-card{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
@@ -69,7 +78,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 <div class="hero">
   <div class="hero-badge">Payment Guide</div>
   <h1>How to <span>Buy Your Access Code</span></h1>
-  <p>Step-by-step instructions for paying by card or Mobile Money. Choose your payment method below.</p>
+  <p>Step-by-step instructions. Buttons circled in red show exactly what to click at each step.</p>
 </div>
 
 <div class="tabs">
@@ -79,20 +88,21 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 <div class="content">
 
-<!-- CARD -->
+<!-- ═══════════ CARD ═══════════ -->
 <div class="section active" id="section-card">
 
   <div class="step">
     <div class="step-num">1</div>
-    <h3>Go to Pricing (Buy Code)</h3>
-    <p>From the homepage, click <strong>Pricing (Buy Code)</strong> in the top navigation bar.</p>
+    <h3>Click "Pricing (Buy Code)" in the navigation bar</h3>
+    <p>From the homepage, look at the top navigation bar and click <strong>Pricing (Buy Code)</strong>.</p>
     <div class="screen">
-      <div class="screen-label">What you will see in the navigation bar</div>
+      <div class="screen-label">Navigation bar — click the item circled in red</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <span style="color:rgba(255,255,255,0.8);font-size:13px;font-weight:700;">Pricing (Buy Code)</span>
+        <span class="ring-sm" style="color:rgba(255,255,255,0.9);font-size:13px;font-weight:800;padding:7px 12px;background:rgba(255,255,255,0.06);border-radius:8px;display:inline-block;">Pricing (Buy Code)</span>
         <span class="btn-illus btn-gray" style="font-size:11px;padding:6px 12px;">⚙️ Admin</span>
-        <span class="btn-illus btn-blue" style="font-size:11px;padding:6px 12px;">🎓 Learner / Student (Start)</span>
+        <span class="btn-illus btn-blue" style="font-size:11px;padding:6px 12px;">🎓 Learner / Student</span>
       </div>
+      <span class="ring-label">👆 Click here</span>
     </div>
   </div>
 
@@ -101,23 +111,23 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <div class="step">
     <div class="step-num">2</div>
     <h3>Click the "Pay by Card" panel</h3>
-    <p>On the Pricing page you will see two panels side by side. Click the <strong>Pay by Card</strong> panel on the left — it will expand below to show your plan choices.</p>
+    <p>On the Pricing page you will see two panels. Click the <strong>Pay by Card</strong> panel on the left.</p>
     <div class="screen">
-      <div class="screen-label">The two payment panels — click Pay by Card (left)</div>
+      <div class="screen-label">Two payment panels — click Pay by Card (circled in red)</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div style="background:linear-gradient(135deg,#1a56db,#1e40af);border:2px solid var(--cyan);border-radius:10px;padding:12px;text-align:center;">
+        <div class="ring" style="background:linear-gradient(135deg,#1a56db,#1e40af);border-radius:10px;padding:12px;text-align:center;">
           <div style="font-size:26px;">💳</div>
           <div style="font-size:12px;font-weight:800;color:#fff;margin:5px 0 3px;">Pay by Card</div>
           <div style="font-size:10px;color:rgba(255,255,255,0.6);">Visa · Mastercard</div>
           <div style="margin-top:6px;background:rgba(255,255,255,0.12);border-radius:5px;padding:3px 6px;font-size:10px;font-weight:700;color:#fff;">via PayFast →</div>
           <div style="margin-top:5px;font-size:10px;font-weight:800;color:#fde68a;">Click here to buy code 👉</div>
         </div>
-        <div style="background:linear-gradient(135deg,#0f2044,#0e7490);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;text-align:center;opacity:0.5;">
+        <div style="background:linear-gradient(135deg,#0f2044,#0e7490);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;text-align:center;opacity:0.45;">
           <div style="font-size:26px;">📱</div>
-          <div style="font-size:12px;font-weight:800;color:#fff;margin:5px 0 3px;">Mobile Money</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.5);">Airtel · M-Pesa · Orange</div>
+          <div style="font-size:12px;font-weight:800;color:#fff;margin:5px 0;">Mobile Money</div>
         </div>
       </div>
+      <span class="ring-label">👆 Click Pay by Card</span>
     </div>
   </div>
 
@@ -126,15 +136,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <div class="step">
     <div class="step-num">3</div>
     <h3>Select your plan</h3>
-    <p>After the panel expands, click on the plan you want. It will turn blue/highlighted when selected.</p>
+    <p>The panel expands below. Click on the plan you want — it turns blue when selected.</p>
     <div class="screen">
-      <div class="screen-label">Plan options — click one to select it</div>
-      <span class="plan-pill selected">📅 1 Week — $5</span>
+      <div class="screen-label">Click a plan to select it (example: 1 Week circled)</div>
+      <span class="plan-pill selected ring-sm" style="margin-bottom:8px;">📅 1 Week — $5</span>
       <span class="plan-pill">🗓 1 Month — $10</span>
       <span class="plan-pill">🏆 1 Year — $120</span>
       <span class="plan-pill" style="border-color:rgba(124,58,237,0.3);color:rgba(167,139,250,0.6);">🔬 Research Monthly — $25</span>
+      <span class="ring-label">👆 Click your chosen plan</span>
     </div>
-    <div class="tip"><strong>Best value:</strong> The 1 Year plan ($120) is just $10 per month — the cheapest option per day.</div>
+    <div class="tip"><strong>Best value:</strong> The 1 Year plan ($120) is just $10 per month.</div>
   </div>
 
   <div class="arrow">↓</div>
@@ -142,10 +153,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <div class="step">
     <div class="step-num">4</div>
     <h3>Click "Pay by Card via PayFast"</h3>
-    <p>Once a plan is selected, a blue button will appear below. Click it to go to the PayFast secure checkout page.</p>
+    <p>After selecting a plan, this blue button appears below. Click it to go to the secure checkout.</p>
     <div class="screen">
-      <div class="screen-label">The button that appears after selecting a plan</div>
-      <div class="btn-illus btn-blue" style="width:100%;justify-content:center;">💳 Pay by Card via PayFast →</div>
+      <div class="screen-label">Button appears after selecting a plan</div>
+      <div class="btn-illus btn-blue ring" style="width:100%;justify-content:center;">💳 Pay by Card via PayFast →</div>
+      <span class="ring-label">👆 Click this button</span>
     </div>
     <div class="warn"><strong>Note:</strong> Prices are in USD but PayFast charges in South African Rand (ZAR). The final amount may vary slightly with the exchange rate.</div>
   </div>
@@ -155,49 +167,49 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <div class="step">
     <div class="step-num">5</div>
     <h3>Enter your card details on PayFast</h3>
-    <p>You will be taken to the PayFast secure payment page. Fill in:</p>
+    <p>You will be taken to the PayFast secure payment page. Fill in your card details and click <strong>Pay Now</strong>.</p>
     <p>• <strong>Card number</strong> — 16-digit number on the front of your card</p>
-    <p>• <strong>Expiry date</strong> — month and year on the card (e.g. 09/27)</p>
-    <p>• <strong>CVV</strong> — 3-digit security code on the back</p>
-    <p>• <strong>Cardholder name</strong> — your name exactly as on the card</p>
-    <p>Click <strong>Pay Now</strong> or <strong>Complete Payment</strong> to finish.</p>
-    <div class="tip"><strong>Safe &amp; secure:</strong> PayFast is a trusted South African payment gateway. Your card details are never stored on Smart Academy AI — they go directly to PayFast's encrypted system.</div>
+    <p>• <strong>Expiry date</strong> — month/year printed on the card (e.g. 09/27)</p>
+    <p>• <strong>CVV</strong> — 3-digit code on the back of the card</p>
+    <p>• <strong>Name on card</strong> — your name exactly as it appears</p>
+    <div class="tip"><strong>Safe &amp; secure:</strong> PayFast is a trusted South African payment gateway. Your card details are never stored on Smart Academy AI.</div>
   </div>
 
   <div class="arrow">↓</div>
 
   <div class="step">
     <div class="step-num">6</div>
-    <h3>Your code appears instantly ✅</h3>
+    <h3>Your access code appears instantly ✅</h3>
     <p>After payment is confirmed, you are brought back to Smart Academy AI automatically. Your access code appears on screen and the app opens immediately.</p>
     <div class="code-box">
       <div class="code">W-AB3X9K</div>
       <p>Example of what your access code looks like</p>
     </div>
-    <p>Your code is <strong>saved automatically</strong> on this device. Next time you visit, clicking <strong>Learner / Student (Start)</strong> will open the app directly — no need to type the code again.</p>
-    <div class="warn"><strong>Important:</strong> Your code activates on this device only. Do not share it — if someone else activates it on a different device, it will stop working for you.</div>
+    <p>Your code is <strong>saved automatically</strong> on this device. Next time you click <strong>Learner / Student (Start)</strong>, the app opens directly — no need to type the code again.</p>
+    <div class="warn"><strong>Important:</strong> Your code activates on this device only. Do not share it with others.</div>
   </div>
 
 </div><!-- end card -->
 
 
-<!-- MOBILE MONEY -->
+<!-- ═══════════ MOBILE MONEY ═══════════ -->
 <div class="section" id="section-mobile">
 
   <div class="tip" style="margin-top:0;">
-    <strong>📱 Supported networks:</strong> Airtel Money, M-Pesa, Orange Money, Illicocash (via Rawbank) — available across DRC and Africa.
+    <strong>📱 Supported:</strong> Airtel Money, M-Pesa, Orange Money, Illicocash (Rawbank) — across DRC and Africa.
   </div>
 
   <div class="step">
     <div class="step-num">1</div>
-    <h3>Go to Pricing (Buy Code)</h3>
-    <p>From the homepage, click <strong>Pricing (Buy Code)</strong> in the top navigation bar, or scroll down on the homepage to the Pricing section.</p>
+    <h3>Click "Pricing (Buy Code)" in the navigation bar</h3>
+    <p>From the homepage, click <strong>Pricing (Buy Code)</strong> in the top navigation bar.</p>
     <div class="screen">
-      <div class="screen-label">Navigation bar</div>
+      <div class="screen-label">Navigation bar — click the item circled in red</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <span style="color:rgba(255,255,255,0.8);font-size:13px;font-weight:700;">Pricing (Buy Code)</span>
-        <span class="btn-illus btn-blue" style="font-size:11px;padding:6px 12px;">🎓 Learner / Student (Start)</span>
+        <span class="ring-sm" style="color:rgba(255,255,255,0.9);font-size:13px;font-weight:800;padding:7px 12px;background:rgba(255,255,255,0.06);border-radius:8px;display:inline-block;">Pricing (Buy Code)</span>
+        <span class="btn-illus btn-blue" style="font-size:11px;padding:6px 12px;">🎓 Learner / Student</span>
       </div>
+      <span class="ring-label">👆 Click here</span>
     </div>
   </div>
 
@@ -206,15 +218,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <div class="step">
     <div class="step-num">2</div>
     <h3>Click the "Mobile Money" panel</h3>
-    <p>On the Pricing page, click the <strong>Mobile Money</strong> panel on the right. It will expand to show your plan options.</p>
+    <p>On the Pricing page, click the <strong>Mobile Money</strong> panel on the right.</p>
     <div class="screen">
-      <div class="screen-label">Click Mobile Money (right panel)</div>
+      <div class="screen-label">Two payment panels — click Mobile Money (circled in red)</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div style="background:linear-gradient(135deg,#1a56db,#1e40af);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;text-align:center;opacity:0.5;">
+        <div style="background:linear-gradient(135deg,#1a56db,#1e40af);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;text-align:center;opacity:0.45;">
           <div style="font-size:26px;">💳</div>
           <div style="font-size:12px;font-weight:800;color:#fff;margin:5px 0;">Pay by Card</div>
         </div>
-        <div style="background:linear-gradient(135deg,#0f2044,#0e7490);border:2px solid var(--cyan);border-radius:10px;padding:12px;text-align:center;">
+        <div class="ring" style="background:linear-gradient(135deg,#0f2044,#0e7490);border-radius:10px;padding:12px;text-align:center;">
           <div style="font-size:26px;">📱</div>
           <div style="font-size:12px;font-weight:800;color:#fff;margin:5px 0 3px;">Mobile Money</div>
           <div style="font-size:10px;color:rgba(255,255,255,0.6);">Airtel · M-Pesa · Orange</div>
@@ -223,6 +235,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
           <div style="margin-top:5px;font-size:10px;font-weight:800;color:#fde68a;">Click here to buy code 👉</div>
         </div>
       </div>
+      <span class="ring-label">👆 Click Mobile Money</span>
     </div>
   </div>
 
@@ -231,13 +244,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <div class="step">
     <div class="step-num">3</div>
     <h3>Select your plan</h3>
-    <p>Click on the plan you want. It will highlight when selected.</p>
+    <p>The panel expands. Click on the plan you want — it highlights when selected.</p>
     <div class="screen">
-      <div class="screen-label">Plan options</div>
-      <span class="plan-pill selected">📅 1 Week — $5</span>
+      <div class="screen-label">Click a plan to select it</div>
+      <span class="plan-pill selected ring-sm" style="margin-bottom:8px;">📅 1 Week — $5</span>
       <span class="plan-pill">🗓 1 Month — $10</span>
       <span class="plan-pill">🏆 1 Year — $120</span>
       <span class="plan-pill" style="border-color:rgba(124,58,237,0.3);color:rgba(167,139,250,0.6);">🔬 Research Monthly — $25</span>
+      <span class="ring-label">👆 Click your chosen plan</span>
     </div>
   </div>
 
@@ -246,10 +260,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <div class="step">
     <div class="step-num">4</div>
     <h3>Click "Continue"</h3>
-    <p>After selecting a plan, a <strong>Continue</strong> button appears showing your plan and price. Click it.</p>
+    <p>After selecting a plan, a <strong>Continue</strong> button appears. Click it.</p>
     <div class="screen">
-      <div class="screen-label">The Continue button — example for 1 Week plan</div>
-      <div class="btn-illus btn-teal" style="width:100%;justify-content:center;">🇨🇩 Continue — 1 Week — $5</div>
+      <div class="screen-label">The Continue button — example for 1 Week</div>
+      <div class="btn-illus btn-teal ring" style="width:100%;justify-content:center;">🇨🇩 Continue — 1 Week — $5</div>
+      <span class="ring-label">👆 Click Continue</span>
     </div>
   </div>
 
@@ -257,60 +272,64 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
   <div class="step">
     <div class="step-num">5</div>
-    <h3>Send payment via Mobile Money</h3>
-    <p>A payment screen appears showing the <strong>exact amount</strong> and the <strong>Mobile Money number</strong> to send to. Open your Mobile Money app and send exactly that amount to that number.</p>
+    <h3>Send the payment via your Mobile Money app</h3>
+    <p>A payment screen appears showing the <strong>exact amount</strong> and the <strong>Mobile Money number</strong> to send to. Open your Mobile Money app (Airtel, M-Pesa, Orange, or Illicocash) and send exactly that amount to that number.</p>
     <div class="screen">
-      <div class="screen-label">Payment instructions — what you will see on screen</div>
+      <div class="screen-label">What you will see on screen — send this amount to this number</div>
       <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:14px;text-align:center;">
         <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Send exactly this amount to:</div>
         <div style="font-size:24px;font-weight:900;color:var(--cyan);">$5.00</div>
-        <div style="font-size:12px;font-weight:700;color:#fff;margin:8px 0 4px;">Airtel Money / M-Pesa / Orange</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;margin:8px 0 4px;">Airtel Money / M-Pesa / Orange / Illicocash</div>
         <div style="font-size:15px;font-weight:900;color:var(--yellow);letter-spacing:2px;">+243 XXX XXX XXX</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:5px;">(Exact number shown on screen at time of payment)</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:5px;">Exact number shown on screen at time of payment</div>
       </div>
     </div>
-    <div class="warn"><strong>Send the exact amount.</strong> Do not round up or down. The system verifies the exact amount from your network's SMS confirmation.</div>
+    <div class="warn"><strong>Send the exact amount shown.</strong> Do not round up or down. The system checks the exact amount from your payment SMS.</div>
   </div>
 
   <div class="arrow">↓</div>
 
   <div class="step">
     <div class="step-num">6</div>
-    <h3>Enter your phone number</h3>
-    <p>After sending the payment, go back to Smart Academy AI. Enter the <strong>phone number you used to send</strong> in the box shown, then click <strong>I Have Paid — Verify Now</strong>.</p>
+    <h3>Copy your proof of payment and paste it here</h3>
+    <p>After sending the payment, your Mobile Money network sends you a <strong>confirmation SMS</strong>. Copy the text of that SMS and paste it into the proof-of-payment box on the Smart Academy AI screen.</p>
     <div class="screen">
-      <div class="screen-label">Verification step</div>
-      <div style="border:1px solid rgba(6,182,212,0.4);border-radius:8px;padding:10px 14px;color:var(--muted);font-size:13px;margin-bottom:10px;">+243 97X XXX XXX</div>
-      <div class="btn-illus btn-green" style="width:100%;justify-content:center;">✅ I Have Paid — Verify Now</div>
+      <div class="screen-label">Example confirmation SMS — copy this entire text</div>
+      <div style="background:#1a2744;border-radius:8px;padding:12px;font-size:12px;color:rgba(255,255,255,0.8);line-height:1.7;font-family:monospace;border:1px dashed rgba(6,182,212,0.4);">
+        AIRTEL MONEY: You have sent 4,125 FC to +243 XXX XXX XXX. Your new balance is XXXX FC. TxnID: XXXXXXXX
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--muted);">Then paste it into this box on the app:</div>
+      <div style="margin-top:8px;border:1px solid rgba(6,182,212,0.4);border-radius:8px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.4);min-height:50px;background:rgba(0,0,0,0.2);">Paste your SMS proof of payment here...</div>
     </div>
-    <div class="tip"><strong>Tip:</strong> Enter your number exactly as registered with your Mobile Money network, including the country code (+243 for DRC).</div>
+    <div class="tip"><strong>Tip:</strong> Press and hold your SMS message to copy the full text, then paste it into the box on the app screen.</div>
   </div>
 
   <div class="arrow">↓</div>
 
   <div class="step">
     <div class="step-num">7</div>
-    <h3>Upload your SMS screenshot (if required)</h3>
-    <p>Sometimes the system asks you to upload a screenshot of the confirmation SMS you received from your Mobile Money network after sending. This is proof of payment.</p>
+    <h3>Click "Submit" and get your code</h3>
+    <p>After pasting your proof of payment, click the <strong>Submit</strong> button. The system will process your payment and deliver your access code.</p>
     <div class="screen">
-      <div class="screen-label">Example confirmation SMS</div>
-      <div style="background:#1a2744;border-radius:8px;padding:12px;font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6;font-family:monospace;">AIRTEL MONEY: You have sent 4,125 FC to +243 XXX XXX XXX. New balance: XXXX FC. TxnID: XXXXXXXX</div>
+      <div class="screen-label">The Submit button — click it after pasting your proof</div>
+      <div class="btn-illus btn-green ring" style="width:100%;justify-content:center;">✅ Submit Proof &amp; Get My Code</div>
+      <span class="ring-label">👆 Click Submit</span>
     </div>
-    <p>Take a screenshot of this SMS on your phone, then tap <strong>Upload SMS Screenshot</strong> and select the screenshot from your gallery.</p>
   </div>
 
   <div class="arrow">↓</div>
 
   <div class="step">
     <div class="step-num">8</div>
-    <h3>Your code appears ✅</h3>
-    <p>Once your payment is verified (usually within seconds), your access code appears on screen and the app opens immediately.</p>
-    <div class="code-box">
-      <div class="code">W-AB3X9K</div>
-      <p>Example of what your access code looks like</p>
+    <h3>See: "Proof received! Waiting for admin verification"</h3>
+    <p>After clicking Submit, you will see a confirmation message on screen. This means your proof has been received and is being verified.</p>
+    <div class="success-box">
+      <div class="icon">📨</div>
+      <div class="title">Proof received!</div>
+      <div class="sub">Your payment proof has been submitted successfully.<br>Waiting for admin verification — your access code will be delivered shortly.<br><br>This usually takes a maximum of 24 hours. Please be patient.</div>
     </div>
-    <p>Your code is <strong>saved automatically</strong> on this device. Next time you visit, clicking <strong>Learner / Student (Start)</strong> opens the app directly.</p>
-    <div class="warn"><strong>Important:</strong> Your code activates on this device only. Do not share it with others.</div>
+    <div class="tip"><strong>What happens next:</strong> The admin reviews your proof and releases your access code. Once verified, your code appears on screen automatically and the app opens immediately.</div>
+    <div class="warn"><strong>Do not close the page</strong> while waiting — your code will appear here once it is verified.</div>
   </div>
 
 </div><!-- end mobile -->
@@ -331,7 +350,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 <div style="background:rgba(26,86,219,0.08);border:1px solid rgba(26,86,219,0.25);border-radius:16px;padding:20px;margin-bottom:24px;text-align:center;">
   <div style="font-size:20px;margin-bottom:8px;">🤝</div>
   <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:6px;">Still need help?</div>
-  <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px;">If your payment went through but you did not receive a code, or if you have any problem, contact us. We reply within 24 hours.</div>
+  <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px;">If your payment went through but you did not receive a code, or if you have any other problem, contact us. We reply within 24 hours.</div>
   <a href="index.html#section-contact" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:linear-gradient(135deg,#1a56db,#06b6d4);border-radius:10px;color:#fff;font-size:13px;font-weight:700;text-decoration:none;">📩 Contact Us</a>
 </div>
 
