@@ -3615,6 +3615,13 @@ window.addEventListener('load', function(){
     <!-- PAYMENT METHOD CHOOSER -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
 
+      <!-- HOW TO PAY LINK -->
+      <div style="text-align:center;margin-bottom:16px;">
+        <a href="payment.html" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.3);border-radius:10px;color:var(--cyan,#06b6d4);font-size:13px;font-weight:700;text-decoration:none;font-family:'DM Sans',sans-serif;transition:all 0.2s;" onmouseover="this.style.background='rgba(6,182,212,0.15)'" onmouseout="this.style.background='rgba(6,182,212,0.08)'">
+          ❓ How to Pay — Step by Step Guide
+        </a>
+      </div>
+
       <!-- CARD BUTTON -->
       <div id="pay-card-panel-btn" onclick="togglePayPanel('card')"
         style="background:linear-gradient(135deg,#1a56db,#1e40af);border:2px solid transparent;border-radius:14px;padding:22px 16px;cursor:pointer;text-align:center;transition:all 0.2s;position:relative;">
@@ -9439,7 +9446,13 @@ async function buildFeedback(q, correct, conf){
     if(!correct){
       setTimeout(async function(){
         try {
-          var detailPrompt = `The student got this wrong.\n\nQuestion: ${q.text}\nCorrect answer: ${corLet}) ${corText}\n\nGive a detailed step-by-step solution in ${S.lang}. Show all working clearly. Explain WHY each step is done. Suitable for a ${S.level} student studying ${S.subject}.`;
+          // Root cause of "OUT OF SCOPE" bug: the solution request was
+          // previously sent with images:[] (no document), so the worker's
+          // tutor handler saw no uploaded document and triggered its
+          // "OUT OF SCOPE" rule. Fix: pass the original document pages
+          // from S.pages so the tutor has the same context it had when
+          // it generated the question in the first place.
+          var detailPrompt = `This question was generated from the student's uploaded document. The student got it wrong.\n\nQuestion: ${q.text}\nCorrect answer: ${corLet}) ${corText}\n\nGive a detailed step-by-step solution in ${S.lang}. Show all working clearly. Explain WHY each step is done. Suitable for a ${S.level} student studying ${S.subject}. This IS within the document scope — do not mark as out of scope.`;
           var res = await fetch('https://smartacademy-ai.kasongokimba.workers.dev', {
             method:'POST',
             headers:{'Content-Type':'application/json'},
@@ -9450,13 +9463,22 @@ async function buildFeedback(q, correct, conf){
               subject: S.subject,
               lang:    S.lang || 'English',
               question: detailPrompt,
-              history: [],   // no history — clean standalone call
-              images:  []    // no images needed for solution
+              history: [],
+              images:  (S.pages && S.pages.length) ? S.pages.slice(0,3) : []
             })
           });
           var data = await res.json();
           if(data.answer){
             var solAnswer = data.answer;
+            // Strip "OUT OF SCOPE" prefix ONLY in Mode A (doc) where questions
+            // always come from the uploaded document so it's never truly out of scope.
+            // In Mode B (hard) the prefix is legitimate and intentional — the AI
+            // correctly flags that a question goes beyond the document, so we
+            // leave it visible there as useful context for the student.
+            if(S.diffMode !== 'hard'){
+              solAnswer = solAnswer.replace(/^[\s\n]*⚠️\s*OUT OF SCOPE:[^\n]*\n?/i, '').trim();
+              solAnswer = solAnswer.replace(/^[\s\n]*OUT OF SCOPE:[^\n]*\n?/i, '').trim();
+            }
             // Extract confidence score
             var solConfMatch = solAnswer.match(/\[CONFIDENCE:(\d+)\]/i);
             var solConfidence = solConfMatch ? Math.min(100,Math.max(0,parseInt(solConfMatch[1]))) : null;
