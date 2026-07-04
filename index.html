@@ -4566,11 +4566,19 @@ function copyProofCode(){
       <!-- QUESTION -->
       <div id="question-ui" style="min-height:100px;"></div>
 
-      <!-- Mobile toggle button — only visible on small screens, appears after submitting an answer -->
+      <!-- Mobile toggle button — only visible on small screens, appears after submitting an answer.
+           Made more noticeable (pulse animation + bouncing arrow) since some learners were
+           missing it and not scrolling down to see the solution/explanation. -->
       <button id="quiz-explanation-toggle" onclick="toggleQuizExplanation()"
-        style="display:none;margin:0 16px 8px;padding:12px 16px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;width:calc(100% - 32px);text-align:left;">
-        📖 See Explanation &amp; Tutor ▼
+        style="display:none;margin:0 16px 8px;padding:14px 16px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;width:calc(100% - 32px);text-align:center;animation:mobileTogglePulse 1.4s ease-in-out infinite;">
+        👇 On phone: scroll down / tap here to see the solution ▼
       </button>
+      <style>
+        @keyframes mobileTogglePulse{
+          0%,100%{ box-shadow:0 0 0 0 rgba(6,182,212,0.5); transform:scale(1); }
+          50%{ box-shadow:0 0 0 10px rgba(6,182,212,0); transform:scale(1.02); }
+        }
+      </style>
 
       <!-- CHAT -->
       <div id="chat-box" style="background:#111827;border-radius:14px;padding:14px;min-height:200px;max-height:calc(100vh - 160px);overflow-y:auto;display:flex;flex-direction:column;gap:12px;position:sticky;top:65px;"></div>
@@ -4878,14 +4886,15 @@ function toggleQuizExplanation(){
   var box = document.getElementById('chat-box');
   var btn = document.getElementById('quiz-explanation-toggle');
   if(!box || !btn) return;
+  btn.style.animation = 'none'; // stop pulsing once the student has interacted with it
   _quizExplVisible = !_quizExplVisible;
   if(_quizExplVisible){
     box.classList.add('mobile-visible');
-    btn.innerHTML = '📖 Hide Explanation &amp; Tutor ▲';
+    btn.innerHTML = '📖 Hide Solution ▲';
     setTimeout(function(){ box.scrollIntoView({behavior:'smooth', block:'start'}); }, 100);
   } else {
     box.classList.remove('mobile-visible');
-    btn.innerHTML = '📖 See Explanation &amp; Tutor ▼';
+    btn.innerHTML = '👇 On phone: scroll down / tap here to see the solution ▼';
   }
 }
 
@@ -4894,11 +4903,12 @@ function showMobileExplanationToggle(){
   var btn = document.getElementById('quiz-explanation-toggle');
   if(btn){
     btn.style.display = 'block';
+    btn.style.animation = 'mobileTogglePulse 1.4s ease-in-out infinite'; // re-enable pulse for each new question
     var box = document.getElementById('chat-box');
     if(box && !_quizExplVisible){
       _quizExplVisible = true;
       box.classList.add('mobile-visible');
-      btn.innerHTML = '📖 Hide Explanation &amp; Tutor ▲';
+      btn.innerHTML = '📖 Hide Solution ▲';
       setTimeout(function(){ box.scrollIntoView({behavior:'smooth', block:'start'}); }, 300);
     }
   }
@@ -5199,8 +5209,24 @@ function switchUploadTab(tab){
 // ════════════════════════════════════════════════
 // PDF HANDLING
 // ════════════════════════════════════════════════
-let pdfDoc = null;
+let pdfDoc = null;          // kept for backward-compat references elsewhere; points to the LAST loaded doc
+let pdfDocs = [];            // Bug fix: array of {doc, startPage, endPage} — one entry per uploaded PDF,
+                             // so multiple PDFs uploaded in the same session can each be looked up correctly
+                             // instead of only ever reading pages from whichever PDF was uploaded last.
 let pdfTotalPages = 0;
+
+// Given a GLOBAL page number (1-based, cumulative across all uploaded PDFs),
+// return the correct {doc, localPage} to call .getPage() on.
+function pdfDocForGlobalPage(globalPage){
+  for(var i=0; i<pdfDocs.length; i++){
+    var entry = pdfDocs[i];
+    if(globalPage >= entry.startPage && globalPage <= entry.endPage){
+      return { doc: entry.doc, localPage: globalPage - entry.startPage + 1 };
+    }
+  }
+  // Fallback (shouldn't happen): use the last doc with the page number as-is
+  return { doc: pdfDoc, localPage: globalPage };
+}
 
 async function handleAllFiles(files){
   if(!files || !files.length) return;
@@ -5394,6 +5420,9 @@ async function handlePDF(file){
     const arrayBuffer = await file.arrayBuffer();
     pdfDoc = await window.pdfjsLib.getDocument({data: arrayBuffer}).promise;
     var newPages = pdfDoc.numPages;
+    var startPage = pdfTotalPages + 1;      // this new PDF's pages start right after the previous cumulative total
+    var endPage   = pdfTotalPages + newPages;
+    pdfDocs.push({ doc: pdfDoc, startPage: startPage, endPage: endPage });
     pdfTotalPages += newPages; // accumulate across multiple PDFs
 
     // Show cumulative count
@@ -5442,7 +5471,8 @@ async function renderPDFThumbs(count){
 
   const thumbs = [];
   for(let i=1; i<=count; i++){
-    const page = await pdfDoc.getPage(i);
+    var lookup = pdfDocForGlobalPage(i);
+    const page = await lookup.doc.getPage(lookup.localPage);
     const viewport = page.getViewport({scale:0.3});
     const canvas = document.createElement('canvas');
     canvas.width = viewport.width;
@@ -5544,7 +5574,8 @@ async function extractPDFPages(){
   const pdfQuality = pageCount <= 3 ? 0.92 : pageCount <= 6 ? 0.85 : 0.78;
 
   for(let i=from; i<=to; i++){
-    const page     = await pdfDoc.getPage(i);
+    var lookup    = pdfDocForGlobalPage(i);
+    const page     = await lookup.doc.getPage(lookup.localPage);
     const viewport = page.getViewport({scale:pdfScale});
     const canvas   = document.createElement('canvas');
     canvas.width   = viewport.width;
@@ -6831,6 +6862,7 @@ function clearAllUploads(){
   if(!confirm(saT('confirm_clear_all')||'Remove all uploaded pages?')) return;
   S.images = [];
   pdfDoc = null;
+  pdfDocs = [];
   pdfTotalPages = 0;
   // Bug fix (still relevant for Excel): this function used to only clear
   // S.images (the visual thumbnails) but never touched saPages/saPDFText —
@@ -9290,7 +9322,7 @@ async function replaceQ(){
 }
 
 async function submitAns(){
-  if(!selectedOpt){toast('Please select an answer','err');return;}
+  if(!selectedOpt){toast('Please select an answer','err',15000);return;}
   const q = S.questions[S.currentQ];
 
   // ── BULLETPROOF CORRECT DETECTION ─────────────
@@ -10508,6 +10540,7 @@ function resetQuiz(){
   S.currentQ   = 0;
   S.retryMode  = false;
   pdfDoc       = null;
+  pdfDocs = [];
   pdfTotalPages = 0;
 
   // Reset upload UI
@@ -10654,6 +10687,7 @@ function restartFull(){
   S.currentQ   = 0;
   S.images     = [];
   pdfDoc       = null;
+  pdfDocs = [];
   pdfTotalPages = 0;
   saPDFText    = '';
 
@@ -10838,7 +10872,27 @@ function showReport(){
     </div>
     <div class="report-section">
       <h3>Questions Needing Attention</h3>
-      <p>${inc.length?inc.map(a=>`Q${a.qIdx+1}: ${S.questions[a.qIdx]?.text||'–'}`).join('<br>'):'None — excellent performance!'}</p>
+      <p>${inc.length?inc.map(function(a){
+        var q = S.questions[a.qIdx];
+        var corLetter = q ? (q.correct || Object.keys(q.options||{}).find(function(k){ return q.options[k]===q.correctAnswer; }) || '?') : '?';
+        var corText = q ? (q.options && q.options[corLetter] || q.correctAnswer || '–') : '–';
+        return 'Q'+(a.qIdx+1)+': '+(q?.text||'–')+'<br><span style="color:#10b981;font-weight:700;">✔ Correct answer: '+corLetter+') '+corText+'</span>';
+      }).join('<br><br>'):'None — excellent performance!'}</p>
+    </div>
+    <div class="report-section">
+      <h3>Full Question Breakdown</h3>
+      <p style="line-height:2;">${S.answers.map(function(a,idx){
+        var q = S.questions[a.qIdx];
+        var corLetter = q ? (q.correct || Object.keys(q.options||{}).find(function(k){ return q.options[k]===q.correctAnswer; }) || '?') : '?';
+        var corText = q ? (q.options && q.options[corLetter] || q.correctAnswer || '–') : '–';
+        var yourLetter = a.chosen || '?';
+        var yourText = q ? (q.options && q.options[yourLetter] || '–') : '–';
+        var icon = a.correct ? '✅' : '❌';
+        var color = a.correct ? '#10b981' : '#ef4444';
+        return '<strong>Q'+(idx+1)+'.</strong> '+(q?.text||'–')+'<br>'
+          + '<span style="color:'+color+';">'+icon+' Your answer: '+yourLetter+') '+yourText+'</span>'
+          + (a.correct ? '' : '<br><span style="color:#10b981;font-weight:700;">✔ Correct answer: '+corLetter+') '+corText+'</span>');
+      }).join('<br><br>')}</p>
     </div>
     <div class="report-section">
       <h3>Educator Recommendation</h3>
