@@ -4290,7 +4290,7 @@ function copyProofCode(){
           <!-- Hidden inputs -->
           <input type="file" id="file-input" accept="image/*,.heic,.heif" multiple onchange="handleFiles(this.files)" style="display:none;">
           <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handleFiles(this.files)" style="display:none;">
-          <input type="file" id="pdf-input" accept=".pdf,application/pdf,.xlsx,.xls" onchange="handlePDF(this.files[0])" style="display:none;">
+          <input type="file" id="pdf-input" accept=".pdf,application/pdf,.xlsx,.xls" onchange="handleAllFiles(this.files)" style="display:none;">
 
           <!-- Single upload zone -->
           <div class="upload-zone" id="upload-zone"
@@ -5262,6 +5262,17 @@ async function handleAllFiles(files){
 
   var total = imgs.length+pdfs.length+excels.length;
   if(total>1) toast('✅ '+total+' files loaded ('+[imgs.length?imgs.length+' image':'',pdfs.length?pdfs.length+' PDF':'',excels.length?excels.length+' Excel':''].filter(Boolean).join(', ')+')','ok');
+
+  // Auto-click "Use Selected Pages" once ALL files have finished loading —
+  // this only runs here (after the entire batch is done), never per-file,
+  // which is what caused the earlier bug where uploading multiple PDFs in
+  // sequence would silently keep only the last file's pages.
+  if(pdfs.length){
+    setTimeout(function(){
+      var extractBtn = document.getElementById('btn-extract-pages');
+      if(extractBtn) extractBtn.click();
+    }, 400);
+  }
 }
 
 async function handleMultiplePDFs(files){
@@ -5330,6 +5341,14 @@ async function handleMultiplePDFs(files){
   var sessionSec = document.getElementById('session-section');
   if(sessionSec) sessionSec.style.display = 'block';
   toast('✅ ' + files.length + ' files loaded (' + parts.join(', ') + ')', 'ok');
+
+  // Auto-click "Use Selected Pages" once all files are done, same as handleAllFiles
+  if(pdfCount){
+    setTimeout(function(){
+      var extractBtn = document.getElementById('btn-extract-pages');
+      if(extractBtn) extractBtn.click();
+    }, 400);
+  }
 }
 
 async function handlePDF(file){
@@ -6788,23 +6807,21 @@ function selectQ(n){
 function handleDropAuto(event){
   const files = event.dataTransfer.files;
   if(!files||!files.length) return;
-  const file = files[0];
-  var fn0 = file.name.toLowerCase();
-  if(file.type === 'application/pdf' || fn0.endsWith('.pdf')){
-    handlePDF(file);
-  } else {
-    // Allow PNG and JPG images
-    const allImg = Array.from(files).every(f => {
-      var fn = f.name.toLowerCase();
-      return f.type === 'image/png' || f.type === 'image/jpeg' ||
-             fn.endsWith('.png') || fn.endsWith('.jpg') || fn.endsWith('.jpeg');
-    });
-    if(!allImg){
-      toast('Only PDF, Excel, PNG and JPG files are accepted','err');
-      return;
-    }
-    handleFiles(files);
+  // Route through handleAllFiles so multiple dropped files (including
+  // multiple PDFs) are all processed correctly, not just files[0] —
+  // this also gets the auto-extract-after-upload behavior for free.
+  var allowed = Array.from(files).every(function(f){
+    var fn = f.name.toLowerCase();
+    return f.type === 'application/pdf' || fn.endsWith('.pdf') ||
+           f.type === 'image/png' || f.type === 'image/jpeg' ||
+           fn.endsWith('.png') || fn.endsWith('.jpg') || fn.endsWith('.jpeg') ||
+           fn.endsWith('.xlsx') || fn.endsWith('.xls');
+  });
+  if(!allowed){
+    toast('Only PDF, Excel, PNG and JPG files are accepted','err');
+    return;
   }
+  handleAllFiles(files);
 }
 
 function handleFiles(files){
