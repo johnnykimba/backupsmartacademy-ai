@@ -5245,19 +5245,44 @@ async function handleAllFiles(files){
   for(var i=0;i<pdfs.length;i++) await handlePDF(pdfs[i]);
 
   // Process Excel
-  if(excels.length && typeof XLSX !== 'undefined'){
-    var txt = '';
-    for(var j=0;j<excels.length;j++){
-      var buf = await excels[j].arrayBuffer();
-      var wb = XLSX.read(buf,{type:'array'});
-      wb.SheetNames.forEach(function(sn){
-        txt += '=== '+excels[j].name+' | '+sn+' ===\n'+XLSX.utils.sheet_to_csv(wb.Sheets[sn])+'\n\n';
-      });
+  if(excels.length){
+    // Bug fix: this used to silently do NOTHING if the XLSX library
+    // hadn't finished loading from its CDN script tag yet (e.g. on a slow
+    // connection, or if the script was still loading on first page visit).
+    // The user would see "Excel is not uploading" with no explanation.
+    // Now attempts to load the library on demand if it's not ready, and
+    // shows a clear error message if it genuinely can't be loaded.
+    if(typeof XLSX === 'undefined'){
+      toast('⏳ Loading Excel support...', 'ok');
+      try{
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+      }catch(e){
+        console.warn('XLSX load failed:', e);
+      }
     }
-    saPDFText = (saPDFText ? saPDFText+'\n\n' : '') + txt;
-    if(!S.images||!S.images.length) S.images=[{type:'excel',data:''}];
-    var sessionSec=document.getElementById('session-section');
-    if(sessionSec) sessionSec.style.display='block';
+    if(typeof XLSX === 'undefined'){
+      toast('❌ Could not load Excel support. Please check your internet connection and try again.', 'err');
+    } else {
+      var txt = '';
+      for(var j=0;j<excels.length;j++){
+        try{
+          var buf = await excels[j].arrayBuffer();
+          var wb = XLSX.read(buf,{type:'array'});
+          wb.SheetNames.forEach(function(sn){
+            txt += '=== '+excels[j].name+' | '+sn+' ===\n'+XLSX.utils.sheet_to_csv(wb.Sheets[sn])+'\n\n';
+          });
+        }catch(e){
+          toast('Excel read error: '+excels[j].name, 'err');
+          console.warn('Excel parse error:', e);
+        }
+      }
+      if(txt){
+        saPDFText = (saPDFText ? saPDFText+'\n\n' : '') + txt;
+        if(!S.images||!S.images.length) S.images=[{type:'excel',data:''}];
+        var sessionSec=document.getElementById('session-section');
+        if(sessionSec) sessionSec.style.display='block';
+      }
+    }
   }
 
   var total = imgs.length+pdfs.length+excels.length;
@@ -5285,15 +5310,26 @@ async function handleMultiplePDFs(files){
     var isImg = fname.endsWith('.jpg') || fname.endsWith('.jpeg') || fname.endsWith('.png');
     fileNames.push(file.name);
 
-    if(isExcel && typeof XLSX !== 'undefined'){
-      try {
-        var buf = await file.arrayBuffer();
-        var wb = XLSX.read(buf, {type:'array'});
-        wb.SheetNames.forEach(function(sn){
-          excelText += '=== FILE: ' + file.name + ' | Sheet: ' + sn + ' ===\n' + XLSX.utils.sheet_to_csv(wb.Sheets[sn]) + '\n\n';
-        });
-        excelCount++;
-      } catch(e){ toast('Excel error: ' + file.name, 'err'); }
+    if(isExcel){
+      // Same fix as handleAllFiles — attempt to load XLSX on demand
+      // instead of silently skipping if it isn't ready yet.
+      if(typeof XLSX === 'undefined'){
+        toast('⏳ Loading Excel support...', 'ok');
+        try{ await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'); }
+        catch(e){ console.warn('XLSX load failed:', e); }
+      }
+      if(typeof XLSX === 'undefined'){
+        toast('❌ Could not load Excel support for: ' + file.name, 'err');
+      } else {
+        try {
+          var buf = await file.arrayBuffer();
+          var wb = XLSX.read(buf, {type:'array'});
+          wb.SheetNames.forEach(function(sn){
+            excelText += '=== FILE: ' + file.name + ' | Sheet: ' + sn + ' ===\n' + XLSX.utils.sheet_to_csv(wb.Sheets[sn]) + '\n\n';
+          });
+          excelCount++;
+        } catch(e){ toast('Excel error: ' + file.name, 'err'); }
+      }
 
     } else if(isPDF){
       // Each PDF adds its rendered pages to S.images via handlePDF
@@ -5557,40 +5593,98 @@ async function extractPDFPages(){
   const existingCount = S.images.length;
   const sessionRemaining = Math.max(1, 30 - existingCount);
   const effectiveMax = Math.min(30, sessionRemaining);
-  if(count > effectiveMax){
+
+  // Bug fix: this used to always keep pages [from, from+effectiveMax-1] —
+  // a plain contiguous cut starting from the beginning of the range. With
+  // multiple PDFs uploaded (e.g. File 1 = 20 pages, File 2 = 30 pages,
+  // total 50), this meant ALL of File 1 was kept and only the first
+  // (effectiveMax - 20) pages of File 2 made it in — File 2 was
+  // overwhelmingly cut regardless of its own size. Now, when multiple
+  // files are involved and the total exceeds the cap, pages are selected
+  // PROPORTIONALLY from each file based on its share of the total pages,
+  // spread evenly through each file rather than always keeping the start.
+  var pagesToExtract = [];
+  var isMultiFile = (typeof pdfDocs !== 'undefined' && pdfDocs.length > 1);
+
+  if(count > effectiveMax && isMultiFile){
+    // Figure out which files fall (even partially) within [from, to]
+    var filesInRange = pdfDocs.filter(function(entry){
+      return entry.endPage >= from && entry.startPage <= to;
+    });
+    var totalPagesInRange = filesInRange.reduce(function(sum, entry){
+      var s = Math.max(entry.startPage, from);
+      var e = Math.min(entry.endPage, to);
+      return sum + (e - s + 1);
+    }, 0);
+
+    filesInRange.forEach(function(entry){
+      var fileStart = Math.max(entry.startPage, from);
+      var fileEnd   = Math.min(entry.endPage, to);
+      var fileTotal = fileEnd - fileStart + 1;
+      // This file's fair share of the overall cap, proportional to its size
+      var fileShare = Math.max(1, Math.round((fileTotal / totalPagesInRange) * effectiveMax));
+      if(fileShare >= fileTotal){
+        // Small enough to include entirely
+        for(var p = fileStart; p <= fileEnd; p++) pagesToExtract.push(p);
+      } else {
+        // Spread the selection evenly through this file rather than just
+        // taking its first N pages, so a large later file still gets
+        // representative pages from throughout, not only its start.
+        var step = fileTotal / fileShare;
+        for(var k = 0; k < fileShare; k++){
+          var pageNum = fileStart + Math.floor(k * step);
+          if(pageNum > fileEnd) pageNum = fileEnd;
+          pagesToExtract.push(pageNum);
+        }
+      }
+    });
+    // Trim/pad to exactly effectiveMax in case of rounding drift
+    pagesToExtract = Array.from(new Set(pagesToExtract)).sort(function(a,b){return a-b;});
+    if(pagesToExtract.length > effectiveMax) pagesToExtract = pagesToExtract.slice(0, effectiveMax);
+
+    to = pagesToExtract[pagesToExtract.length - 1];
+    count = pagesToExtract.length;
+    const toEl = document.getElementById('pdf-to');
+    if(toEl) toEl.value = to;
+
+    var multiFileNote = '\n\nNote: You uploaded ' + pdfDocs.length + ' PDF files (total ' + pdfTotalPages + ' pages combined). Since this exceeds the 30-page limit, pages were selected proportionally from EACH file (not just the first file) so every document is represented.';
+    if(existingCount > 0){
+      alert('⚠️ Session limit is 30 items total (combined photos/PDF/Excel).\n\nYou already have ' + existingCount + ' item(s) in this session. ' + count + ' pages will be added, spread fairly across your uploaded files.' + multiFileNote);
+    } else {
+      alert('⚠️ Learning mode is limited to 30 pages.\n\nYour combined PDFs have more than 30 pages. ' + count + ' pages will be used, spread fairly across your uploaded files.' + multiFileNote);
+    }
+  } else if(count > effectiveMax){
+    // Single file (or no pdfDocs tracking) — original simple contiguous cut
     to = from + effectiveMax - 1;
     count = effectiveMax;
     const toEl = document.getElementById('pdf-to');
     if(toEl) toEl.value = to;
-    // If multiple PDFs were uploaded (pdfDocs.length > 1), be explicit that
-    // pages beyond the 30-page cap — which may belong to a LATER uploaded
-    // file — will not be included, so the user can adjust the range
-    // (e.g. narrow "from" to skip an earlier file) if they specifically
-    // wanted pages from a later document.
-    var multiFileNote = (typeof pdfDocs !== 'undefined' && pdfDocs.length > 1)
-      ? '\n\nNote: You uploaded ' + pdfDocs.length + ' PDF files (total ' + pdfTotalPages + ' pages combined). Only pages ' + from + ' to ' + to + ' will be used — adjust the "From/To" range above if you specifically need pages from a later file.'
-      : '';
     if(existingCount > 0){
-      alert('⚠️ Session limit is 30 items total (combined photos/PDF/Excel).\n\nYou already have ' + existingCount + ' item(s) in this session. Only pages ' + from + ' to ' + to + ' will be added.' + multiFileNote);
+      alert('⚠️ Session limit is 30 items total (combined photos/PDF/Excel).\n\nYou already have ' + existingCount + ' item(s) in this session. Only pages ' + from + ' to ' + to + ' will be added.');
     } else {
-      alert('⚠️ Learning mode is limited to 30 pages.\n\nYour PDF has ' + count + ' pages. Only pages ' + from + ' to ' + to + ' will be used.\n\nTip: Upload 3–5 focused pages for best results.' + multiFileNote);
+      alert('⚠️ Learning mode is limited to 30 pages.\n\nYour PDF has ' + count + ' pages. Only pages ' + from + ' to ' + to + ' will be used.\n\nTip: Upload 3–5 focused pages for best results.');
     }
+    for(var p2 = from; p2 <= to; p2++) pagesToExtract.push(p2);
+  } else {
+    // No cap needed — use the full requested range as-is
+    for(var p3 = from; p3 <= to; p3++) pagesToExtract.push(p3);
   }
+
   const info = document.getElementById('pdf-range-info');
-  info.textContent = `⏳ Extracting pages ${from} to ${to}...`;
+  info.textContent = `⏳ Extracting ${pagesToExtract.length} page(s)...`;
   info.style.color = '#1a56db';
 
   // Remove any previously-extracted PDF pages (re-extraction with a new
   // range) while preserving photos/Excel content already in the session.
   S.images = S.images.filter(function(img){ return img.pdfPage === undefined; });
 
-  const pageCount = (to - from + 1);
+  const pageCount = pagesToExtract.length;
   // Scale down resolution/quality when many pages are selected, to keep total payload reasonable
   // 1-3 pages: full quality for best OCR accuracy. 4+ pages: reduced to avoid oversized requests.
   const pdfScale   = pageCount <= 3 ? 2.0 : pageCount <= 6 ? 1.5 : 1.2;
   const pdfQuality = pageCount <= 3 ? 0.92 : pageCount <= 6 ? 0.85 : 0.78;
 
-  for(let i=from; i<=to; i++){
+  for(const i of pagesToExtract){
     var lookup    = pdfDocForGlobalPage(i);
     const page     = await lookup.doc.getPage(lookup.localPage);
     const viewport = page.getViewport({scale:pdfScale});
