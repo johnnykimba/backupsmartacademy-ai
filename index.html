@@ -9427,7 +9427,12 @@ async function submitAns(){
   removeTyping();
   checkMilestone();
 
-  const delay = correct ? 2200 : 4400;
+  // Bug fix: this used to auto-advance after only 2.2s (correct) or 4.4s
+  // (wrong) — far too fast to actually read the feedback and solution,
+  // especially on the LAST question where it also immediately wiped the
+  // question panel and jumped to the report. Now gives 20 seconds on every
+  // question, including the last one, so there's always time to read.
+  const delay = 20000;
   setTimeout(()=>{
     const next = S.currentQ + 1;
     if(next < S.questions.length){ presentQ(next); }
