@@ -5281,6 +5281,25 @@ async function handleAllFiles(files){
         if(!S.images||!S.images.length) S.images=[{type:'excel',data:''}];
         var sessionSec=document.getElementById('session-section');
         if(sessionSec) sessionSec.style.display='block';
+        // Bug fix: parsing succeeded but nothing on screen ever confirmed
+        // it — no counter update, no visible attachment shown. The file
+        // genuinely uploaded, but looked exactly like nothing happened.
+        var ctr = document.getElementById('upload-counter');
+        if(ctr){
+          ctr.textContent = '✅ ' + excels.length + ' Excel file' + (excels.length>1?'s':'') + ' loaded';
+          ctr.style.color = '#10b981';
+        }
+        // Add a visible badge for each Excel file into the thumbnail strip
+        var thumbStrip = document.getElementById('pdf-thumb-strip');
+        if(thumbStrip){
+          for(var xi=0; xi<excels.length; xi++){
+            var badge = document.createElement('div');
+            badge.style.cssText = 'flex-shrink:0;width:70px;height:90px;background:rgba(16,185,129,0.1);border:2px solid rgba(16,185,129,0.4);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;text-align:center;';
+            badge.innerHTML = '<span style="font-size:22px;">📊</span><span style="font-size:9px;color:#10b981;font-weight:700;margin-top:4px;word-break:break-all;line-height:1.2;">' + excels[xi].name.slice(0,14) + '</span>';
+            thumbStrip.appendChild(badge);
+          }
+        }
+        toast('✅ Excel file' + (excels.length>1?'s':'') + ' loaded successfully!', 'ok');
       }
     }
   }
