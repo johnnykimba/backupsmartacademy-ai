@@ -9441,13 +9441,18 @@ async function submitAns(){
 
   // Replaced all automatic timing with a manual "Next Question" button —
   // the student clicks whenever they're ready, no countdown or forced delay.
+  // Made sticky at the bottom of the screen (instead of just appended at
+  // the end of the card) so it's always visible without needing to scroll
+  // down to find it, especially once the solution text pushes it further down.
   var nextBtn = document.createElement('button');
   var isLast = (S.currentQ + 1) >= S.questions.length;
+  nextBtn.id = 'quiz-next-btn';
   nextBtn.textContent = isLast ? '📊 See Results ➤' : (saT('next_btn') || 'Next Question ➤');
-  nextBtn.style.cssText = 'display:block;width:100%;margin-top:14px;padding:14px 16px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:\'DM Sans\',sans-serif;';
+  nextBtn.style.cssText = 'position:sticky;bottom:12px;left:0;right:0;display:block;width:100%;margin-top:16px;padding:16px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:14px;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:\'DM Sans\',sans-serif;box-shadow:0 6px 24px rgba(6,182,212,0.45);z-index:15;animation:nextBtnPulse 1.6s ease-in-out infinite;';
   nextBtn.onclick = function(){
     nextBtn.disabled = true;
     nextBtn.style.opacity = '0.6';
+    nextBtn.style.animation = 'none';
     const next = S.currentQ + 1;
     if(next < S.questions.length){ presentQ(next); }
     else{ document.getElementById('question-ui').innerHTML=''; endQuiz(); }
@@ -9457,6 +9462,18 @@ async function submitAns(){
     if(card) card.appendChild(nextBtn);
     else ui.appendChild(nextBtn);
   }
+  // Ensure the pulse animation exists (added once, reused every question)
+  if(!document.getElementById('next-btn-pulse-style')){
+    var pulseStyle = document.createElement('style');
+    pulseStyle.id = 'next-btn-pulse-style';
+    pulseStyle.textContent = '@keyframes nextBtnPulse{0%,100%{box-shadow:0 6px 24px rgba(6,182,212,0.45);}50%{box-shadow:0 6px 32px rgba(6,182,212,0.8);}}';
+    document.head.appendChild(pulseStyle);
+  }
+  // Backup: also scroll it into view in case sticky positioning doesn't
+  // apply cleanly in some scroll container configurations
+  setTimeout(function(){
+    nextBtn.scrollIntoView({behavior:'smooth', block:'end'});
+  }, 200);
 }
 
 async function buildFeedback(q, correct, conf){
