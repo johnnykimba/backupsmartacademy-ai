@@ -5527,11 +5527,15 @@ function validatePageRange(){
   info.style.color = '#10b981';
   info.textContent = `✅ ${count} page(s) selected (Pages ${from} to ${to})`;
 
-  // Auto-confirm: extract pages automatically after short delay
-  clearTimeout(window._autoExtractTimer);
-  window._autoExtractTimer = setTimeout(function(){
-    extractPDFPages();
-  }, 800);
+  // Bug fix: this used to auto-extract 800ms after EVERY single PDF
+  // upload via a setTimeout. When multiple PDFs were uploaded one after
+  // another (e.g. File 1 = 20 pages, File 2 = 15 pages), each upload
+  // scheduled its own auto-extract timer, and clearTimeout only ever
+  // cancelled the PREVIOUS timer — so whichever file's upload finished
+  // last effectively "won" and got extracted using only its own local
+  // page count, silently dropping pages from earlier files. Extraction
+  // now only runs when the user explicitly clicks "Use Selected Pages",
+  // once all files have finished uploading and the combined range is final.
 }
 
 async function extractPDFPages(){
@@ -5553,10 +5557,18 @@ async function extractPDFPages(){
     count = effectiveMax;
     const toEl = document.getElementById('pdf-to');
     if(toEl) toEl.value = to;
+    // If multiple PDFs were uploaded (pdfDocs.length > 1), be explicit that
+    // pages beyond the 30-page cap — which may belong to a LATER uploaded
+    // file — will not be included, so the user can adjust the range
+    // (e.g. narrow "from" to skip an earlier file) if they specifically
+    // wanted pages from a later document.
+    var multiFileNote = (typeof pdfDocs !== 'undefined' && pdfDocs.length > 1)
+      ? '\n\nNote: You uploaded ' + pdfDocs.length + ' PDF files (total ' + pdfTotalPages + ' pages combined). Only pages ' + from + ' to ' + to + ' will be used — adjust the "From/To" range above if you specifically need pages from a later file.'
+      : '';
     if(existingCount > 0){
-      alert('⚠️ Session limit is 30 items total (combined photos/PDF/Excel).\n\nYou already have ' + existingCount + ' item(s) in this session. Only pages ' + from + ' to ' + to + ' will be added.');
+      alert('⚠️ Session limit is 30 items total (combined photos/PDF/Excel).\n\nYou already have ' + existingCount + ' item(s) in this session. Only pages ' + from + ' to ' + to + ' will be added.' + multiFileNote);
     } else {
-      alert('⚠️ Learning mode is limited to 30 pages.\n\nYour PDF has ' + count + ' pages. Only pages ' + from + ' to ' + to + ' will be used.\n\nTip: Upload 3–5 focused pages for best results.');
+      alert('⚠️ Learning mode is limited to 30 pages.\n\nYour PDF has ' + count + ' pages. Only pages ' + from + ' to ' + to + ' will be used.\n\nTip: Upload 3–5 focused pages for best results.' + multiFileNote);
     }
   }
   const info = document.getElementById('pdf-range-info');
@@ -9427,17 +9439,24 @@ async function submitAns(){
   removeTyping();
   checkMilestone();
 
-  // Bug fix: this used to auto-advance after only 2.2s (correct) or 4.4s
-  // (wrong) — far too fast to actually read the feedback and solution,
-  // especially on the LAST question where it also immediately wiped the
-  // question panel and jumped to the report. Now gives 20 seconds on every
-  // question, including the last one, so there's always time to read.
-  const delay = 20000;
-  setTimeout(()=>{
+  // Replaced all automatic timing with a manual "Next Question" button —
+  // the student clicks whenever they're ready, no countdown or forced delay.
+  var nextBtn = document.createElement('button');
+  var isLast = (S.currentQ + 1) >= S.questions.length;
+  nextBtn.textContent = isLast ? '📊 See Results ➤' : (saT('next_btn') || 'Next Question ➤');
+  nextBtn.style.cssText = 'display:block;width:100%;margin-top:14px;padding:14px 16px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:\'DM Sans\',sans-serif;';
+  nextBtn.onclick = function(){
+    nextBtn.disabled = true;
+    nextBtn.style.opacity = '0.6';
     const next = S.currentQ + 1;
     if(next < S.questions.length){ presentQ(next); }
     else{ document.getElementById('question-ui').innerHTML=''; endQuiz(); }
-  }, delay);
+  };
+  if(ui){
+    const card = ui.firstElementChild;
+    if(card) card.appendChild(nextBtn);
+    else ui.appendChild(nextBtn);
+  }
 }
 
 async function buildFeedback(q, correct, conf){
@@ -9457,7 +9476,7 @@ async function buildFeedback(q, correct, conf){
 
     const qLabel = `Q${S.currentQ + 1} of ${S.questions.length}`;
 
-    const prevQ      = `📌 **${saT('prev_q')||'Previous question:'}** (${qLabel})\n${quizFracDisplay(q.text || '')}`;
+    const prevQ      = `📌 **${qLabel}**\n${quizFracDisplay(q.text || '')}`;
     const yourAns    = `\n\n👤 **${saT('your_ans')||'Your answer:'}** ${selOpt}) ${quizFracDisplay(selText)}`;
     const correctAns = `\n✅ **${saT('correct_ans')||'Correct answer:'}** ${corLet}) ${quizFracDisplay(corText)}`;
 
