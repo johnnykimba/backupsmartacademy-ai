@@ -5262,17 +5262,10 @@ async function handleAllFiles(files){
 
   var total = imgs.length+pdfs.length+excels.length;
   if(total>1) toast('✅ '+total+' files loaded ('+[imgs.length?imgs.length+' image':'',pdfs.length?pdfs.length+' PDF':'',excels.length?excels.length+' Excel':''].filter(Boolean).join(', ')+')','ok');
-
-  // Auto-click "Use Selected Pages" once ALL files have finished loading —
-  // this only runs here (after the entire batch is done), never per-file,
-  // which is what caused the earlier bug where uploading multiple PDFs in
-  // sequence would silently keep only the last file's pages.
-  if(pdfs.length){
-    setTimeout(function(){
-      var extractBtn = document.getElementById('btn-extract-pages');
-      if(extractBtn) extractBtn.click();
-    }, 400);
-  }
+  // Auto-click removed after repeated timing-related bugs with multiple
+  // PDF uploads — extraction is now always a deliberate, manual click on
+  // "Use Selected Pages for Quiz", once the user can see the correct
+  // combined page range for ALL uploaded files.
 }
 
 async function handleMultiplePDFs(files){
@@ -5341,14 +5334,7 @@ async function handleMultiplePDFs(files){
   var sessionSec = document.getElementById('session-section');
   if(sessionSec) sessionSec.style.display = 'block';
   toast('✅ ' + files.length + ' files loaded (' + parts.join(', ') + ')', 'ok');
-
-  // Auto-click "Use Selected Pages" once all files are done, same as handleAllFiles
-  if(pdfCount){
-    setTimeout(function(){
-      var extractBtn = document.getElementById('btn-extract-pages');
-      if(extractBtn) extractBtn.click();
-    }, 400);
-  }
+  // Auto-click removed — extraction is now always a deliberate manual click.
 }
 
 async function handlePDF(file){
