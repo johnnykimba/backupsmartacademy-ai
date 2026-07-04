@@ -7450,6 +7450,53 @@ async function initQuiz(){
 
     S.questions = parsed.questions||[];
 
+    // ── SAFETY NET: detect and fix duplicate answer options ──────
+    // Even with an explicit instruction to the AI, options can still
+    // occasionally end up representing the same value (e.g. "6" and "√36",
+    // or "1/2" and "0.5"). This normalises each option to a comparable
+    // form and nudges any duplicate wrong answers so a student never sees
+    // two or more identical/equivalent choices in the same question.
+    function normalizeOptionValue(v){
+      if(v === null || v === undefined) return '';
+      var s = String(v).trim().toLowerCase();
+      // Strip LaTeX wrappers and common formatting so equivalent values compare equal
+      s = s.replace(/\\\(|\\\)|\\\[|\\\]/g, '');
+      s = s.replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, function(m,a,b){ return a+'/'+b; });
+      s = s.replace(/\s+/g, '');
+      // Try numeric comparison if it parses as a plain number or simple fraction
+      var fracMatch = s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+      if(fracMatch){
+        var num = parseFloat(fracMatch[1]), den = parseFloat(fracMatch[2]);
+        if(den !== 0) return String(Math.round((num/den)*1e6)/1e6);
+      }
+      if(/^-?\d+(\.\d+)?$/.test(s)) return String(Math.round(parseFloat(s)*1e6)/1e6);
+      return s;
+    }
+    S.questions.forEach(function(q){
+      if(!q.options) return;
+      var letters = Object.keys(q.options);
+      var seen = {};
+      letters.forEach(function(letter){
+        var norm = normalizeOptionValue(q.options[letter]);
+        if(norm === '') return;
+        if(seen[norm] !== undefined && letter !== q.correct){
+          // Duplicate found on a WRONG option — nudge it to a distinguishable
+          // near-value so the student never sees two identical choices.
+          // Only adjust non-correct options, so the right answer is untouched.
+          var original = q.options[letter];
+          var numMatch = String(original).match(/-?\d+(\.\d+)?/);
+          if(numMatch){
+            var n = parseFloat(numMatch[0]);
+            var nudged = n + (n !== 0 ? (n > 0 ? 1 : -1) : 1);
+            q.options[letter] = String(original).replace(numMatch[0], String(nudged));
+          }
+          console.warn('[Quiz] Duplicate option value detected and adjusted:', letter, 'in question:', q.text);
+        } else {
+          seen[norm] = letter;
+        }
+      });
+    });
+
     // ── FIX MATH WORD FORMS → SYMBOLS ────────────────────────────
     function fixMath(s){
       if(!s || typeof s !== 'string') return s;
