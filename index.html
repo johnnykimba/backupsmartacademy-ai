@@ -2396,18 +2396,17 @@ function showLegalTab(tab){
         <p>Full access for a limited time. No code needed.</p>
         <div id="trial-countdown" style="display:none;">--:--</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
-          <button class="btn-trial" onclick="startTrial()" style="flex:1;min-width:140px;padding:10px 16px;font-size:13px;">🚀 Start Free Trial</button>
+          <button class="btn-trial" onclick="startTrial()" style="flex:1;min-width:140px;padding:10px 16px;font-size:13px;">🚀 Try Learner/Student Free</button>
           <button class="btn-trial" onclick="startResearchTrial()" style="flex:1;min-width:140px;padding:10px 16px;font-size:13px;background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Try Research Free</button>
         </div>
       </div>
 
-      <div class="hero-btns" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">
-        <button class="btn-hero-primary" onclick="goToLearnerArea()" data-t="hero_cta_learner_start" style="flex:1;min-width:180px;">🎓 Learner / Student (Start)</button>
-        <button onclick="document.getElementById('section-learning').scrollIntoView({behavior:'smooth'})" style="flex:1;min-width:160px;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;background:linear-gradient(135deg,#1a56db,#0891b2);border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
+      <div class="hero-btns" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;justify-content:center;">
+        <button onclick="document.getElementById('section-learning').scrollIntoView({behavior:'smooth'})" style="flex:0 1 220px;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;background:linear-gradient(135deg,#1a56db,#0891b2);border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
           <span>📘</span>
           <span data-t="btn_guide_learner">User Guide — Student</span>
         </button>
-        <button onclick="window.open('help.html','_blank')" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 14px rgba(239,68,68,0.4);">
+        <button onclick="window.open('help.html','_blank')" style="flex:0 1 140px;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 14px rgba(239,68,68,0.4);">
           <span style="font-size:16px;font-weight:900;">?</span><span>Help</span>
         </button>
       </div>
