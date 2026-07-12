@@ -514,15 +514,25 @@ async function runAnalysis(){
       var ext = f.name.split('.').pop().toLowerCase();
       if(['png','jpg','jpeg'].includes(ext)){
         images.push(await readFileBase64(f));
-      } else if(ext === 'pdf' && pdfDoc && pdfConfirmed){
-        for(var p=selectedPages.from; p<=selectedPages.to; p++){
-          var page = await pdfDoc.getPage(p);
-          var vp = page.getViewport({scale:1.5});
-          var canvas = document.createElement('canvas');
-          canvas.width = vp.width; canvas.height = vp.height;
-          await page.render({canvasContext: canvas.getContext('2d'), viewport: vp}).promise;
-          images.push(canvas.toDataURL('image/jpeg', 0.85));
-        }
+      } else if(ext === 'pdf'){
+        // Load each PDF from its own file data so multiple PDFs all get
+        // processed — previously all shared the single global pdfDoc
+        // variable (last uploaded only).
+        try{
+          var pdfBuf = await f.arrayBuffer();
+          var thisPdf = await pdfjsLib.getDocument({data: pdfBuf}).promise;
+          var isFirstPdf = (i === attachedFiles.findIndex(function(af){ return af.name.toLowerCase().endsWith('.pdf'); }));
+          var fromPage = (isFirstPdf && pdfConfirmed) ? selectedPages.from : 1;
+          var toPage   = (isFirstPdf && pdfConfirmed) ? selectedPages.to   : Math.min(thisPdf.numPages, MAX_PDF_PAGES);
+          for(var p=fromPage; p<=toPage; p++){
+            var page = await thisPdf.getPage(p);
+            var vp = page.getViewport({scale:1.5});
+            var canvas = document.createElement('canvas');
+            canvas.width = vp.width; canvas.height = vp.height;
+            await page.render({canvasContext: canvas.getContext('2d'), viewport: vp}).promise;
+            images.push(canvas.toDataURL('image/jpeg', 0.85));
+          }
+        }catch(pdfErr){ console.warn('PDF error:', f.name, pdfErr.message); }
       } else if(['xlsx','xls','csv'].includes(ext)){
         var buf = await f.arrayBuffer();
         var wb = XLSX.read(buf, {type:'array'});
@@ -598,15 +608,25 @@ async function runClaudeOnly(){
       var ext = f.name.split('.').pop().toLowerCase();
       if(['png','jpg','jpeg'].includes(ext)){
         images.push(await readFileBase64(f));
-      } else if(ext === 'pdf' && pdfDoc && pdfConfirmed){
-        for(var p=selectedPages.from; p<=selectedPages.to; p++){
-          var page = await pdfDoc.getPage(p);
-          var vp = page.getViewport({scale:1.5});
-          var canvas = document.createElement('canvas');
-          canvas.width = vp.width; canvas.height = vp.height;
-          await page.render({canvasContext: canvas.getContext('2d'), viewport: vp}).promise;
-          images.push(canvas.toDataURL('image/jpeg', 0.85));
-        }
+      } else if(ext === 'pdf'){
+        // Load each PDF from its own file data so multiple PDFs all get
+        // processed — previously all shared the single global pdfDoc
+        // variable (last uploaded only).
+        try{
+          var pdfBuf = await f.arrayBuffer();
+          var thisPdf = await pdfjsLib.getDocument({data: pdfBuf}).promise;
+          var isFirstPdf = (i === attachedFiles.findIndex(function(af){ return af.name.toLowerCase().endsWith('.pdf'); }));
+          var fromPage = (isFirstPdf && pdfConfirmed) ? selectedPages.from : 1;
+          var toPage   = (isFirstPdf && pdfConfirmed) ? selectedPages.to   : Math.min(thisPdf.numPages, MAX_PDF_PAGES);
+          for(var p=fromPage; p<=toPage; p++){
+            var page = await thisPdf.getPage(p);
+            var vp = page.getViewport({scale:1.5});
+            var canvas = document.createElement('canvas');
+            canvas.width = vp.width; canvas.height = vp.height;
+            await page.render({canvasContext: canvas.getContext('2d'), viewport: vp}).promise;
+            images.push(canvas.toDataURL('image/jpeg', 0.85));
+          }
+        }catch(pdfErr){ console.warn('PDF error:', f.name, pdfErr.message); }
       } else if(['xlsx','xls','csv'].includes(ext)){
         var buf = await f.arrayBuffer();
         var wb = XLSX.read(buf, {type:'array'});
