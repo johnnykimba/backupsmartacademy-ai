@@ -274,31 +274,40 @@ var pdfTotalPages   = 0;    // accumulated across all uploaded PDFs
 
 // ── ACCESS GATE ──
 async function verifyGateDirect(code){
-  // Called for auto-open from main site — skips client-side format check
-  // since code is already trusted (came from saved-codes panel).
   var errEl = document.getElementById('gate-error');
-  errEl.style.display = 'none';
-  var btn = document.querySelector('.access-btn');
+  var btn   = document.querySelector('.access-btn');
+  errEl.style.display = 'block';
+  errEl.style.color   = '#06b6d4';
+  errEl.textContent   = '⏳ Verifying ' + code + '...';
   if(btn){ btn.disabled = true; btn.textContent = '⏳ Verifying...'; }
   try{
     var res = await fetch(MAIN_WORKER_URL, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({_appSecret: MAIN_APP_SECRET, action:'validate-code', code: code, fingerprint:'prof-mode-'+Date.now()})
+      body: JSON.stringify({
+        _appSecret:  MAIN_APP_SECRET,
+        action:      'validate-code',
+        code:        code,
+        fingerprint: 'prof-mode-' + Date.now()
+      })
     });
     var data = await res.json();
     if(data.valid === true){
       sessionStorage.setItem('prof_unlocked','1');
       sessionStorage.setItem('prof_verified_code', code);
+      errEl.style.display = 'none';
       document.getElementById('access-gate').style.display = 'none';
       document.getElementById('main-content').style.display = 'block';
       initUploadHandlers();
     } else {
-      errEl.textContent = '❌ ' + (data.message || data.error || 'Code not recognized.');
+      errEl.style.color   = '#ef4444';
+      errEl.textContent   = '❌ ' + (data.message || data.error || JSON.stringify(data));
       errEl.style.display = 'block';
     }
   }catch(e){
-    errEl.textContent = '⚠️ Could not verify code — check your connection.';
+    errEl.style.color   = '#ef4444';
+    errEl.textContent   = '⚠️ Fetch failed: ' + e.message;
     errEl.style.display = 'block';
+    console.error('verifyGateDirect:', e);
   }finally{
     if(btn){ btn.disabled = false; btn.textContent = '🚀 Unlock Research Mode'; }
   }
@@ -336,9 +345,12 @@ async function verifyGate(){
 }
 
 window.addEventListener('load', function(){
+  // Set PDF.js workerSrc
   if(typeof pdfjsLib !== 'undefined' && !pdfjsLib.GlobalWorkerOptions.workerSrc){
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   }
+
+  // Already unlocked in this browser session — skip gate entirely
   if(sessionStorage.getItem('prof_unlocked') === '1'){
     document.getElementById('access-gate').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
@@ -346,18 +358,39 @@ window.addEventListener('load', function(){
     return;
   }
 
-  var urlParams = new URLSearchParams(window.location.search);
+  // Auto-open: code passed via URL param or sessionStorage from main site.
+  // Mirrors the Learner's proven pattern exactly:
+  //   1. Fill the input
+  //   2. Wait for DOM to settle
+  //   3. Click the actual button (same as a human would)
+  var urlParams   = new URLSearchParams(window.location.search);
   var pendingCode = urlParams.get('code') || sessionStorage.getItem('prof_pending_code');
+
+  // DEBUG — shows in browser console so we can diagnose if auto-open still fails
+  console.log('[Research] full URL:', window.location.href);
+  console.log('[Research] ?code param:', urlParams.get('code'));
+  console.log('[Research] sessionStorage prof_pending_code:', sessionStorage.getItem('prof_pending_code'));
+  console.log('[Research] pendingCode resolved:', pendingCode);
+
   if(pendingCode){
     sessionStorage.removeItem('prof_pending_code');
-    var inp = document.getElementById('gate-code-input');
+    pendingCode = pendingCode.toUpperCase().trim();
+    console.log('[Research auto-open] will verify:', pendingCode);
+
+    var inp   = document.getElementById('gate-code-input');
+    var errEl = document.getElementById('gate-error');
     if(inp){
-      inp.value = pendingCode.toUpperCase();
-      // Bypass the client-side format regex entirely for auto-open —
-      // the code came from the main site's saved-codes panel and is
-      // already trusted. The format guard was silently blocking valid
-      // codes that didn't match the regex exactly.
-      setTimeout(function(){ verifyGateDirect(pendingCode.toUpperCase()); }, 300);
+      inp.value = pendingCode;
+      errEl.style.display = 'block';
+      errEl.style.color   = '#06b6d4';
+      errEl.textContent   = '⏳ Verifying ' + pendingCode + '...';
+      // Step 1: fill + wait 300ms (same as Learner)
+      setTimeout(function(){
+        console.log('[Research auto-open] calling verifyGateDirect with:', pendingCode);
+        verifyGateDirect(pendingCode);
+      }, 300);
+    } else {
+      console.error('[Research auto-open] gate-code-input element not found');
     }
   }
 });
@@ -849,7 +882,12 @@ function downloadWord(){
     var txt=(typeof r==='string')?r:(r.text||'');
     return '<li><b>'+lbl+':</b> '+txt+'</li>';
   }).join('') + '</ul>' : '';
-  var html = '<html><head><meta charset="utf-8"><title>Research Report</title></head><body style="font-family:Arial,sans-serif;">' +
+  // Use marked.parse so markdown tables become real HTML tables in the download
+  var bodyContent = (window.marked && lastResultData.mergedAnswer)
+    ? marked.parse(lastResultData.mergedAnswer, {breaks:true, gfm:true})
+    : (lastResultData.mergedAnswer||'').replace(/\n/g,'<br>');
+  var tableCSS = 'table{width:100%;border-collapse:collapse;margin:12px 0;}th{background:#e8f4f8;font-weight:bold;padding:8px 12px;border:1px solid #aaa;text-align:left;}td{padding:7px 12px;border:1px solid #ccc;vertical-align:top;}tr:nth-child(even) td{background:#f9f9f9;}';
+  var html = '<html><head><meta charset="utf-8"><title>Research Report</title><style>body{font-family:Arial,sans-serif;}'+tableCSS+'</style></head><body>' +
     '<h1>Research / Professional Analysis Report</h1>' +
     '<p style="color:#666;">Generated ' + new Date().toLocaleString() + '</p>' +
     (sc ? '<h2>Confidence Scorecard</h2><p><b>Overall Confidence: ' + (sc.overall_confidence||0) + '%</b> — ' + (sc.verdict||'') + '</p>' +
@@ -857,7 +895,7 @@ function downloadWord(){
       '<li>Analysis Depth: ' + (sc.analysis_depth||0) + '%</li><li>Model Agreement: ' + (sc.agreement_level||0) + '%</li>' +
       '<li>Clarity: ' + (sc.clarity||0) + '%</li></ul>' : '') +
     recHtml +
-    '<h2>Verified Final Result</h2><p>' + (lastResultData.mergedAnswer||'').replace(/\n/g,'<br>') + '</p>' +
+    '<h2>Verified Final Result</h2>' + bodyContent +
     '</body></html>';
   var blob = new Blob([html], {type:'application/msword'});
   var url = URL.createObjectURL(blob);
@@ -878,7 +916,12 @@ function downloadPDF(){
     var txt=(typeof r==='string')?r:(r.text||'');
     return '<li><b>'+lbl+':</b> '+txt+'</li>';
   }).join('') + '</ul>' : '';
-  win.document.write('<html><head><title>Research Report</title></head><body style="font-family:Arial,sans-serif;padding:30px;">' +
+  // Use marked.parse so markdown tables become real HTML tables in the PDF
+  var bodyContent = (window.marked && lastResultData.mergedAnswer)
+    ? marked.parse(lastResultData.mergedAnswer, {breaks:true, gfm:true})
+    : (lastResultData.mergedAnswer||'').replace(/\n/g,'<br>');
+  var tableCSS = 'table{width:100%;border-collapse:collapse;margin:12px 0;}th{background:#e8f4f8;font-weight:bold;padding:8px 12px;border:1px solid #aaa;text-align:left;}td{padding:7px 12px;border:1px solid #ccc;vertical-align:top;}tr:nth-child(even) td{background:#f9f9f9;}';
+  win.document.write('<html><head><title>Research Report</title><style>body{font-family:Arial,sans-serif;padding:30px;}'+tableCSS+'</style></head><body>' +
     '<h1>Research / Professional Analysis Report</h1>' +
     '<p style="color:#666;">Generated ' + new Date().toLocaleString() + '</p>' +
     (sc ? '<h2>Confidence Scorecard</h2><p><b>Overall Confidence: ' + (sc.overall_confidence||0) + '%</b> — ' + (sc.verdict||'') + '</p>' +
@@ -886,7 +929,7 @@ function downloadPDF(){
       '<li>Analysis Depth: ' + (sc.analysis_depth||0) + '%</li><li>Model Agreement: ' + (sc.agreement_level||0) + '%</li>' +
       '<li>Clarity: ' + (sc.clarity||0) + '%</li></ul>' : '') +
     recHtml +
-    '<h2>Verified Final Result</h2><p>' + (lastResultData.mergedAnswer||'').replace(/\n/g,'<br>') + '</p>' +
+    '<h2>Verified Final Result</h2>' + bodyContent +
     '</body></html>');
   win.document.close();
   setTimeout(function(){ win.print(); }, 400);
