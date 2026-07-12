@@ -111,6 +111,15 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
 .result-merged-body code{background:rgba(255,255,255,0.08);border-radius:4px;padding:2px 6px;font-size:12px;}
 .result-merged-body ul,.result-merged-body ol,.result-panel ul,.result-panel ol{padding-left:20px;margin:8px 0;}
 .result-merged-body li,.result-panel li{margin-bottom:4px;line-height:1.6;}
+
+/* Toast notification */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:#1e3a5f;color:#fff;padding:12px 22px;border-radius:10px;
+  font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;max-width:90vw;text-align:center;}
+#toast.show{opacity:1;pointer-events:auto;}
+#toast.ok{background:linear-gradient(135deg,#10b981,#059669);}
+#toast.err{background:linear-gradient(135deg,#ef4444,#dc2626);}
 </style>
 </head>
 <body>
@@ -881,6 +890,17 @@ function downloadPDF(){
     '</body></html>');
   win.document.close();
   setTimeout(function(){ win.print(); }, 400);
+}
+</script>
+<div id="toast" onclick="this.className='';clearTimeout(window._tt);" style="cursor:pointer;"></div>
+<script>
+function toast(msg, type, duration){
+  type = type || ''; duration = duration || 3000;
+  var el = document.getElementById('toast');
+  if(!el) return;
+  el.textContent = msg; el.className = 'show ' + type;
+  clearTimeout(window._tt);
+  window._tt = setTimeout(function(){ el.className=''; }, duration);
 }
 </script>
 </body>
