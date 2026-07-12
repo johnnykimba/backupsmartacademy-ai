@@ -177,28 +177,18 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
           <input type="number" id="pdf-to" min="1" value="1">
           <button onclick="selectAllPages()" style="background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.35);border-radius:7px;color:var(--cyan);font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;white-space:nowrap;">✓ Select All Pages</button>
           <span id="page-count-label" style="font-size:10px;color:var(--muted);"></span>
-          <span style="font-size:10px;color:#f59e0b;" data-rt="max_pages">Max 30 pages</span>
+          <span style="font-size:10px;color:#f59e0b;" data-rt="max_pages">Max 200 pages &nbsp;|&nbsp; <span style="color:rgba(6,182,212,0.7);">DualMind best at ≤30</span></span>
         </div>
         <div id="pdf-status" style="font-size:11px;color:#10b981;margin-top:6px;display:none;"></div>
       </div>
 
       <textarea id="question-input" placeholder="Ask a question about your document (e.g. 'Summarize the key findings')" data-rt-ph="question_ph"></textarea>
 
-      <!-- MODE SELECTOR — controls which AI and page limit to use -->
-      <div id="mode-toggle" style="display:flex;gap:8px;margin-top:12px;">
-        <button id="mode-dual-btn" onclick="setAnalysisMode('dual')"
-          style="flex:1;padding:11px;border-radius:9px;border:2px solid rgba(6,182,212,0.6);background:rgba(6,182,212,0.12);color:#06b6d4;font-size:13px;font-weight:700;cursor:pointer;">
-          🔬 DualMind — GPT + Claude<br><span style="font-size:10px;font-weight:400;opacity:0.7;">Up to 30 pages</span>
-        </button>
-        <button id="mode-claude-btn" onclick="setAnalysisMode('claude')"
-          style="flex:1;padding:11px;border-radius:9px;border:2px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.45);font-size:13px;font-weight:700;cursor:pointer;">
-          🧠 Claude Only<br><span style="font-size:10px;font-weight:400;opacity:0.7;">Up to 200 pages</span>
-        </button>
+      <div style="display:flex;gap:10px;margin-top:12px;">
+        <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()" style="flex:1;">🔬 DualMind (GPT + Claude)</button>
+        <button class="analyze-btn" id="claude-btn" onclick="runClaudeOnly()" style="flex:1;background:linear-gradient(135deg,#7c3aed,#a78bfa);">🧠 Claude Only</button>
       </div>
-
-      <button class="analyze-btn" id="analyze-btn" onclick="runActiveMode()" style="margin-top:10px;">
-        🔬 Analyze Document (DualMind — GPT + Claude)
-      </button>
+      <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;text-align:center;">🔬 DualMind = best for up to 30 pages &nbsp;|&nbsp; 🧠 Claude = up to 200 pages</div>
     </div>
 
     <div id="results"></div>
@@ -217,8 +207,8 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
 // since this is a standalone page. Covers 10 core languages.
 // ════════════════════════════════════════════════════════════
 var RT_DICT = {
-  en:{back_home:'🏠 Back to Home', gate_title:'Research / Professional Access', gate_desc:'Enter your Research access code (starts with RM-, RS-, or RY-) to unlock document analysis.', unlock_btn:'🚀 Unlock Research Mode', back_home_arrow:'← Back to Home', doc_analysis:'Document Analysis', attach_files:'📎 Attach files (PDF up to 30 pages, photos, Excel, Word)', select_pages:'📋 Select Page Range', clear_all:'🗑️ Clear All', from_lbl:'From', to_lbl:'To', max_pages:'Max 30 pages', question_ph:"Ask a question about your document (e.g. 'Summarize the key findings')", analyze_btn:'🔬 Analyze Document'},
-  fr:{back_home:'🏠 Retour à l\'accueil', gate_title:'Accès Recherche / Professionnel', gate_desc:'Entrez votre code d\'accès Recherche (commence par RM-, RS- ou RY-) pour débloquer l\'analyse de documents.', unlock_btn:'🚀 Débloquer le Mode Recherche', back_home_arrow:'← Retour à l\'accueil', doc_analysis:'Analyse de Document', attach_files:'📎 Joindre des fichiers (PDF jusqu\'à 30 pages, photos, Excel, Word)', select_pages:'📋 Sélectionner la Plage de Pages', clear_all:'🗑️ Tout Effacer', from_lbl:'De', to_lbl:'À', max_pages:'Max 30 pages', question_ph:"Posez une question sur votre document (ex. 'Résumez les points clés')", analyze_btn:'🔬 Analyser le Document'},
+  en:{back_home:'🏠 Back to Home', gate_title:'Research / Professional Access', gate_desc:'Enter your Research access code (starts with RM-, RS-, or RY-) to unlock document analysis.', unlock_btn:'🚀 Unlock Research Mode', back_home_arrow:'← Back to Home', doc_analysis:'Document Analysis', attach_files:'📎 Attach files (PDF up to 30 pages, photos, Excel, Word)', select_pages:'📋 Select Page Range', clear_all:'🗑️ Clear All', from_lbl:'From', to_lbl:'To', max_pages:'Max 200 pages', question_ph:"Ask a question about your document (e.g. 'Summarize the key findings')", analyze_btn:'🔬 Analyze Document'},
+  fr:{back_home:'🏠 Retour à l\'accueil', gate_title:'Accès Recherche / Professionnel', gate_desc:'Entrez votre code d\'accès Recherche (commence par RM-, RS- ou RY-) pour débloquer l\'analyse de documents.', unlock_btn:'🚀 Débloquer le Mode Recherche', back_home_arrow:'← Retour à l\'accueil', doc_analysis:'Analyse de Document', attach_files:'📎 Joindre des fichiers (PDF jusqu\'à 30 pages, photos, Excel, Word)', select_pages:'📋 Sélectionner la Plage de Pages', clear_all:'🗑️ Tout Effacer', from_lbl:'De', to_lbl:'À', max_pages:'Max 200 pages', question_ph:"Posez une question sur votre document (ex. 'Résumez les points clés')", analyze_btn:'🔬 Analyser le Document'},
   pt:{back_home:'🏠 Voltar ao Início', gate_title:'Acesso Pesquisa / Profissional', gate_desc:'Insira o seu código de acesso de Pesquisa (começa com RM-, RS- ou RY-) para desbloquear a análise de documentos.', unlock_btn:'🚀 Desbloquear Modo Pesquisa', back_home_arrow:'← Voltar ao Início', doc_analysis:'Análise de Documento', attach_files:'📎 Anexar ficheiros (PDF até 30 páginas, fotos, Excel, Word)', select_pages:'📋 Selecionar Intervalo de Páginas', clear_all:'🗑️ Limpar Tudo', from_lbl:'De', to_lbl:'Até', max_pages:'Máx. 30 páginas', question_ph:"Faça uma pergunta sobre o seu documento (ex. 'Resuma os principais resultados')", analyze_btn:'🔬 Analisar Documento'},
   sw:{back_home:'🏠 Rudi Nyumbani', gate_title:'Ufikiaji wa Utafiti / Kitaaluma', gate_desc:'Ingiza msimbo wako wa ufikiaji wa Utafiti (huanza na RM-, RS-, au RY-) ili kufungua uchambuzi wa hati.', unlock_btn:'🚀 Fungua Hali ya Utafiti', back_home_arrow:'← Rudi Nyumbani', doc_analysis:'Uchambuzi wa Hati', attach_files:'📎 Pakia faili (PDF hadi kurasa 30, picha, Excel, Word)', select_pages:'📋 Chagua Kurasa', clear_all:'🗑️ Futa Yote', from_lbl:'Kutoka', to_lbl:'Hadi', max_pages:'Upeo kurasa 30', question_ph:"Uliza swali kuhusu hati yako (mf. 'Fanya muhtasari wa matokeo muhimu')", analyze_btn:'🔬 Changanua Hati'},
   zu:{back_home:'🏠 Buyela Ekhaya', gate_title:'Ukufinyelela Kocwaningo / Ochwepheshe', gate_desc:'Faka ikhodi yakho yokufinyelela Ucwaningo (iqala ngo-RM-, RS-, noma RY-) ukuvula ukuhlaziya kwedokhumenti.', unlock_btn:'🚀 Vula Imodi Yocwaningo', back_home_arrow:'← Buyela Ekhaya', doc_analysis:'Ukuhlaziya Idokhumenti', attach_files:'📎 Faka amafayela (PDF kuze kufike emakhasini 30, izithombe, Excel, Word)', select_pages:'📋 Khetha Ibanga Lamakhasi', clear_all:'🗑️ Sula Konke', from_lbl:'Kusuka', to_lbl:'Kuya', max_pages:'Amakhasi angeqe 30', question_ph:"Buza umbuzo mayelana nedokhumenti yakho (isb. 'Shwepesha okutholakele okubalulekile')", analyze_btn:'🔬 Hlaziya Idokhumenti'},
@@ -258,73 +248,12 @@ function rtSetLanguage(lang){
   rtApplyLanguage(saved);
 })();
 
-var MAX_PDF_PAGES = 30;
-var MAX_PDF_PAGES_CLAUDE = 200;
+var MAX_PDF_PAGES = 200; // Single cap for all modes — DualMind warns if >30 selected
+var MAX_DUALMIND_PAGES = 30; // Soft limit for DualMind — enforced as a warning, not a hard cap
 var MAIN_WORKER_URL = 'https://smartacademy-ai.kasongokimba.workers.dev';
 var PROF_WORKER_URL = 'https://prof-research.kasongokimba.workers.dev';
 var PROF_APP_SECRET = 'Prof2026Secret';
 var MAIN_APP_SECRET = 'sWN-UZpoi6PLUgCgZ7KiZi2iRPNUXq9f';
-var _activeMode = 'dual'; // 'dual' or 'claude'
-
-function setAnalysisMode(mode){
-  _activeMode = mode;
-  var dualBtn   = document.getElementById('mode-dual-btn');
-  var claudeBtn = document.getElementById('mode-claude-btn');
-  var analyzeBtn = document.getElementById('analyze-btn');
-
-  if(mode === 'claude'){
-    // Claude mode — 200 page cap
-    MAX_PDF_PAGES = MAX_PDF_PAGES_CLAUDE;
-    dualBtn.style.border   = '2px solid rgba(255,255,255,0.15)';
-    dualBtn.style.background = 'transparent';
-    dualBtn.style.color    = 'rgba(255,255,255,0.45)';
-    claudeBtn.style.border   = '2px solid rgba(167,139,250,0.6)';
-    claudeBtn.style.background = 'rgba(124,58,237,0.15)';
-    claudeBtn.style.color  = '#a78bfa';
-    analyzeBtn.style.background = 'linear-gradient(135deg,#7c3aed,#a78bfa)';
-    analyzeBtn.textContent = '🧠 Analyze with Claude Only (up to 200 pages)';
-    // Update the "Max X pages" label and re-validate selector
-    var maxLbl = document.querySelector('[data-rt="max_pages"]');
-    if(maxLbl) maxLbl.textContent = 'Max 200 pages';
-    // If a PDF is already loaded, re-set the To field up to 200
-    if(pdfDoc){
-      var toEl = document.getElementById('pdf-to');
-      if(toEl && parseInt(toEl.value) <= 30){
-        toEl.value = Math.min(pdfDoc.numPages, MAX_PDF_PAGES);
-      }
-      validatePages();
-    }
-  } else {
-    // DualMind mode — 30 page cap
-    MAX_PDF_PAGES = 30;
-    claudeBtn.style.border   = '2px solid rgba(255,255,255,0.15)';
-    claudeBtn.style.background = 'transparent';
-    claudeBtn.style.color    = 'rgba(255,255,255,0.45)';
-    dualBtn.style.border   = '2px solid rgba(6,182,212,0.6)';
-    dualBtn.style.background = 'rgba(6,182,212,0.12)';
-    dualBtn.style.color    = '#06b6d4';
-    analyzeBtn.style.background = 'linear-gradient(135deg,#1a56db,#06b6d4)';
-    analyzeBtn.textContent = '🔬 Analyze Document (DualMind — GPT + Claude)';
-    var maxLbl = document.querySelector('[data-rt="max_pages"]');
-    if(maxLbl) maxLbl.textContent = 'Max 30 pages';
-    // Clamp To back to 30 if needed
-    if(pdfDoc){
-      var toEl = document.getElementById('pdf-to');
-      if(toEl && parseInt(toEl.value) > 30) toEl.value = 30;
-      validatePages();
-    }
-  }
-}
-
-function runActiveMode(){
-  if(_activeMode === 'claude'){
-    runClaudeOnly();
-  } else {
-    runAnalysis();
-  }
-}
-
-
 
 var attachedFiles = [];
 var pdfDoc = null;
@@ -546,6 +475,19 @@ async function runAnalysis(){
   if(!question){ alert('Please enter a question.'); return; }
   if(!attachedFiles.length){ alert('Please upload a document first.'); return; }
 
+  // Soft warning for DualMind — GPT-4o performs best at ≤30 pages.
+  // Not a hard block — user can proceed, but we flag the risk.
+  var pageCount = selectedPages.to - selectedPages.from + 1;
+  if(pdfConfirmed && pageCount > MAX_DUALMIND_PAGES){
+    var proceed = confirm(
+      '⚠️ DualMind works best with up to 30 pages.\n\n' +
+      'You have ' + pageCount + ' pages selected. GPT-4o may be less reliable at this size.\n\n' +
+      'Tip: use the 🧠 Claude Only button below for large documents — it handles up to 200 pages reliably.\n\n' +
+      'Continue with DualMind anyway?'
+    );
+    if(!proceed) return;
+  }
+
   btn.disabled = true; btn.textContent = '⏳ Analyzing...';
   resultsEl.style.display = 'block';
   resultsEl.innerHTML =
@@ -626,10 +568,13 @@ async function runAnalysis(){
 async function runClaudeOnly(){
   var question = document.getElementById('question-input').value.trim();
   var resultsEl = document.getElementById('results');
-  var btn = document.getElementById('analyze-btn');
+  var btn = document.getElementById('claude-btn');
+  var analyzeBtn = document.getElementById('analyze-btn');
+
+  if(!question){ alert('Please enter a question.'); return; }
+  if(!attachedFiles.length){ alert('Please upload a document first.'); return; }
 
   btn.disabled = true; btn.textContent = '⏳ Claude analyzing...';
-  var analyzeBtn = document.getElementById('analyze-btn');
   if(analyzeBtn) analyzeBtn.disabled = true;
 
   resultsEl.style.display = 'block';
@@ -717,11 +662,7 @@ async function runClaudeOnly(){
   }catch(e){
     resultsEl.innerHTML = '<div style="color:#ef4444;padding:16px;">Error: ' + e.message + '</div>';
   }finally{
-    btn.disabled = false;
-    btn.textContent = _activeMode === 'claude'
-      ? '🧠 Analyze with Claude Only (up to 200 pages)'
-      : '🔬 Analyze Document (DualMind — GPT + Claude)';
-    var analyzeBtn = document.getElementById('analyze-btn');
+    btn.disabled = false; btn.textContent = '🧠 Claude Only';
     if(analyzeBtn) analyzeBtn.disabled = false;
   }
 }
