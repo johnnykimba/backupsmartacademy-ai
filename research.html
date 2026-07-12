@@ -101,7 +101,16 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
 .download-btn{flex:1;padding:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;}
 .download-btn:hover{background:rgba(255,255,255,0.1);}
 .result-merged-title{font-size:12px;font-weight:800;color:var(--cyan);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
-.result-merged-body{font-size:14px;color:#fff;line-height:1.7;}
+.result-merged-body{font-size:14px;color:#fff;line-height:1.7;overflow-wrap:break-word;word-wrap:break-word;}
+.result-merged-body table,.result-panel table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;}
+.result-merged-body th,.result-panel th{background:rgba(6,182,212,0.15);color:var(--cyan);font-weight:700;padding:8px 12px;border:1px solid rgba(6,182,212,0.3);text-align:left;}
+.result-merged-body td,.result-panel td{padding:7px 12px;border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;vertical-align:top;}
+.result-merged-body tr:nth-child(even) td,.result-panel tr:nth-child(even) td{background:rgba(255,255,255,0.03);}
+.result-merged-body tr:hover td,.result-panel tr:hover td{background:rgba(6,182,212,0.06);}
+.result-merged-body pre{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow-x:auto;font-size:12px;}
+.result-merged-body code{background:rgba(255,255,255,0.08);border-radius:4px;padding:2px 6px;font-size:12px;}
+.result-merged-body ul,.result-merged-body ol,.result-panel ul,.result-panel ol{padding-left:20px;margin:8px 0;}
+.result-merged-body li,.result-panel li{margin-bottom:4px;line-height:1.6;}
 </style>
 </head>
 <body>
@@ -174,11 +183,22 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
       </div>
 
       <textarea id="question-input" placeholder="Ask a question about your document (e.g. 'Summarize the key findings')" data-rt-ph="question_ph"></textarea>
-      <div style="display:flex;gap:10px;margin-top:12px;">
-        <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()" data-rt="analyze_btn" style="flex:1;">🔬 Analyze Document</button>
-        <button class="analyze-btn" id="claude-btn" onclick="runClaudeOnly()" style="flex:1;background:linear-gradient(135deg,#7c3aed,#a78bfa);" title="Claude only — supports up to 200 pages">🧠 Claude (200 pages)</button>
+
+      <!-- MODE SELECTOR — controls which AI and page limit to use -->
+      <div id="mode-toggle" style="display:flex;gap:8px;margin-top:12px;">
+        <button id="mode-dual-btn" onclick="setAnalysisMode('dual')"
+          style="flex:1;padding:11px;border-radius:9px;border:2px solid rgba(6,182,212,0.6);background:rgba(6,182,212,0.12);color:#06b6d4;font-size:13px;font-weight:700;cursor:pointer;">
+          🔬 DualMind — GPT + Claude<br><span style="font-size:10px;font-weight:400;opacity:0.7;">Up to 30 pages</span>
+        </button>
+        <button id="mode-claude-btn" onclick="setAnalysisMode('claude')"
+          style="flex:1;padding:11px;border-radius:9px;border:2px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.45);font-size:13px;font-weight:700;cursor:pointer;">
+          🧠 Claude Only<br><span style="font-size:10px;font-weight:400;opacity:0.7;">Up to 200 pages</span>
+        </button>
       </div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;text-align:center;">🔬 Analyze = GPT-4o + Claude DualMind (30 pages) &nbsp;|&nbsp; 🧠 Claude = Claude only, up to 200 pages</div>
+
+      <button class="analyze-btn" id="analyze-btn" onclick="runActiveMode()" style="margin-top:10px;">
+        🔬 Analyze Document (DualMind — GPT + Claude)
+      </button>
     </div>
 
     <div id="results"></div>
@@ -238,12 +258,72 @@ function rtSetLanguage(lang){
   rtApplyLanguage(saved);
 })();
 
-var MAIN_WORKER_URL = 'https://smartacademy-ai.kasongokimba.workers.dev';
+var MAX_PDF_PAGES = 30;
+var MAX_PDF_PAGES_CLAUDE = 200;
 var PROF_WORKER_URL = 'https://prof-research.kasongokimba.workers.dev';
 var PROF_APP_SECRET = 'Prof2026Secret';
 var MAIN_APP_SECRET = 'sWN-UZpoi6PLUgCgZ7KiZi2iRPNUXq9f';
-var MAX_PDF_PAGES = 30;
-var MAX_PDF_PAGES_CLAUDE = 200;
+var _activeMode = 'dual'; // 'dual' or 'claude'
+
+function setAnalysisMode(mode){
+  _activeMode = mode;
+  var dualBtn   = document.getElementById('mode-dual-btn');
+  var claudeBtn = document.getElementById('mode-claude-btn');
+  var analyzeBtn = document.getElementById('analyze-btn');
+
+  if(mode === 'claude'){
+    // Claude mode — 200 page cap
+    MAX_PDF_PAGES = MAX_PDF_PAGES_CLAUDE;
+    dualBtn.style.border   = '2px solid rgba(255,255,255,0.15)';
+    dualBtn.style.background = 'transparent';
+    dualBtn.style.color    = 'rgba(255,255,255,0.45)';
+    claudeBtn.style.border   = '2px solid rgba(167,139,250,0.6)';
+    claudeBtn.style.background = 'rgba(124,58,237,0.15)';
+    claudeBtn.style.color  = '#a78bfa';
+    analyzeBtn.style.background = 'linear-gradient(135deg,#7c3aed,#a78bfa)';
+    analyzeBtn.textContent = '🧠 Analyze with Claude Only (up to 200 pages)';
+    // Update the "Max X pages" label and re-validate selector
+    var maxLbl = document.querySelector('[data-rt="max_pages"]');
+    if(maxLbl) maxLbl.textContent = 'Max 200 pages';
+    // If a PDF is already loaded, re-set the To field up to 200
+    if(pdfDoc){
+      var toEl = document.getElementById('pdf-to');
+      if(toEl && parseInt(toEl.value) <= 30){
+        toEl.value = Math.min(pdfDoc.numPages, MAX_PDF_PAGES);
+      }
+      validatePages();
+    }
+  } else {
+    // DualMind mode — 30 page cap
+    MAX_PDF_PAGES = 30;
+    claudeBtn.style.border   = '2px solid rgba(255,255,255,0.15)';
+    claudeBtn.style.background = 'transparent';
+    claudeBtn.style.color    = 'rgba(255,255,255,0.45)';
+    dualBtn.style.border   = '2px solid rgba(6,182,212,0.6)';
+    dualBtn.style.background = 'rgba(6,182,212,0.12)';
+    dualBtn.style.color    = '#06b6d4';
+    analyzeBtn.style.background = 'linear-gradient(135deg,#1a56db,#06b6d4)';
+    analyzeBtn.textContent = '🔬 Analyze Document (DualMind — GPT + Claude)';
+    var maxLbl = document.querySelector('[data-rt="max_pages"]');
+    if(maxLbl) maxLbl.textContent = 'Max 30 pages';
+    // Clamp To back to 30 if needed
+    if(pdfDoc){
+      var toEl = document.getElementById('pdf-to');
+      if(toEl && parseInt(toEl.value) > 30) toEl.value = 30;
+      validatePages();
+    }
+  }
+}
+
+function runActiveMode(){
+  if(_activeMode === 'claude'){
+    runClaudeOnly();
+  } else {
+    runAnalysis();
+  }
+}
+
+
 
 var attachedFiles = [];
 var pdfDoc = null;
@@ -545,14 +625,7 @@ async function runAnalysis(){
 async function runClaudeOnly(){
   var question = document.getElementById('question-input').value.trim();
   var resultsEl = document.getElementById('results');
-  var btn = document.getElementById('claude-btn');
-
-  if(!question){ alert('Please enter a question.'); return; }
-  if(!attachedFiles.length){ alert('Please upload a document first.'); return; }
-
-  // Temporarily extend the page cap to 200 for this call
-  var origMax = MAX_PDF_PAGES;
-  MAX_PDF_PAGES = MAX_PDF_PAGES_CLAUDE;
+  var btn = document.getElementById('analyze-btn');
 
   btn.disabled = true; btn.textContent = '⏳ Claude analyzing...';
   var analyzeBtn = document.getElementById('analyze-btn');
@@ -643,15 +716,27 @@ async function runClaudeOnly(){
   }catch(e){
     resultsEl.innerHTML = '<div style="color:#ef4444;padding:16px;">Error: ' + e.message + '</div>';
   }finally{
-    MAX_PDF_PAGES = origMax;
-    btn.disabled = false; btn.textContent = '🧠 Claude (200 pages)';
+    btn.disabled = false;
+    btn.textContent = _activeMode === 'claude'
+      ? '🧠 Analyze with Claude Only (up to 200 pages)'
+      : '🔬 Analyze Document (DualMind — GPT + Claude)';
+    var analyzeBtn = document.getElementById('analyze-btn');
     if(analyzeBtn) analyzeBtn.disabled = false;
   }
 }
 
 function simpleMarkdown(text){
-  return (text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  if(!text) return '';
+  // Use marked.js (already loaded) for proper markdown including tables.
+  // Falls back to a basic converter if marked isn't available.
+  if(window.marked){
+    try{
+      return marked.parse(text, {breaks:true, gfm:true});
+    }catch(e){}
+  }
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\n/g,'<br>');
 }
 
 var lastResultData = null; // stored for download buttons
