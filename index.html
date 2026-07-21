@@ -13668,8 +13668,18 @@ function pfStartPolling(clientId){
       if(d.status==='ready' && d.code){
         clearInterval(poll);
         localStorage.removeItem('pf_pending_client');
-        // Show code prominently in a modal
-        pfShowCodeModal(d.code, d.plan);
+        if(d.isClassPlan && d.codes && d.codes.length){
+          // Class plan — show bulk codes modal
+          showBulkCodesModal(d.codes, d.groupId, d.plan, Date.now()+30*24*60*60*1000);
+          // Save to local monitor list
+          var ccl=[]; try{ccl=JSON.parse(localStorage.getItem('saa_class_codes')||'[]');}catch(e){}
+          ccl.push({groupId:d.groupId,classPlan:d.plan,count:d.codes.length,codes:d.codes,radius:250,createdAt:Date.now(),expiresAt:Date.now()+30*24*60*60*1000,paymentRef:d.code});
+          localStorage.setItem('saa_class_codes',JSON.stringify(ccl));
+          if(typeof adminRenderClassCodes==='function') adminRenderClassCodes();
+          renderMyCodesTable();
+        } else {
+          pfShowCodeModal(d.code, d.plan);
+        }
       }
     }catch(e){}
   }, 5000);
@@ -18375,7 +18385,24 @@ async function adminDrcSubmit(){
     var d=await res.json();
     if(d.ok&&d.matched){
       st.style.background='rgba(16,185,129,0.15)';st.style.color='#10b981';
-      st.innerHTML='Match found!<br><b style="font-size:18px;letter-spacing:2px;">'+d.code+'</b><br><span style="font-size:11px;opacity:0.7;">Ref: '+d.ref+'</span>';
+      if(d.isClassPlan && d.codes && d.codes.length){
+        // Class plan — show bulk codes modal and save to local monitor list
+        st.innerHTML='✅ Class codes generated! <b>'+d.codes.length+' codes</b> for plan '+d.plan+'<br><span style="font-size:11px;opacity:0.7;">Group ID: '+d.groupId+'</span>';
+        showBulkCodesModal(d.codes, d.groupId, d.plan, Date.now()+30*24*60*60*1000);
+        // Save to local class codes list
+        var classCodeList=[];
+        try{ classCodeList=JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
+        classCodeList.push({
+          groupId:d.groupId, classPlan:d.plan, count:d.codes.length,
+          codes:d.codes, radius:250,
+          createdAt:Date.now(), expiresAt:Date.now()+30*24*60*60*1000,
+          paymentRef:d.adminRef
+        });
+        localStorage.setItem('saa_class_codes', JSON.stringify(classCodeList));
+        if(typeof adminRenderClassCodes==='function') adminRenderClassCodes();
+      } else {
+        st.innerHTML='Match found!<br><b style="font-size:18px;letter-spacing:2px;">'+d.code+'</b><br><span style="font-size:11px;opacity:0.7;">Ref: '+(d.adminRef||d.ref||'')+'</span>';
+      }
       adminDrcClearFile();setTimeout(adminLoadDrcPending,1000);
     }else{
       st.style.background='rgba(239,68,68,0.1)';st.style.color='#ef4444';
