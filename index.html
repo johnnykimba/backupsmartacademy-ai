@@ -3695,6 +3695,32 @@ window.addEventListener('load', function(){
             </div>
             <div id="pf-price-RM" style="font-size:16px;font-weight:900;color:#a78bfa;">≈$25</div>
           </label>
+
+          <!-- ── CLASSROOM PLANS ── -->
+          <div style="margin-top:10px;padding:8px 10px;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.15);border-radius:8px;">
+            <div style="font-size:10px;font-weight:800;color:#06b6d4;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🏫 Classroom / Group Plans — Monthly</div>
+            <label onclick="pfSelectPlan('G30',180)" id="pf-plan-G30" style="display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.15);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div id="pf-radio-G30" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
+                <div><div style="font-size:13px;font-weight:800;color:#fff;">👥 30 Students · 1 Code</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">250m geo-lock · 30 days</div></div>
+              </div>
+              <div id="pf-price-G30" style="font-size:16px;font-weight:900;color:#06b6d4;">$180</div>
+            </label>
+            <label onclick="pfSelectPlan('G40',240)" id="pf-plan-G40" style="display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.15);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div id="pf-radio-G40" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
+                <div><div style="font-size:13px;font-weight:800;color:#fff;">👥 40 Students · 1 Code</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">250m geo-lock · 30 days</div></div>
+              </div>
+              <div id="pf-price-G40" style="font-size:16px;font-weight:900;color:#06b6d4;">$240</div>
+            </label>
+            <label onclick="pfSelectPlan('G50',300)" id="pf-plan-G50" style="display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.15);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div id="pf-radio-G50" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
+                <div><div style="font-size:13px;font-weight:800;color:#fff;">👥 50 Students · 1 Code</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">250m geo-lock · 30 days</div></div>
+              </div>
+              <div id="pf-price-G50" style="font-size:16px;font-weight:900;color:#06b6d4;">$300</div>
+            </label>
+          </div>
         </div>
 
         <button onclick="pfCheckout()" id="pf-pay-btn"
@@ -3781,12 +3807,37 @@ window.addEventListener('load', function(){
               <div id="mob-cdf-RM" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
             </div>
           </label>
+          <!-- Classroom plans for mobile money -->
+          <div style="margin-top:8px;padding:8px;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.15);border-radius:8px;">
+            <div style="font-size:10px;font-weight:800;color:#06b6d4;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🏫 Classroom Plans</div>
+            <label onclick="mobSelectPlan('G30',180)" id="mob-plan-G30" style="display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.15);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;margin-bottom:5px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div id="mob-radio-G30" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
+                <span style="font-size:12px;font-weight:800;color:#fff;">👥 30 Students / Month</span>
+              </div>
+              <div style="text-align:right;"><div style="font-size:15px;font-weight:900;color:#06b6d4;">$180</div><div id="mob-cdf-G30" style="font-size:11px;color:#fff;opacity:0.8;"></div></div>
+            </label>
+            <label onclick="mobSelectPlan('G40',240)" id="mob-plan-G40" style="display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.15);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;margin-bottom:5px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div id="mob-radio-G40" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
+                <span style="font-size:12px;font-weight:800;color:#fff;">👥 40 Students / Month</span>
+              </div>
+              <div style="text-align:right;"><div style="font-size:15px;font-weight:900;color:#06b6d4;">$240</div><div id="mob-cdf-G40" style="font-size:11px;color:#fff;opacity:0.8;"></div></div>
+            </label>
+            <label onclick="mobSelectPlan('G50',300)" id="mob-plan-G50" style="display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.15);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div id="mob-radio-G50" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
+                <span style="font-size:12px;font-weight:800;color:#fff;">👥 50 Students / Month</span>
+              </div>
+              <div style="text-align:right;"><div style="font-size:15px;font-weight:900;color:#06b6d4;">$300</div><div id="mob-cdf-G50" style="font-size:11px;color:#fff;opacity:0.8;"></div></div>
+            </label>
+          </div>
         </div>
         <script>
         function mobUpdateCdfPrices(){
           var rate = parseFloat(localStorage.getItem('saa_fx_cdf')||'2800');
-          var prices = {W:5,M:10,Y:100,RM:20};
-          ['W','M','Y','RM'].forEach(function(p){
+          var prices = {W:5,M:10,Y:100,RM:20,G30:180,G40:240,G50:300};
+          ['W','M','Y','RM','G30','G40','G50'].forEach(function(p){
             var el = document.getElementById('mob-cdf-'+p);
             if(el) el.textContent = '≈ CDF '+Math.round(prices[p]*rate).toLocaleString();
           });
@@ -6453,13 +6504,31 @@ function loadGeneratedCodes(){
 
 // ── DEVICE FINGERPRINT GENERATOR ─────────────────────────────────
 function getDeviceFingerprint(){
-  // Use a stable permanent device ID stored in localStorage
-  // This never changes on the same device regardless of browser updates
+  // Use a stable permanent device ID — stored in localStorage AND
+  // derived from stable browser properties as a secondary check.
+  // This makes it harder to bypass by clearing localStorage alone.
   var stored = localStorage.getItem('saa_device_id');
-  if(stored) return stored;
-  // Generate a new permanent ID for this device
-  var id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,10);
+  if(stored){
+    // Also write to sessionStorage as a cross-check
+    sessionStorage.setItem('saa_device_id_s', stored);
+    return stored;
+  }
+  // Check sessionStorage fallback (survives some localStorage clears)
+  var fromSession = sessionStorage.getItem('saa_device_id_s');
+  if(fromSession){
+    localStorage.setItem('saa_device_id', fromSession);
+    return fromSession;
+  }
+  // Generate from stable browser properties for consistency
+  var nav = window.navigator;
+  var screenStr = (screen.width||0)+'x'+(screen.height||0)+'x'+(screen.colorDepth||0);
+  var navStr = (nav.language||'')+'|'+(nav.hardwareConcurrency||0)+'|'+(nav.platform||'');
+  var tzOffset = new Date().getTimezoneOffset();
+  // Combine with a random component for uniqueness
+  var rand = Math.random().toString(36).slice(2,10);
+  var id = 'dev_' + btoa(screenStr+'|'+navStr+'|'+tzOffset).slice(0,12).replace(/[^a-zA-Z0-9]/g,'') + '_' + rand;
   localStorage.setItem('saa_device_id', id);
+  sessionStorage.setItem('saa_device_id_s', id);
   return id;
 }
 
@@ -6712,6 +6781,54 @@ async function validateCode(){
 
 
 
+
+async function adminRenderClassCodes(){
+  var el = document.getElementById('admin-class-codes-list');
+  if(!el) return;
+  // Load from localStorage (saved when teacher purchases)
+  var list = [];
+  try{ list = JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
+  // Also fetch live data from KV for each code
+  if(!list.length){
+    el.innerHTML = '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:16px;">No classroom codes found on this device.<br>Codes appear here after a teacher purchase.</div>';
+    return;
+  }
+  var now = Date.now();
+  var planLabels = {G30:'30 Students',G40:'40 Students',G50:'50 Students'};
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:11px;">' +
+    '<thead><tr style="color:rgba(255,255,255,0.5);border-bottom:1px solid rgba(255,255,255,0.1);">' +
+    '<th style="padding:6px 4px;text-align:left;">Code</th>' +
+    '<th style="padding:6px 4px;text-align:left;">Plan</th>' +
+    '<th style="padding:6px 4px;text-align:center;">Seats</th>' +
+    '<th style="padding:6px 4px;text-align:center;">Radius</th>' +
+    '<th style="padding:6px 4px;text-align:left;">Expires</th>' +
+    '<th style="padding:6px 4px;text-align:center;">Status</th>' +
+    '</tr></thead><tbody>';
+  list.forEach(function(c){
+    var expired = now > (c.expiresAt||0);
+    var expDate = c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : '—';
+    var status = expired ? '<span style="color:#ef4444;">Expired</span>' : '<span style="color:#10b981;">Active</span>';
+    html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);">' +
+      '<td style="padding:7px 4px;font-family:monospace;color:#06b6d4;font-weight:700;">' + (c.code||'—') + '</td>' +
+      '<td style="padding:7px 4px;color:#fff;">' + (planLabels[c.classPlan]||c.classPlan||'—') + '</td>' +
+      '<td style="padding:7px 4px;text-align:center;color:#fbbf24;">' + (c.uses||0) + '/' + (c.maxUses||'—') + '</td>' +
+      '<td style="padding:7px 4px;text-align:center;color:rgba(255,255,255,0.6);">' + (c.radius||250) + 'm</td>' +
+      '<td style="padding:7px 4px;color:rgba(255,255,255,0.6);">' + expDate + '</td>' +
+      '<td style="padding:7px 4px;text-align:center;">' + status + '</td>' +
+      '</tr>';
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+  // Fetch live seat counts from worker
+  list.forEach(function(c){
+    if(!c.code) return;
+    fetch(WORKER_URL, {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({_appSecret:APP_SECRET, action:'get-classroom-status', code:c.code})
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if(d.ok){ c.uses = d.uses||0; localStorage.setItem('saa_class_codes', JSON.stringify(list)); }
+    }).catch(function(){});
+  });
+}
 
 async function adminGenClassroomCode(){
   var adminKey = localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
@@ -12776,7 +12893,7 @@ function showTrialCard(expiresAt){
   var c=document.getElementById('trial-card');
   if(c) c.style.display='block';
   var cd=document.getElementById('trial-countdown');
-  if(cd){cd.style.fontSize='28px';}
+  if(cd){ cd.style.display='block'; cd.style.fontSize='28px'; }
   updateTrialCountdown();
   if(_trialTimer) clearInterval(_trialTimer);
   _trialTimer=setInterval(updateTrialCountdown,1000);
@@ -13389,8 +13506,8 @@ function togglePayPanel(type){
 
 function pfSelectPlan(plan, price){
   _pfPlan = plan; _pfPrice = price;
-  var labels = {W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Monthly'};
-  ['W','M','Y','RM'].forEach(function(p){
+  var labels = {W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Monthly',G30:'Class 30 Students/Month',G40:'Class 40 Students/Month',G50:'Class 50 Students/Month'};
+  ['W','M','Y','RM','G30','G40','G50'].forEach(function(p){
     var row   = document.getElementById('pf-plan-'+p);
     var radio = document.getElementById('pf-radio-'+p);
     var activeColor = p==='RM' ? '#a78bfa' : '#60a5fa';
@@ -13495,6 +13612,12 @@ function pfShowCodeModal(code, plan){
       renderSavedCodes();
       window.scrollTo({top:0, behavior:'smooth'});
     }, 400);
+  } else if(/^(G30|G40|G50)$/.test(plan||'')){
+    // Class code purchase — auto-generate classroom code
+    pfGenerateClassCode(plan||'G30', code);
+  } else if(_mobPlan && /^(G30|G40|G50)$/i.test(_mobPlan)){
+    // Class code purchased via DRC mobile money
+    pfGenerateClassCode(_mobPlan, code);
   } else {
     // Learner code — auto-open directly
     toast('🎉 Payment confirmed! Opening your access now...', 'ok', 6000);
@@ -13508,6 +13631,83 @@ function pfShowCodeModal(code, plan){
   }
 }
 
+async function pfGenerateClassCode(classPlan, paymentRef){
+  var maxUsesMap = {G30:30, G40:40, G50:50};
+  var maxUses = maxUsesMap[classPlan] || 30;
+  toast('⏳ Generating your classroom code...', 'ok', 10000);
+  try{
+    var res = await fetch(WORKER_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        _appSecret: APP_SECRET,
+        action: 'generate-classroom-code-paid',
+        type: 'M', suffix: 'C',
+        radius: 250, maxUses: maxUses,
+        paymentRef: paymentRef, classPlan: classPlan
+      })
+    });
+    var data = await res.json();
+    if(data.success && data.code){
+      showClassCodeModal(data.code, maxUses, classPlan);
+      var classCodeList = [];
+      try{ classCodeList = JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
+      classCodeList.push({
+        code: data.code, classPlan: classPlan, maxUses: maxUses,
+        radius: 250, createdAt: Date.now(), expiresAt: data.expiresAt,
+        paymentRef: paymentRef
+      });
+      localStorage.setItem('saa_class_codes', JSON.stringify(classCodeList));
+      if(typeof adminRenderClassCodes==='function') adminRenderClassCodes();
+    } else {
+      toast('⚠️ Payment received but code generation failed. Contact admin with ref: '+paymentRef, 'err', 30000);
+    }
+  }catch(e){
+    toast('⚠️ Payment received. Contact admin for your classroom code. Ref: '+paymentRef, 'err', 30000);
+  }
+}
+
+function showClassCodeModal(code, maxUses, classPlan){
+  var existing = document.getElementById('class-code-modal');
+  if(existing) existing.remove();
+  var overlay = document.createElement('div');
+  overlay.id = 'class-code-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  var card = document.createElement('div');
+  card.style.cssText = 'background:linear-gradient(165deg,#0f2044,#1a3a6e);border:1px solid rgba(6,182,212,0.5);border-radius:20px;padding:28px 24px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.6);';
+  var planLabels = {G30:'30 Students',G40:'40 Students',G50:'50 Students'};
+  card.innerHTML =
+    '<div style="font-size:36px;margin-bottom:10px;">🏫</div>'+
+    '<div style="color:#06b6d4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Classroom Code — '+planLabels[classPlan]+'</div>'+
+    '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:16px;">Share this code with your students. Do NOT enter it on this device.</div>'+
+    '<div id="cc-modal-code" style="font-family:monospace;font-size:28px;font-weight:900;color:#06b6d4;letter-spacing:4px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);border-radius:12px;padding:16px;margin-bottom:14px;">'+code+'</div>'+
+    '<div style="color:rgba(255,255,255,0.6);font-size:13px;line-height:1.6;margin-bottom:18px;">'+
+      '📍 Code locks to location when first used<br>'+
+      '👥 Max students: <strong style="color:#fff;">'+maxUses+'</strong><br>'+
+      '📐 Radius: <strong style="color:#fff;">250m</strong> (adjustable in admin)<br>'+
+      '⏱ Valid: <strong style="color:#fff;">30 days</strong>'+
+    '</div>'+
+    '<div style="display:flex;gap:10px;margin-bottom:12px;">'+
+      '<button id="cc-copy-btn" style="flex:1;padding:12px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4);border-radius:10px;color:#06b6d4;font-size:13px;font-weight:700;cursor:pointer;">📋 Copy Code</button>'+
+      '<button id="cc-done-btn" style="flex:1;padding:12px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">✅ Done</button>'+
+    '</div>'+
+    '<div style="font-size:11px;color:rgba(255,255,255,0.35);">Code also saved in Admin Panel → Classroom Codes</div>';
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+  document.getElementById('cc-copy-btn').addEventListener('click', function(){
+    navigator.clipboard.writeText(code).then(function(){
+      document.getElementById('cc-copy-btn').textContent = '✅ Copied!';
+      setTimeout(function(){ document.getElementById('cc-copy-btn').textContent = '📋 Copy Code'; }, 2000);
+    }).catch(function(){
+      var ta = document.createElement('textarea');
+      ta.value = code; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      document.getElementById('cc-copy-btn').textContent = '✅ Copied!';
+    });
+  });
+  document.getElementById('cc-done-btn').addEventListener('click', function(){ overlay.remove(); });
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
+}
+
 function savePurchasedCode(code, plan, source){
   try{
     // Respect explicit deletions — if the learner removed this code on purpose,
@@ -13519,7 +13719,7 @@ function savePurchasedCode(code, plan, source){
     var stored = JSON.parse(localStorage.getItem('saa_saved_codes')||'[]');
     // Avoid duplicates
     if(stored.some(function(s){ return s.code === code; })) return;
-    var planLabels = {W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Month',RS:'Research 6 Months',RY:'Research Year'};
+    var planLabels = {W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Month',RS:'Research 6 Months',RY:'Research Year',G30:'Class 30 Students',G40:'Class 40 Students',G50:'Class 50 Students'};
     // Detect plan from code prefix if not passed explicitly
     var detectedPlan = plan;
     if(!detectedPlan){
@@ -13554,6 +13754,9 @@ function showDrcCodeOverlay(code){
     // Re-render the codes table after a delay to ensure it shows
     // after all the pricing page rendering has completed
     setTimeout(function(){ renderMyCodesTable(); }, 600);
+  } else if(_mobPlan && /^(G30|G40|G50)$/i.test(_mobPlan)){
+    // Class code purchased via DRC mobile money
+    pfGenerateClassCode(_mobPlan, code);
   } else {
     // Learner code — auto-open directly
     toast('🎉 Payment confirmed! Opening your access now...', 'ok', 6000);
@@ -13599,7 +13802,7 @@ var _mobPlan = null, _mobPrice = null, _mobRegion = 'DRC'; // DRC only
 function mobCheckProceed(){
   var btn = document.getElementById('mob-proceed-btn');
   if(_mobPlan){
-    var planNames = {W:'1 Week', M:'1 Month', Y:'1 Year', RM:'Research Monthly'};
+    var planNames = {W:'1 Week', M:'1 Month', Y:'1 Year', RM:'Research Monthly', G30:'Class 30 Students', G40:'Class 40 Students', G50:'Class 50 Students'};
     var planLabel = (planNames[_mobPlan] || _mobPlan) + ' — $' + (_mobPrice || '');
     btn.textContent = '🇨🇩 Continue — ' + planLabel;
     btn.style.background = 'linear-gradient(135deg,#0891b2,#0e7490)';
@@ -17377,6 +17580,14 @@ window.openGuide = function(tab){
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- CLASSROOM CODE MONITOR -->
+      <div class="admin-section" style="border:1px solid rgba(6,182,212,0.25);background:rgba(6,182,212,0.04);">
+        <div class="admin-section-title" style="color:#06b6d4;">📊 Classroom Code Monitor</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;">Codes purchased by teachers — shows seats used, location status, expiry.</div>
+        <button onclick="adminRenderClassCodes()" style="padding:7px 14px;background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.3);border-radius:8px;color:#06b6d4;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px;">🔄 Refresh</button>
+        <div id="admin-class-codes-list" style="font-size:12px;"></div>
       </div>
 
       <!-- DISABLE CODE -->
