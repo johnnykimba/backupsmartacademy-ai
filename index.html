@@ -6782,52 +6782,83 @@ async function validateCode(){
 
 
 
-async function adminRenderClassCodes(){
-  var el = document.getElementById('admin-class-codes-list');
-  if(!el) return;
-  // Load from localStorage (saved when teacher purchases)
+async function deleteClassGroup(idx){
+  if(!confirm('Remove this classroom group from your list? The codes remain valid — this only clears the local record.')) return;
   var list = [];
   try{ list = JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
-  // Also fetch live data from KV for each code
+  list.splice(idx, 1);
+  localStorage.setItem('saa_class_codes', JSON.stringify(list));
+  renderMyCodesTable();
+  if(typeof adminRenderClassCodes==='function') adminRenderClassCodes();
+  toast('Group removed from list', 'ok');
+}
+
+function adminRenderClassCodes(){
+  var el = document.getElementById('admin-class-codes-list');
+  if(!el) return;
+  var list = [];
+  try{ list = JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
   if(!list.length){
-    el.innerHTML = '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:16px;">No classroom codes found on this device.<br>Codes appear here after a teacher purchase.</div>';
+    el.innerHTML = '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:16px;">No classroom groups found.<br>Appear here after a teacher purchase.</div>';
     return;
   }
   var now = Date.now();
   var planLabels = {G30:'30 Students',G40:'40 Students',G50:'50 Students'};
-  var html = '<table style="width:100%;border-collapse:collapse;font-size:11px;">' +
-    '<thead><tr style="color:rgba(255,255,255,0.5);border-bottom:1px solid rgba(255,255,255,0.1);">' +
-    '<th style="padding:6px 4px;text-align:left;">Code</th>' +
-    '<th style="padding:6px 4px;text-align:left;">Plan</th>' +
-    '<th style="padding:6px 4px;text-align:center;">Seats</th>' +
-    '<th style="padding:6px 4px;text-align:center;">Radius</th>' +
-    '<th style="padding:6px 4px;text-align:left;">Expires</th>' +
-    '<th style="padding:6px 4px;text-align:center;">Status</th>' +
-    '</tr></thead><tbody>';
-  list.forEach(function(c){
-    var expired = now > (c.expiresAt||0);
-    var expDate = c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : '—';
-    var status = expired ? '<span style="color:#ef4444;">Expired</span>' : '<span style="color:#10b981;">Active</span>';
-    html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);">' +
-      '<td style="padding:7px 4px;font-family:monospace;color:#06b6d4;font-weight:700;">' + (c.code||'—') + '</td>' +
-      '<td style="padding:7px 4px;color:#fff;">' + (planLabels[c.classPlan]||c.classPlan||'—') + '</td>' +
-      '<td style="padding:7px 4px;text-align:center;color:#fbbf24;">' + (c.uses||0) + '/' + (c.maxUses||'—') + '</td>' +
-      '<td style="padding:7px 4px;text-align:center;color:rgba(255,255,255,0.6);">' + (c.radius||250) + 'm</td>' +
-      '<td style="padding:7px 4px;color:rgba(255,255,255,0.6);">' + expDate + '</td>' +
-      '<td style="padding:7px 4px;text-align:center;">' + status + '</td>' +
-      '</tr>';
+  var html = '';
+  list.forEach(function(group, gi){
+    var expired = now > (group.expiresAt||0);
+    var expDate = group.expiresAt ? new Date(group.expiresAt).toLocaleDateString() : '—';
+    var activated = (group.codes||[]).filter(function(c){ return c.studentName; }).length;
+    var total = group.count || (group.codes||[]).length;
+    html +=
+      '<div style="background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.2);border-radius:10px;padding:12px;margin-bottom:10px;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div style="font-size:12px;font-weight:800;color:#06b6d4;">'+(planLabels[group.classPlan]||group.classPlan||'Class')+'</div>'+
+          '<div style="font-size:10px;color:rgba(255,255,255,0.4);">Group: '+(group.groupId||'—')+'</div>'+
+          '<div style="font-size:10px;color:rgba(255,255,255,0.4);">Expires '+expDate+'</div>'+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">'+
+          '<div style="font-size:11px;color:#fbbf24;font-weight:700;">'+activated+'/'+total+' activated</div>'+
+          '<button id="grp-del-'+gi+'" style="padding:4px 10px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;">🗑️ Delete</button>'+
+        '</div>'+
+      '</div>'+
+      '<button id="grp-btn-'+gi+'" style="width:100%;padding:7px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);border-radius:7px;color:#06b6d4;font-size:11px;font-weight:700;cursor:pointer;margin-bottom:8px;">🔄 Fetch Live Status</button>'+
+      '<div id="group-detail-'+gi+'" style="font-size:11px;"></div>'+
+      '</div>';
   });
-  html += '</tbody></table>';
   el.innerHTML = html;
-  // Fetch live seat counts from worker
-  list.forEach(function(c){
-    if(!c.code) return;
-    fetch(WORKER_URL, {method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({_appSecret:APP_SECRET, action:'get-classroom-status', code:c.code})
-    }).then(function(r){ return r.json(); }).then(function(d){
-      if(d.ok){ c.uses = d.uses||0; localStorage.setItem('saa_class_codes', JSON.stringify(list)); }
-    }).catch(function(){});
-  });
+}
+
+async function adminFetchGroupStatus(groupId, idx){
+  var detailEl = document.getElementById('group-detail-'+idx);
+  if(!detailEl) return;
+  detailEl.textContent = '⏳ Loading...';
+  try{
+    var res = await fetch(WORKER_URL, {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({_appSecret:APP_SECRET, action:'get-classroom-status', groupId:groupId})
+    });
+    var data = await res.json();
+    if(!data.ok){ detailEl.textContent = 'Error: '+(data.error||'Unknown'); return; }
+    var html = '<table style="width:100%;border-collapse:collapse;font-size:10px;">'+
+      '<thead><tr style="color:rgba(255,255,255,0.4);border-bottom:1px solid rgba(255,255,255,0.08);">'+
+      '<th style="padding:4px;text-align:left;">#</th>'+
+      '<th style="padding:4px;text-align:left;">Code</th>'+
+      '<th style="padding:4px;text-align:left;">Student Name</th>'+
+      '<th style="padding:4px;text-align:center;">Status</th>'+
+      '</tr></thead><tbody>';
+    (data.codes||[]).forEach(function(c, i){
+      html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">'+
+        '<td style="padding:4px;color:rgba(255,255,255,0.4);">'+(i+1)+'</td>'+
+        '<td style="padding:4px;font-family:monospace;color:#06b6d4;">'+(c.code||'—')+'</td>'+
+        '<td style="padding:4px;color:#fff;">'+(c.studentName||'<span style="color:rgba(255,255,255,0.3);">Not activated</span>')+'</td>'+
+        '<td style="padding:4px;text-align:center;">'+(c.activated ? '<span style="color:#10b981;">✓</span>' : '<span style="color:rgba(255,255,255,0.2);">—</span>')+'</td>'+
+        '</tr>';
+    });
+    html += '</tbody></table>';
+    html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:6px;">Location set: '+(data.locationSet?'✅ Yes':'⏳ Waiting for first activation')+'</div>';
+    detailEl.innerHTML = html;
+  }catch(e){ detailEl.textContent = 'Error: '+e.message; }
 }
 
 async function adminGenClassroomCode(){
@@ -10344,6 +10375,51 @@ function renderMyCodesTable(){
   }
 
   // Sort newest first
+  // Show classroom code groups at the top of My Codes
+  var classGroups = [];
+  try{ classGroups = JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
+  if(classGroups.length){
+    var planLabelsC = {G30:'Class 30',G40:'Class 40',G50:'Class 50'};
+    var now = Date.now();
+    var groupHtml = '<tr><td colspan="5" style="padding:8px 4px 4px;font-size:10px;font-weight:700;color:#06b6d4;text-transform:uppercase;letter-spacing:0.5px;">🏫 Classroom Groups</td></tr>';
+    classGroups.forEach(function(g, gi){
+      var expired = now > (g.expiresAt||0);
+      var expDate = g.expiresAt ? new Date(g.expiresAt).toLocaleDateString() : '—';
+      var codeCount = (g.codes||[]).length || g.count || 0;
+      groupHtml += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);">'+
+        '<td style="padding:6px 4px;color:#06b6d4;font-weight:700;font-size:11px;">'+(planLabelsC[g.classPlan]||g.classPlan||'Class')+'</td>'+
+        '<td style="padding:6px 4px;font-size:11px;color:rgba(255,255,255,0.6);">'+codeCount+' codes</td>'+
+        '<td style="padding:6px 4px;font-size:11px;color:rgba(255,255,255,0.6);">'+expDate+'</td>'+
+        '<td style="padding:6px 4px;"><span style="padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;background:'+(expired?'rgba(239,68,68,0.15)':'rgba(16,185,129,0.15)')+';color:'+(expired?'#ef4444':'#10b981')+';">'+(expired?'Expired':'Active')+'</span></td>'+
+        '<td style="padding:6px 4px;display:flex;gap:4px;">'+
+          '<button data-grp-view="'+gi+'" style="padding:4px 8px;background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.4);border-radius:6px;color:#06b6d4;font-size:11px;font-weight:700;cursor:pointer;" title="View all codes">👁</button>'+
+          '<button data-grp-del="'+gi+'" style="padding:4px 8px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;" title="Remove from list">🗑️</button>'+
+        '</td>'+
+        '</tr>';
+    });
+    if(el.previousElementSibling){
+      el.previousElementSibling.insertAdjacentHTML('beforebegin', '<table style="width:100%;border-collapse:collapse;margin-bottom:12px;">'+groupHtml+'</table>');
+    }
+  }
+
+  // Delegated click handler for classroom group buttons
+  var tbody = el;
+  if(tbody && !tbody._classGrpBound){
+    tbody._classGrpBound = true;
+    document.addEventListener('click', function(ev){
+      var vBtn = ev.target.closest('[data-grp-view]');
+      if(vBtn){
+        var vi = parseInt(vBtn.getAttribute('data-grp-view'));
+        var grpList = []; try{ grpList = JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
+        var grp = grpList[vi];
+        if(grp) showBulkCodesModal(grp.codes||[], grp.groupId||'', grp.classPlan||'G30', grp.expiresAt||0);
+        return;
+      }
+      var dBtn = ev.target.closest('[data-grp-del]');
+      if(dBtn){ deleteClassGroup(parseInt(dBtn.getAttribute('data-grp-del'))); }
+    });
+  }
+
   stored.sort(function(a,b){ return (b.savedAt||0)-(a.savedAt||0); });
 
   el.innerHTML = stored.map(function(c){
@@ -13632,28 +13708,30 @@ function pfShowCodeModal(code, plan){
 }
 
 async function pfGenerateClassCode(classPlan, paymentRef){
-  var maxUsesMap = {G30:30, G40:40, G50:50};
-  var maxUses = maxUsesMap[classPlan] || 30;
-  toast('⏳ Generating your classroom code...', 'ok', 10000);
+  var countMap = {G30:30, G40:40, G50:50};
+  var count = countMap[classPlan] || 30;
+  toast('⏳ Generating '+count+' classroom codes...', 'ok', 20000);
   try{
     var res = await fetch(WORKER_URL, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         _appSecret: APP_SECRET,
         action: 'generate-classroom-code-paid',
-        type: 'M', suffix: 'C',
-        radius: 250, maxUses: maxUses,
-        paymentRef: paymentRef, classPlan: classPlan
+        classPlan: classPlan, radius: 250,
+        paymentRef: paymentRef
       })
     });
     var data = await res.json();
-    if(data.success && data.code){
-      showClassCodeModal(data.code, maxUses, classPlan);
+    if(data.success && data.codes && data.codes.length){
+      // Show all codes on screen + download option
+      showBulkCodesModal(data.codes, data.groupId, classPlan, data.expiresAt);
+      // Save group to admin monitor list
       var classCodeList = [];
       try{ classCodeList = JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
       classCodeList.push({
-        code: data.code, classPlan: classPlan, maxUses: maxUses,
-        radius: 250, createdAt: Date.now(), expiresAt: data.expiresAt,
+        groupId: data.groupId, classPlan: classPlan, count: data.codes.length,
+        codes: data.codes, radius: 250,
+        createdAt: Date.now(), expiresAt: data.expiresAt,
         paymentRef: paymentRef
       });
       localStorage.setItem('saa_class_codes', JSON.stringify(classCodeList));
@@ -13662,8 +13740,110 @@ async function pfGenerateClassCode(classPlan, paymentRef){
       toast('⚠️ Payment received but code generation failed. Contact admin with ref: '+paymentRef, 'err', 30000);
     }
   }catch(e){
-    toast('⚠️ Payment received. Contact admin for your classroom code. Ref: '+paymentRef, 'err', 30000);
+    toast('⚠️ Payment received. Contact admin for your classroom codes. Ref: '+paymentRef, 'err', 30000);
   }
+}
+
+function showBulkCodesModal(codes, groupId, classPlan, expiresAt){
+  var existing = document.getElementById('class-code-modal');
+  if(existing) existing.remove();
+  var planLabels = {G30:'30 Students',G40:'40 Students',G50:'50 Students'};
+  var expDate = expiresAt ? new Date(expiresAt).toLocaleDateString() : '30 days';
+
+  var overlay = document.createElement('div');
+  overlay.id = 'class-code-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
+
+  var card = document.createElement('div');
+  card.style.cssText = 'background:linear-gradient(165deg,#0f2044,#1a3a6e);border:1px solid rgba(6,182,212,0.5);border-radius:20px;padding:24px 20px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.6);max-height:90vh;overflow-y:auto;';
+
+  // Build codes grid
+  var codesHtml = '';
+  codes.forEach(function(c, i){
+    codesHtml += '<div style="font-family:monospace;font-size:13px;font-weight:700;color:#06b6d4;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);border-radius:6px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+      '<span>'+(i+1)+'. '+c+'</span>' +
+      '</div>';
+  });
+
+  card.innerHTML =
+    '<div style="text-align:center;margin-bottom:16px;">' +
+      '<div style="font-size:32px;margin-bottom:6px;">🏫</div>' +
+      '<div style="color:#06b6d4;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Classroom Codes — '+planLabels[classPlan]+'</div>' +
+      '<div style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:4px;">Valid until '+expDate+' · Geo-locked to 250m from first activation</div>' +
+    '</div>' +
+    '<div style="background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.3);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#fbbf24;line-height:1.6;">'+
+      '⚠️ <strong>Important:</strong> Give ONE code to each student. Each code locks to the student name and device. Codes only work within 250m of where the first code is activated.' +
+    '</div>' +
+    '<div style="max-height:280px;overflow-y:auto;margin-bottom:14px;">'+codesHtml+'</div>' +
+    '<div style="display:flex;gap:8px;margin-bottom:10px;">' +
+      '<button id="bulk-copy-all-btn" style="flex:1;padding:11px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4);border-radius:10px;color:#06b6d4;font-size:12px;font-weight:700;cursor:pointer;">📋 Copy All</button>' +
+      '<button id="bulk-download-btn" style="flex:1;padding:11px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:10px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer;">⬇️ Download</button>' +
+      '<button id="bulk-done-btn" style="flex:1;padding:11px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:10px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">✅ Done</button>' +
+    '</div>' +
+    '<div style="font-size:10px;color:rgba(255,255,255,0.3);text-align:center;">Group ID: '+groupId+' · Also saved in Admin Panel</div>';
+
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+
+  // Copy All button
+  document.getElementById('bulk-copy-all-btn').addEventListener('click', function(){
+    var nl = '\n';
+    var text = 'Smart Academy AI - Classroom Codes'+nl+
+      'Plan: '+planLabels[classPlan]+' | Valid until: '+expDate+nl+
+      'Group ID: '+groupId+nl+nl+
+      codes.map(function(c,i){ return (i+1)+'. '+c; }).join(nl);
+    navigator.clipboard.writeText(text).then(function(){
+      document.getElementById('bulk-copy-all-btn').textContent = '✅ Copied!';
+      setTimeout(function(){ document.getElementById('bulk-copy-all-btn').textContent = '📋 Copy All'; }, 2000);
+    }).catch(function(){
+      var ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      document.getElementById('bulk-copy-all-btn').textContent = '✅ Copied!';
+    });
+  });
+
+  // Download button
+  document.getElementById('bulk-download-btn').addEventListener('click', function(){
+    var nl2 = '\n';
+    var text = 'SMART ACADEMY AI - CLASSROOM CODES'+nl2+
+      '====================================='+nl2+
+      'Plan: '+planLabels[classPlan]+nl2+
+      'Valid until: '+expDate+nl2+
+      'Group ID: '+groupId+nl2+
+      'Geo-lock: 250m from first activation'+nl2+nl2+
+      'INSTRUCTIONS:'+nl2+
+      '- Give ONE code to each student'+nl2+
+      '- Student enters code at www.smartacademy-ai.com'+nl2+
+      '- Student name locks to code permanently on first use'+nl2+
+      '- Code only works within 250m of school'+nl2+nl2+
+      'CODES:'+nl2+'------'+nl2+
+      codes.map(function(c,i){ return 'Student '+(i+1)+': '+c; }).join(nl2);
+    var blob = new Blob([text], {type:'text/plain'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'SmartAcademy-ClassCodes-'+new Date().toISOString().slice(0,10)+'.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    // Also trigger PDF-style print view
+    var win = window.open('', '_blank');
+    win.document.write('<html><head><title>Classroom Codes</title><style>body{font-family:Arial,sans-serif;padding:30px;}h1{color:#0f2044;}table{width:100%;border-collapse:collapse;margin-top:20px;}th{background:#0f2044;color:#fff;padding:10px;}td{padding:8px;border:1px solid #ccc;font-family:monospace;font-size:14px;}tr:nth-child(even){background:#f5f5f5;}</style></head><body>'+
+      '<h1>Smart Academy AI — Classroom Codes</h1>'+
+      '<p><strong>Plan:</strong> '+planLabels[classPlan]+' &nbsp;|&nbsp; <strong>Valid until:</strong> '+expDate+'</p>'+
+      '<p style="background:#fff3cd;padding:10px;border-radius:6px;">⚠️ Give ONE code to each student. Each code locks to the student name and device on first use. Codes work within 250m of the registered school location.</p>'+
+      '<table><thead><tr><th>#</th><th>Student</th><th>Code</th><th>Name (fill in)</th></tr></thead><tbody>'+
+      codes.map(function(c,i){ return '<tr><td>'+(i+1)+'</td><td>Student '+(i+1)+'</td><td><strong>'+c+'</strong></td><td style="color:#999;">___________________</td></tr>'; }).join('')+
+      '</tbody></table>'+
+      '<p style="margin-top:20px;font-size:12px;color:#666;">Group ID: '+groupId+' &nbsp;|&nbsp; www.smartacademy-ai.com</p>'+
+      '</body></html>');
+    win.document.close();
+    setTimeout(function(){ win.print(); }, 400);
+  });
+
+  // Done button
+  document.getElementById('bulk-done-btn').addEventListener('click', function(){ overlay.remove(); });
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
 }
 
 function showClassCodeModal(code, maxUses, classPlan){
@@ -15121,6 +15301,28 @@ function renderMonthlyPerf(sessions, el){
       + '</div>';
   });
   el.innerHTML = html;
+  el.addEventListener('click', function(e){
+    // Fetch live status button
+    var fetchBtn = e.target.closest('[id^="grp-btn-"]');
+    if(fetchBtn){
+      var idx2 = parseInt(fetchBtn.id.replace('grp-btn-',''));
+      var grp = list[idx2];
+      if(grp && grp.groupId) adminFetchGroupStatus(grp.groupId, idx2);
+      return;
+    }
+    // Delete button
+    var delBtn = e.target.closest('[id^="grp-del-"]');
+    if(delBtn){
+      var delIdx = parseInt(delBtn.id.replace('grp-del-',''));
+      var delGroup = list[delIdx];
+      var label = delGroup ? (delGroup.classPlan||'this group') : 'this group';
+      if(!confirm('Remove '+label+' from this device list? The codes remain valid — this only clears the local record.')) return;
+      list.splice(delIdx, 1);
+      localStorage.setItem('saa_class_codes', JSON.stringify(list));
+      adminRenderClassCodes();
+      return;
+    }
+  });
 }
 
 function renderProgressPage(){
