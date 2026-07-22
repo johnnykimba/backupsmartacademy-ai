@@ -3695,32 +3695,6 @@ window.addEventListener('load', function(){
             </div>
             <div id="pf-price-RM" style="font-size:16px;font-weight:900;color:#a78bfa;">≈$25</div>
           </label>
-
-          <!-- ── CLASSROOM PLANS ── -->
-          <div style="margin-top:10px;padding:8px 10px;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.15);border-radius:8px;">
-            <div style="font-size:10px;font-weight:800;color:#06b6d4;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🏫 Classroom / Group Plans — Monthly</div>
-            <label onclick="pfSelectPlan('G30',180)" id="pf-plan-G30" style="display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.15);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;margin-bottom:6px;">
-              <div style="display:flex;align-items:center;gap:10px;">
-                <div id="pf-radio-G30" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
-                <div><div style="font-size:13px;font-weight:800;color:#fff;">👥 30 Students · 1 Code</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">250m geo-lock · 30 days</div></div>
-              </div>
-              <div id="pf-price-G30" style="font-size:16px;font-weight:900;color:#06b6d4;">$180</div>
-            </label>
-            <label onclick="pfSelectPlan('G40',240)" id="pf-plan-G40" style="display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.15);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;margin-bottom:6px;">
-              <div style="display:flex;align-items:center;gap:10px;">
-                <div id="pf-radio-G40" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
-                <div><div style="font-size:13px;font-weight:800;color:#fff;">👥 40 Students · 1 Code</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">250m geo-lock · 30 days</div></div>
-              </div>
-              <div id="pf-price-G40" style="font-size:16px;font-weight:900;color:#06b6d4;">$240</div>
-            </label>
-            <label onclick="pfSelectPlan('G50',300)" id="pf-plan-G50" style="display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.15);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
-              <div style="display:flex;align-items:center;gap:10px;">
-                <div id="pf-radio-G50" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
-                <div><div style="font-size:13px;font-weight:800;color:#fff;">👥 50 Students · 1 Code</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">250m geo-lock · 30 days</div></div>
-              </div>
-              <div id="pf-price-G50" style="font-size:16px;font-weight:900;color:#06b6d4;">$300</div>
-            </label>
-          </div>
         </div>
 
         <button onclick="pfCheckout()" id="pf-pay-btn"
@@ -3807,37 +3781,12 @@ window.addEventListener('load', function(){
               <div id="mob-cdf-RM" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
             </div>
           </label>
-          <!-- Classroom plans for mobile money -->
-          <div style="margin-top:8px;padding:8px;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.15);border-radius:8px;">
-            <div style="font-size:10px;font-weight:800;color:#06b6d4;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🏫 Classroom Plans</div>
-            <label onclick="mobSelectPlan('G30',180)" id="mob-plan-G30" style="display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.15);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;margin-bottom:5px;">
-              <div style="display:flex;align-items:center;gap:8px;">
-                <div id="mob-radio-G30" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
-                <span style="font-size:12px;font-weight:800;color:#fff;">👥 30 Students / Month</span>
-              </div>
-              <div style="text-align:right;"><div style="font-size:15px;font-weight:900;color:#06b6d4;">$180</div><div id="mob-cdf-G30" style="font-size:11px;color:#fff;opacity:0.8;"></div></div>
-            </label>
-            <label onclick="mobSelectPlan('G40',240)" id="mob-plan-G40" style="display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.15);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;margin-bottom:5px;">
-              <div style="display:flex;align-items:center;gap:8px;">
-                <div id="mob-radio-G40" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
-                <span style="font-size:12px;font-weight:800;color:#fff;">👥 40 Students / Month</span>
-              </div>
-              <div style="text-align:right;"><div style="font-size:15px;font-weight:900;color:#06b6d4;">$240</div><div id="mob-cdf-G40" style="font-size:11px;color:#fff;opacity:0.8;"></div></div>
-            </label>
-            <label onclick="mobSelectPlan('G50',300)" id="mob-plan-G50" style="display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.15);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
-              <div style="display:flex;align-items:center;gap:8px;">
-                <div id="mob-radio-G50" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
-                <span style="font-size:12px;font-weight:800;color:#fff;">👥 50 Students / Month</span>
-              </div>
-              <div style="text-align:right;"><div style="font-size:15px;font-weight:900;color:#06b6d4;">$300</div><div id="mob-cdf-G50" style="font-size:11px;color:#fff;opacity:0.8;"></div></div>
-            </label>
-          </div>
         </div>
         <script>
         function mobUpdateCdfPrices(){
           var rate = parseFloat(localStorage.getItem('saa_fx_cdf')||'2800');
-          var prices = {W:5,M:10,Y:100,RM:20,G30:180,G40:240,G50:300};
-          ['W','M','Y','RM','G30','G40','G50'].forEach(function(p){
+          var prices = {W:5,M:10,Y:100,RM:20};
+          ['W','M','Y','RM'].forEach(function(p){
             var el = document.getElementById('mob-cdf-'+p);
             if(el) el.textContent = '≈ CDF '+Math.round(prices[p]*rate).toLocaleString();
           });
@@ -6665,6 +6614,35 @@ async function validateCode(){
     showPage('page-profile');
       if(btn){ btn.textContent='🚀 Verify & Continue to Setup →'; btn.style.background=''; btn.disabled=false; }
       errEl.style.display='none';
+      // Pre-fill name if already locked to this code
+      setTimeout(function(){
+        var savedName = S.code ? localStorage.getItem('saa_name_'+S.code) : null;
+        var nameEl = document.getElementById('pf-name');
+        var nameRow = nameEl ? nameEl.closest('.profile-field')||nameEl.parentElement : null;
+        if(savedName && nameEl){
+          nameEl.value = savedName;
+          nameEl.readOnly = true;
+          nameEl.style.opacity = '0.7';
+          nameEl.style.cursor = 'not-allowed';
+          // Switch to identity mode automatically
+          if(typeof setIdentityMode === 'function') setIdentityMode(true);
+          // Show lock indicator
+          var lockNote = document.getElementById('name-lock-note');
+          if(!lockNote && nameRow){
+            lockNote = document.createElement('div');
+            lockNote.id = 'name-lock-note';
+            lockNote.style.cssText = 'font-size:11px;color:#06b6d4;margin-top:4px;';
+            lockNote.innerHTML = '🔒 Name locked to this code on this device';
+            nameRow.appendChild(lockNote);
+          }
+        } else if(nameEl){
+          nameEl.readOnly = false;
+          nameEl.style.opacity = '';
+          nameEl.style.cursor = '';
+          var lockNote = document.getElementById('name-lock-note');
+          if(lockNote) lockNote.remove();
+        }
+      }, 100);
     }, 800);
     return;
   }
@@ -6753,6 +6731,35 @@ async function validateCode(){
       showPage('page-profile');
       if(btn){ btn.textContent='🚀 Verify & Continue to Setup →'; btn.style.background=''; btn.disabled=false; }
       errEl.style.display='none';
+      // Pre-fill name if already locked to this code
+      setTimeout(function(){
+        var savedName = S.code ? localStorage.getItem('saa_name_'+S.code) : null;
+        var nameEl = document.getElementById('pf-name');
+        var nameRow = nameEl ? nameEl.closest('.profile-field')||nameEl.parentElement : null;
+        if(savedName && nameEl){
+          nameEl.value = savedName;
+          nameEl.readOnly = true;
+          nameEl.style.opacity = '0.7';
+          nameEl.style.cursor = 'not-allowed';
+          // Switch to identity mode automatically
+          if(typeof setIdentityMode === 'function') setIdentityMode(true);
+          // Show lock indicator
+          var lockNote = document.getElementById('name-lock-note');
+          if(!lockNote && nameRow){
+            lockNote = document.createElement('div');
+            lockNote.id = 'name-lock-note';
+            lockNote.style.cssText = 'font-size:11px;color:#06b6d4;margin-top:4px;';
+            lockNote.innerHTML = '🔒 Name locked to this code on this device';
+            nameRow.appendChild(lockNote);
+          }
+        } else if(nameEl){
+          nameEl.readOnly = false;
+          nameEl.style.opacity = '';
+          nameEl.style.cursor = '';
+          var lockNote = document.getElementById('name-lock-note');
+          if(lockNote) lockNote.remove();
+        }
+      }, 100);
     }, 800);
 
   } catch(err) {
@@ -6781,85 +6788,6 @@ async function validateCode(){
 
 
 
-
-async function deleteClassGroup(idx){
-  if(!confirm('Remove this classroom group from your list? The codes remain valid — this only clears the local record.')) return;
-  var list = [];
-  try{ list = JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
-  list.splice(idx, 1);
-  localStorage.setItem('saa_class_codes', JSON.stringify(list));
-  renderMyCodesTable();
-  if(typeof adminRenderClassCodes==='function') adminRenderClassCodes();
-  toast('Group removed from list', 'ok');
-}
-
-function adminRenderClassCodes(){
-  var el = document.getElementById('admin-class-codes-list');
-  if(!el) return;
-  var list = [];
-  try{ list = JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
-  if(!list.length){
-    el.innerHTML = '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:16px;">No classroom groups found.<br>Appear here after a teacher purchase.</div>';
-    return;
-  }
-  var now = Date.now();
-  var planLabels = {G30:'30 Students',G40:'40 Students',G50:'50 Students'};
-  var html = '';
-  list.forEach(function(group, gi){
-    var expired = now > (group.expiresAt||0);
-    var expDate = group.expiresAt ? new Date(group.expiresAt).toLocaleDateString() : '—';
-    var activated = (group.codes||[]).filter(function(c){ return c.studentName; }).length;
-    var total = group.count || (group.codes||[]).length;
-    html +=
-      '<div style="background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.2);border-radius:10px;padding:12px;margin-bottom:10px;">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'+
-        '<div style="flex:1;min-width:0;">'+
-          '<div style="font-size:12px;font-weight:800;color:#06b6d4;">'+(planLabels[group.classPlan]||group.classPlan||'Class')+'</div>'+
-          '<div style="font-size:10px;color:rgba(255,255,255,0.4);">Group: '+(group.groupId||'—')+'</div>'+
-          '<div style="font-size:10px;color:rgba(255,255,255,0.4);">Expires '+expDate+'</div>'+
-        '</div>'+
-        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">'+
-          '<div style="font-size:11px;color:#fbbf24;font-weight:700;">'+activated+'/'+total+' activated</div>'+
-          '<button id="grp-del-'+gi+'" style="padding:4px 10px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;">🗑️ Delete</button>'+
-        '</div>'+
-      '</div>'+
-      '<button id="grp-btn-'+gi+'" style="width:100%;padding:7px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);border-radius:7px;color:#06b6d4;font-size:11px;font-weight:700;cursor:pointer;margin-bottom:8px;">🔄 Fetch Live Status</button>'+
-      '<div id="group-detail-'+gi+'" style="font-size:11px;"></div>'+
-      '</div>';
-  });
-  el.innerHTML = html;
-}
-
-async function adminFetchGroupStatus(groupId, idx){
-  var detailEl = document.getElementById('group-detail-'+idx);
-  if(!detailEl) return;
-  detailEl.textContent = '⏳ Loading...';
-  try{
-    var res = await fetch(WORKER_URL, {method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({_appSecret:APP_SECRET, action:'get-classroom-status', groupId:groupId})
-    });
-    var data = await res.json();
-    if(!data.ok){ detailEl.textContent = 'Error: '+(data.error||'Unknown'); return; }
-    var html = '<table style="width:100%;border-collapse:collapse;font-size:10px;">'+
-      '<thead><tr style="color:rgba(255,255,255,0.4);border-bottom:1px solid rgba(255,255,255,0.08);">'+
-      '<th style="padding:4px;text-align:left;">#</th>'+
-      '<th style="padding:4px;text-align:left;">Code</th>'+
-      '<th style="padding:4px;text-align:left;">Student Name</th>'+
-      '<th style="padding:4px;text-align:center;">Status</th>'+
-      '</tr></thead><tbody>';
-    (data.codes||[]).forEach(function(c, i){
-      html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">'+
-        '<td style="padding:4px;color:rgba(255,255,255,0.4);">'+(i+1)+'</td>'+
-        '<td style="padding:4px;font-family:monospace;color:#06b6d4;">'+(c.code||'—')+'</td>'+
-        '<td style="padding:4px;color:#fff;">'+(c.studentName||'<span style="color:rgba(255,255,255,0.3);">Not activated</span>')+'</td>'+
-        '<td style="padding:4px;text-align:center;">'+(c.activated ? '<span style="color:#10b981;">✓</span>' : '<span style="color:rgba(255,255,255,0.2);">—</span>')+'</td>'+
-        '</tr>';
-    });
-    html += '</tbody></table>';
-    html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:6px;">Location set: '+(data.locationSet?'✅ Yes':'⏳ Waiting for first activation')+'</div>';
-    detailEl.innerHTML = html;
-  }catch(e){ detailEl.textContent = 'Error: '+e.message; }
-}
 
 async function adminGenClassroomCode(){
   var adminKey = localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
@@ -7272,6 +7200,10 @@ function startSession(){
   S.name    = withIdentity ? name    : 'Learner';
   S.level   = withIdentity ? level   : 'General';
   S.subject = withIdentity ? subject : 'General';
+  // Lock name to this code on this device
+  if(withIdentity && S.code && S.name && S.name !== 'Learner'){
+    localStorage.setItem('saa_name_'+S.code, S.name);
+  }
   S.date    = sessionDate || new Date().toLocaleDateString();
   S.lang    = lang;
   S.diffMode = document.querySelector('.diff-mode-btn.active')?.id?.replace('dmode-','') || 'doc';
@@ -10375,51 +10307,6 @@ function renderMyCodesTable(){
   }
 
   // Sort newest first
-  // Show classroom code groups at the top of My Codes
-  var classGroups = [];
-  try{ classGroups = JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
-  if(classGroups.length){
-    var planLabelsC = {G30:'Class 30',G40:'Class 40',G50:'Class 50'};
-    var now = Date.now();
-    var groupHtml = '<tr><td colspan="5" style="padding:8px 4px 4px;font-size:10px;font-weight:700;color:#06b6d4;text-transform:uppercase;letter-spacing:0.5px;">🏫 Classroom Groups</td></tr>';
-    classGroups.forEach(function(g, gi){
-      var expired = now > (g.expiresAt||0);
-      var expDate = g.expiresAt ? new Date(g.expiresAt).toLocaleDateString() : '—';
-      var codeCount = (g.codes||[]).length || g.count || 0;
-      groupHtml += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);">'+
-        '<td style="padding:6px 4px;color:#06b6d4;font-weight:700;font-size:11px;">'+(planLabelsC[g.classPlan]||g.classPlan||'Class')+'</td>'+
-        '<td style="padding:6px 4px;font-size:11px;color:rgba(255,255,255,0.6);">'+codeCount+' codes</td>'+
-        '<td style="padding:6px 4px;font-size:11px;color:rgba(255,255,255,0.6);">'+expDate+'</td>'+
-        '<td style="padding:6px 4px;"><span style="padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;background:'+(expired?'rgba(239,68,68,0.15)':'rgba(16,185,129,0.15)')+';color:'+(expired?'#ef4444':'#10b981')+';">'+(expired?'Expired':'Active')+'</span></td>'+
-        '<td style="padding:6px 4px;display:flex;gap:4px;">'+
-          '<button data-grp-view="'+gi+'" style="padding:4px 8px;background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.4);border-radius:6px;color:#06b6d4;font-size:11px;font-weight:700;cursor:pointer;" title="View all codes">👁</button>'+
-          '<button data-grp-del="'+gi+'" style="padding:4px 8px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;" title="Remove from list">🗑️</button>'+
-        '</td>'+
-        '</tr>';
-    });
-    if(el.previousElementSibling){
-      el.previousElementSibling.insertAdjacentHTML('beforebegin', '<table style="width:100%;border-collapse:collapse;margin-bottom:12px;">'+groupHtml+'</table>');
-    }
-  }
-
-  // Delegated click handler for classroom group buttons
-  var tbody = el;
-  if(tbody && !tbody._classGrpBound){
-    tbody._classGrpBound = true;
-    document.addEventListener('click', function(ev){
-      var vBtn = ev.target.closest('[data-grp-view]');
-      if(vBtn){
-        var vi = parseInt(vBtn.getAttribute('data-grp-view'));
-        var grpList = []; try{ grpList = JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
-        var grp = grpList[vi];
-        if(grp) showBulkCodesModal(grp.codes||[], grp.groupId||'', grp.classPlan||'G30', grp.expiresAt||0);
-        return;
-      }
-      var dBtn = ev.target.closest('[data-grp-del]');
-      if(dBtn){ deleteClassGroup(parseInt(dBtn.getAttribute('data-grp-del'))); }
-    });
-  }
-
   stored.sort(function(a,b){ return (b.savedAt||0)-(a.savedAt||0); });
 
   el.innerHTML = stored.map(function(c){
@@ -13582,8 +13469,8 @@ function togglePayPanel(type){
 
 function pfSelectPlan(plan, price){
   _pfPlan = plan; _pfPrice = price;
-  var labels = {W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Monthly',G30:'Class 30 Students/Month',G40:'Class 40 Students/Month',G50:'Class 50 Students/Month'};
-  ['W','M','Y','RM','G30','G40','G50'].forEach(function(p){
+  var labels = {W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Monthly'};
+  ['W','M','Y','RM'].forEach(function(p){
     var row   = document.getElementById('pf-plan-'+p);
     var radio = document.getElementById('pf-radio-'+p);
     var activeColor = p==='RM' ? '#a78bfa' : '#60a5fa';
@@ -13668,16 +13555,8 @@ function pfStartPolling(clientId){
       if(d.status==='ready' && d.code){
         clearInterval(poll);
         localStorage.removeItem('pf_pending_client');
-        if(d.isClassPlan && d.codes && d.codes.length){
-          // Class plan — save each code individually, exactly like single codes
-          d.codes.forEach(function(c){ savePurchasedCode(c, d.plan, 'payfast'); });
-          renderSavedCodes();
-          renderMyCodesTable();
-          toast('🎉 '+d.codes.length+' classroom codes saved to your device!', 'ok', 10000);
-          showPage('page-pricing');
-        } else {
-          pfShowCodeModal(d.code, d.plan);
-        }
+        // Show code prominently in a modal
+        pfShowCodeModal(d.code, d.plan);
       }
     }catch(e){}
   }, 5000);
@@ -13696,12 +13575,6 @@ function pfShowCodeModal(code, plan){
       renderSavedCodes();
       window.scrollTo({top:0, behavior:'smooth'});
     }, 400);
-  } else if(/^(G30|G40|G50)$/.test(plan||'')){
-    // Class code purchase — auto-generate classroom code
-    pfGenerateClassCode(plan||'G30', code);
-  } else if(_mobPlan && /^(G30|G40|G50)$/i.test(_mobPlan)){
-    // Class code purchased via DRC mobile money
-    pfGenerateClassCode(_mobPlan, code);
   } else {
     // Learner code — auto-open directly
     toast('🎉 Payment confirmed! Opening your access now...', 'ok', 6000);
@@ -13715,154 +13588,6 @@ function pfShowCodeModal(code, plan){
   }
 }
 
-async function pfGenerateClassCode(classPlan, paymentRef){
-  var countMap = {G30:30, G40:40, G50:50};
-  var count = countMap[classPlan] || 30;
-  toast('⏳ Generating '+count+' classroom codes...', 'ok', 20000);
-  try{
-    var res = await fetch(WORKER_URL, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        _appSecret: APP_SECRET,
-        action: 'generate-classroom-code-paid',
-        classPlan: classPlan, radius: 250,
-        paymentRef: paymentRef
-      })
-    });
-    var data = await res.json();
-    if(data.success && data.codes && data.codes.length){
-      // Show all codes on screen + download option
-      showBulkCodesModal(data.codes, data.groupId, classPlan, data.expiresAt);
-      // Save group to admin monitor list
-      var classCodeList = [];
-      try{ classCodeList = JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
-      classCodeList.push({
-        groupId: data.groupId, classPlan: classPlan, count: data.codes.length,
-        codes: data.codes, radius: 250,
-        createdAt: Date.now(), expiresAt: data.expiresAt,
-        paymentRef: paymentRef
-      });
-      localStorage.setItem('saa_class_codes', JSON.stringify(classCodeList));
-      if(typeof adminRenderClassCodes==='function') adminRenderClassCodes();
-    } else {
-      toast('⚠️ Payment received but code generation failed. Contact admin with ref: '+paymentRef, 'err', 30000);
-    }
-  }catch(e){
-    toast('⚠️ Payment received. Contact admin for your classroom codes. Ref: '+paymentRef, 'err', 30000);
-  }
-}
-
-function showBulkCodesModal(codes, groupId, classPlan, expiresAt){
-  var existing = document.getElementById('class-code-modal');
-  if(existing) existing.remove();
-  var planLabels = {G30:'30 Students',G40:'40 Students',G50:'50 Students'};
-  var expDate = expiresAt ? new Date(expiresAt).toLocaleDateString() : '30 days';
-
-  var overlay = document.createElement('div');
-  overlay.id = 'class-code-modal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
-
-  var card = document.createElement('div');
-  card.style.cssText = 'background:linear-gradient(165deg,#0f2044,#1a3a6e);border:1px solid rgba(6,182,212,0.5);border-radius:20px;padding:24px 20px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.6);max-height:90vh;overflow-y:auto;';
-
-  // Build codes grid
-  var codesHtml = '';
-  codes.forEach(function(c, i){
-    codesHtml += '<div style="font-family:monospace;font-size:13px;font-weight:700;color:#06b6d4;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);border-radius:6px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-      '<span>'+(i+1)+'. '+c+'</span>' +
-      '</div>';
-  });
-
-  card.innerHTML =
-    '<div style="text-align:center;margin-bottom:16px;">' +
-      '<div style="font-size:32px;margin-bottom:6px;">🏫</div>' +
-      '<div style="color:#06b6d4;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Classroom Codes — '+planLabels[classPlan]+'</div>' +
-      '<div style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:4px;">Valid until '+expDate+' · Geo-locked to 250m from first activation</div>' +
-    '</div>' +
-    '<div style="background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.3);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#fbbf24;line-height:1.6;">'+
-      '⚠️ <strong>Important:</strong> Give ONE code to each student. Each code locks to the student name and device. Codes only work within 250m of where the first code is activated.' +
-    '</div>' +
-    '<div style="max-height:280px;overflow-y:auto;margin-bottom:14px;">'+codesHtml+'</div>' +
-    '<div style="display:flex;gap:8px;margin-bottom:10px;">' +
-      '<button id="bulk-copy-all-btn" style="flex:1;padding:11px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4);border-radius:10px;color:#06b6d4;font-size:12px;font-weight:700;cursor:pointer;">📋 Copy All</button>' +
-      '<button id="bulk-download-btn" style="flex:1;padding:11px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:10px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer;">⬇️ Download</button>' +
-      '<button id="bulk-done-btn" style="flex:1;padding:11px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:10px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">✅ Done</button>' +
-    '</div>' +
-    '<div style="font-size:10px;color:rgba(255,255,255,0.3);text-align:center;">Group ID: '+groupId+' · Also saved in Admin Panel</div>';
-
-  overlay.appendChild(card);
-  document.body.appendChild(overlay);
-
-  // Copy All button
-  document.getElementById('bulk-copy-all-btn').addEventListener('click', function(){
-    var nl = '\n';
-    var text = 'Smart Academy AI - Classroom Codes'+nl+
-      'Plan: '+planLabels[classPlan]+' | Valid until: '+expDate+nl+
-      'Group ID: '+groupId+nl+nl+
-      codes.map(function(c,i){ return (i+1)+'. '+c; }).join(nl);
-    navigator.clipboard.writeText(text).then(function(){
-      document.getElementById('bulk-copy-all-btn').textContent = '✅ Copied!';
-      setTimeout(function(){ document.getElementById('bulk-copy-all-btn').textContent = '📋 Copy All'; }, 2000);
-    }).catch(function(){
-      var ta = document.createElement('textarea');
-      ta.value = text; document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      document.getElementById('bulk-copy-all-btn').textContent = '✅ Copied!';
-    });
-  });
-
-  // Download button
-  document.getElementById('bulk-download-btn').addEventListener('click', function(){
-    downloadBulkCodesWord(codes, groupId, classPlan);
-  });
-
-  // Done button
-  document.getElementById('bulk-done-btn').addEventListener('click', function(){ overlay.remove(); });
-  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
-}
-
-function showClassCodeModal(code, maxUses, classPlan){
-  var existing = document.getElementById('class-code-modal');
-  if(existing) existing.remove();
-  var overlay = document.createElement('div');
-  overlay.id = 'class-code-modal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
-  var card = document.createElement('div');
-  card.style.cssText = 'background:linear-gradient(165deg,#0f2044,#1a3a6e);border:1px solid rgba(6,182,212,0.5);border-radius:20px;padding:28px 24px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.6);';
-  var planLabels = {G30:'30 Students',G40:'40 Students',G50:'50 Students'};
-  card.innerHTML =
-    '<div style="font-size:36px;margin-bottom:10px;">🏫</div>'+
-    '<div style="color:#06b6d4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Classroom Code — '+planLabels[classPlan]+'</div>'+
-    '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:16px;">Share this code with your students. Do NOT enter it on this device.</div>'+
-    '<div id="cc-modal-code" style="font-family:monospace;font-size:28px;font-weight:900;color:#06b6d4;letter-spacing:4px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);border-radius:12px;padding:16px;margin-bottom:14px;">'+code+'</div>'+
-    '<div style="color:rgba(255,255,255,0.6);font-size:13px;line-height:1.6;margin-bottom:18px;">'+
-      '📍 Code locks to location when first used<br>'+
-      '👥 Max students: <strong style="color:#fff;">'+maxUses+'</strong><br>'+
-      '📐 Radius: <strong style="color:#fff;">250m</strong> (adjustable in admin)<br>'+
-      '⏱ Valid: <strong style="color:#fff;">30 days</strong>'+
-    '</div>'+
-    '<div style="display:flex;gap:10px;margin-bottom:12px;">'+
-      '<button id="cc-copy-btn" style="flex:1;padding:12px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4);border-radius:10px;color:#06b6d4;font-size:13px;font-weight:700;cursor:pointer;">📋 Copy Code</button>'+
-      '<button id="cc-done-btn" style="flex:1;padding:12px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">✅ Done</button>'+
-    '</div>'+
-    '<div style="font-size:11px;color:rgba(255,255,255,0.35);">Code also saved in Admin Panel → Classroom Codes</div>';
-  overlay.appendChild(card);
-  document.body.appendChild(overlay);
-  document.getElementById('cc-copy-btn').addEventListener('click', function(){
-    navigator.clipboard.writeText(code).then(function(){
-      document.getElementById('cc-copy-btn').textContent = '✅ Copied!';
-      setTimeout(function(){ document.getElementById('cc-copy-btn').textContent = '📋 Copy Code'; }, 2000);
-    }).catch(function(){
-      var ta = document.createElement('textarea');
-      ta.value = code; document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      document.getElementById('cc-copy-btn').textContent = '✅ Copied!';
-    });
-  });
-  document.getElementById('cc-done-btn').addEventListener('click', function(){ overlay.remove(); });
-  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
-}
-
 function savePurchasedCode(code, plan, source){
   try{
     // Respect explicit deletions — if the learner removed this code on purpose,
@@ -13874,7 +13599,7 @@ function savePurchasedCode(code, plan, source){
     var stored = JSON.parse(localStorage.getItem('saa_saved_codes')||'[]');
     // Avoid duplicates
     if(stored.some(function(s){ return s.code === code; })) return;
-    var planLabels = {W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Month',RS:'Research 6 Months',RY:'Research Year',G30:'Class 30 Students',G40:'Class 40 Students',G50:'Class 50 Students'};
+    var planLabels = {W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Month',RS:'Research 6 Months',RY:'Research Year'};
     // Detect plan from code prefix if not passed explicitly
     var detectedPlan = plan;
     if(!detectedPlan){
@@ -13909,9 +13634,6 @@ function showDrcCodeOverlay(code){
     // Re-render the codes table after a delay to ensure it shows
     // after all the pricing page rendering has completed
     setTimeout(function(){ renderMyCodesTable(); }, 600);
-  } else if(_mobPlan && /^(G30|G40|G50)$/i.test(_mobPlan)){
-    // Class code purchased via DRC mobile money
-    pfGenerateClassCode(_mobPlan, code);
   } else {
     // Learner code — auto-open directly
     toast('🎉 Payment confirmed! Opening your access now...', 'ok', 6000);
@@ -13957,7 +13679,7 @@ var _mobPlan = null, _mobPrice = null, _mobRegion = 'DRC'; // DRC only
 function mobCheckProceed(){
   var btn = document.getElementById('mob-proceed-btn');
   if(_mobPlan){
-    var planNames = {W:'1 Week', M:'1 Month', Y:'1 Year', RM:'Research Monthly', G30:'Class 30 Students', G40:'Class 40 Students', G50:'Class 50 Students'};
+    var planNames = {W:'1 Week', M:'1 Month', Y:'1 Year', RM:'Research Monthly'};
     var planLabel = (planNames[_mobPlan] || _mobPlan) + ' — $' + (_mobPrice || '');
     btn.textContent = '🇨🇩 Continue — ' + planLabel;
     btn.style.background = 'linear-gradient(135deg,#0891b2,#0e7490)';
@@ -13978,11 +13700,11 @@ function mobSelectPlan(plan, price){
   _mobRegion = 'DRC';
   _uaPlan = plan;
   _uaRegion = 'DRC';
-  ['W','M','Y','RM','G30','G40','G50'].forEach(function(p){
+  ['W','M','Y','RM'].forEach(function(p){
     var el = document.getElementById('mob-plan-'+p);
     var radio = document.getElementById('mob-radio-'+p);
     var activeColor = p==='RM' ? '#a78bfa' : '#06b6d4';
-    if(el) el.style.borderColor = p===plan ? activeColor : (p.startsWith('G') ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.15)');
+    if(el) el.style.borderColor = p===plan ? activeColor : 'rgba(255,255,255,0.15)';
     if(radio) radio.style.background = p===plan ? activeColor : 'transparent';
   });
   mobCheckProceed();
@@ -15276,28 +14998,6 @@ function renderMonthlyPerf(sessions, el){
       + '</div>';
   });
   el.innerHTML = html;
-  el.addEventListener('click', function(e){
-    // Fetch live status button
-    var fetchBtn = e.target.closest('[id^="grp-btn-"]');
-    if(fetchBtn){
-      var idx2 = parseInt(fetchBtn.id.replace('grp-btn-',''));
-      var grp = list[idx2];
-      if(grp && grp.groupId) adminFetchGroupStatus(grp.groupId, idx2);
-      return;
-    }
-    // Delete button
-    var delBtn = e.target.closest('[id^="grp-del-"]');
-    if(delBtn){
-      var delIdx = parseInt(delBtn.id.replace('grp-del-',''));
-      var delGroup = list[delIdx];
-      var label = delGroup ? (delGroup.classPlan||'this group') : 'this group';
-      if(!confirm('Remove '+label+' from this device list? The codes remain valid — this only clears the local record.')) return;
-      list.splice(delIdx, 1);
-      localStorage.setItem('saa_class_codes', JSON.stringify(list));
-      adminRenderClassCodes();
-      return;
-    }
-  });
 }
 
 function renderProgressPage(){
@@ -17759,14 +17459,6 @@ window.openGuide = function(tab){
         </div>
       </div>
 
-      <!-- CLASSROOM CODE MONITOR -->
-      <div class="admin-section" style="border:1px solid rgba(6,182,212,0.25);background:rgba(6,182,212,0.04);">
-        <div class="admin-section-title" style="color:#06b6d4;">📊 Classroom Code Monitor</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;">Codes purchased by teachers — shows seats used, location status, expiry.</div>
-        <button onclick="adminRenderClassCodes()" style="padding:7px 14px;background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.3);border-radius:8px;color:#06b6d4;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px;">🔄 Refresh</button>
-        <div id="admin-class-codes-list" style="font-size:12px;"></div>
-      </div>
-
       <!-- DISABLE CODE -->
       <div class="admin-section" style="border:1px solid rgba(239,68,68,0.25);background:rgba(239,68,68,0.04);">
         <div class="admin-section-title" style="color:#ef4444;">🚫 Disable a Code</div>
@@ -18197,97 +17889,18 @@ function drcInlinePoll(clientId){
       if(d.ok && d.status==='matched' && d.code){
         clearInterval(pollInterval);
         localStorage.removeItem('saa_drc_pending');
-
-        if(d.isClassPlan && d.codes && d.codes.length){
-          // Class plan — save each code individually, exactly like existing single codes
-          d.codes.forEach(function(c){ savePurchasedCode(c, d.plan, 'drc'); });
-          renderSavedCodes();
-          renderMyCodesTable();
-          var st = document.getElementById('drc-inline-status');
-          if(st){
-            st.style.display='block'; st.style.background='rgba(16,185,129,0.15)';
-            st.style.color='#10b981';
-            st.innerHTML='🎉 <b>'+d.codes.length+' classroom codes ready! See your codes above.</b>';
-          }
-          toast('🎉 '+d.codes.length+' classroom codes saved to your device!', 'ok', 10000);
-        } else {
-          // Individual code — existing flow unchanged
-          showDrcCodeOverlay(d.code, d.plan);
-          var st = document.getElementById('drc-inline-status');
-          if(st){
-            st.style.display='block'; st.style.background='rgba(16,185,129,0.15)';
-            st.style.color='#10b981';
-            st.innerHTML='🎉 <b>Code ready! See your code above.</b>';
-          }
+        showDrcCodeOverlay(d.code);
+        var st = document.getElementById('drc-inline-status');
+        if(st){
+          st.style.display='block';
+          st.style.background='rgba(16,185,129,0.15)';
+          st.style.color='#10b981';
+          st.innerHTML='🎉 <b>Code ready! See your code above.</b>';
         }
       }
     }).catch(function(){});
-  }, 15000);
+  }, 15000); // check every 15 seconds
   setTimeout(function(){ clearInterval(pollInterval); }, 48*3600000);
-}
-
-// Download classroom codes as a Word/HTML document — opens print dialog
-function downloadBulkCodesWord(codes, groupId, classPlan){
-  var planLabels = {G30:'30 Students',G40:'40 Students',G50:'50 Students'};
-  var expDate = new Date(Date.now()+30*24*60*60*1000).toLocaleDateString();
-  var rows = codes.map(function(c, i){
-    return '<tr><td style="padding:8px;border:1px solid #ccc;text-align:center;">'+(i+1)+'</td>'+
-           '<td style="padding:8px;border:1px solid #ccc;font-family:monospace;font-size:14px;font-weight:bold;color:#0f2044;">'+c+'</td>'+
-           '<td style="padding:8px;border:1px solid #ccc;"></td>'+
-           '<td style="padding:8px;border:1px solid #ccc;"></td></tr>';
-  }).join('');
-  var html =
-    '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Classroom Codes</title>'+
-    '<style>body{font-family:Arial,sans-serif;padding:30px;color:#000;}'+
-    'h1{color:#0f2044;}h2{color:#1a56db;margin-top:20px;}'+
-    'table{width:100%;border-collapse:collapse;margin-top:16px;}'+
-    'th{background:#0f2044;color:#fff;padding:10px;border:1px solid #ccc;text-align:left;}'+
-    'td{vertical-align:top;}'+
-    '.warn{background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:12px;margin:16px 0;}'+
-    '@media print{.no-print{display:none;}}</style></head><body>'+
-    '<h1>Smart Academy AI — Classroom Codes</h1>'+
-    '<p><strong>Plan:</strong> '+planLabels[classPlan]+'&nbsp;&nbsp;'+
-    '<strong>Valid until:</strong> '+expDate+'&nbsp;&nbsp;'+
-    '<strong>Group ID:</strong> '+groupId+'</p>'+
-    '<div class="warn">'+
-      '<strong>⚠️ Instructions for teacher:</strong><br>'+
-      '• Give ONE code to each student — do not share codes<br>'+
-      '• Student goes to <strong>www.smartacademy-ai.com</strong> and enters their code<br>'+
-      '• Student enters their name — name locks permanently to that code<br>'+
-      '• Codes only work within <strong>250m of the school</strong> (location set on first use)<br>'+
-      '• Write the student name in the Name column below for your records'+
-    '</div>'+
-    '<table>'+
-      '<thead><tr>'+
-        '<th style="width:5%;">#</th>'+
-        '<th style="width:35%;">Code</th>'+
-        '<th style="width:30%;">Student Name</th>'+
-        '<th style="width:30%;">Notes</th>'+
-      '</tr></thead>'+
-      '<tbody>'+rows+'</tbody>'+
-    '</table>'+
-    '<p style="margin-top:20px;font-size:12px;color:#666;">'+
-      'Group ID: '+groupId+' &nbsp;|&nbsp; www.smartacademy-ai.com &nbsp;|&nbsp; Generated: '+new Date().toLocaleString()+
-    '</p>'+
-    '<div class="no-print" style="margin-top:20px;text-align:center;">'+
-      '<button onclick="window.print()" style="padding:12px 24px;background:#0f2044;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;">🖨️ Print / Save as PDF</button>'+
-    '</div>'+
-    '</body></html>';
-
-  // Open in new window for printing/saving
-  var win = window.open('','_blank');
-  if(win){
-    win.document.write(html);
-    win.document.close();
-    // Also trigger Word download
-    var blob = new Blob([html], {type:'application/msword'});
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'SmartAcademy-ClassCodes-'+new Date().toISOString().slice(0,10)+'.doc';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
 }
 
 var _drcB64=null,_drcMime=null,_drcPlan=null,_drcClientId=null,_drcTimer=null;
@@ -18429,17 +18042,7 @@ async function adminDrcSubmit(){
     var d=await res.json();
     if(d.ok&&d.matched){
       st.style.background='rgba(16,185,129,0.15)';st.style.color='#10b981';
-      if(d.isClassPlan && d.codes && d.codes.length){
-        // Class plan — list all codes in admin panel, same style as single code
-        var cHtml = d.codes.map(function(c,i){
-          return '<div style="font-family:monospace;font-size:12px;color:#06b6d4;padding:1px 0;">'+(i+1)+'. '+c+'</div>';
-        }).join('');
-        st.innerHTML='✅ '+d.codes.length+' codes generated:<br>'+
-          '<div style="max-height:180px;overflow-y:auto;margin-top:6px;padding:6px;background:rgba(0,0,0,0.2);border-radius:6px;">'+cHtml+'</div>'+
-          '<span style="font-size:11px;opacity:0.6;">Group: '+d.groupId+'</span>';
-      } else {
-        st.innerHTML='Match found!<br><b style="font-size:18px;letter-spacing:2px;">'+d.code+'</b><br><span style="font-size:11px;opacity:0.7;">Ref: '+(d.adminRef||d.ref||'')+'</span>';
-      }
+      st.innerHTML='Match found!<br><b style="font-size:18px;letter-spacing:2px;">'+d.code+'</b><br><span style="font-size:11px;opacity:0.7;">Ref: '+d.ref+'</span>';
       adminDrcClearFile();setTimeout(adminLoadDrcPending,1000);
     }else{
       st.style.background='rgba(239,68,68,0.1)';st.style.color='#ef4444';
