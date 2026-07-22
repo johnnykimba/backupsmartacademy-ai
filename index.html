@@ -6603,6 +6603,7 @@ async function validateCode(){
     S.codeType = localMatch.type || typeMap[raw[0]] || 'Weekly';
     S.codeExpiry = expDate;
     S.fingerprint = fingerprint;
+    localStorage.setItem('saa_last_report_code', raw);
     failAttempts = 0;
     if(btn){ btn.textContent='✅ Verified! Loading...'; btn.style.background='#10b981'; }
     errEl.style.display='block'; errEl.style.color='#10b981';
@@ -7495,7 +7496,7 @@ async function initQuiz(){
       console.error('[Quiz] Parse error:', e.message, 'Response:', txt?.substring(0,200));
       // Check if it is an OpenAI error message
       if(txt && txt.length > 0){
-        addAI(`⚠️ **${S.name}, I had trouble formatting the questions.**\n\nAI Response received but could not be parsed.\n\nPlease try again — this sometimes happens with complex documents.\n\nTip: If your document has fewer pages than recommended, click Quiz again or delete the document and upload it again.`);
+        addAI(`⚠️ **${S.name}, I had trouble formatting the questions.**\n\nAI Response received but could not be parsed.\n\nPlease try again — this sometimes happens with complex documents.\n\nTip: If your document has fewer pages than recommended, click Start Quiz again or delete the document and upload it again.`);
       } else {
         addAI(`⚠️ **${S.name}, I had trouble reading the document.**\n\nNo response received from AI.\n\nPlease check:\n✔ Internet connection\n✔ Document is clear and readable\n✔ Try again`);
       }
@@ -11131,7 +11132,16 @@ function showReport(){
   const t=S.answers.length;
   const p=Math.round((c/t)*100);
   const g=getGrade(p);
-  const days=Math.ceil((S.codeExpiry-new Date())/(1000*60*60*24));
+  // Resolve code from S or localStorage fallbacks
+  if(!S.code){
+    S.code = localStorage.getItem('_currentTrialCode') ||
+             (function(){ try{ var arr=JSON.parse(localStorage.getItem('saa_saved_codes')||'[]'); return arr.length?arr[arr.length-1].code:''; }catch(e){return '';} })() ||
+             '';
+  }
+  // Save to last-used so report always has it
+  if(S.code) localStorage.setItem('saa_last_report_code', S.code);
+  const reportCode = S.code || localStorage.getItem('saa_last_report_code') || '—';
+  const days=S.codeExpiry ? Math.ceil((S.codeExpiry-new Date())/(1000*60*60*24)) : 365;
   const inc=S.answers.filter(a=>!a.correct);
   const guessed=S.answers.filter(a=>a.correct&&a.conf==='GUESS');
   const conf=S.answers.filter(a=>a.correct&&a.conf==='SURE');
@@ -11151,7 +11161,7 @@ function showReport(){
       ${rcell('🌍 Language',S.lang)}
       ${rcell('📝 Questions',t)}
       ${rcell('📅 Date',S.date)}
-      ${rcell('🔐 Access Code',S.code)}
+      ${rcell('🔐 Access Code',reportCode)}
       ${rcell('📋 Code Type',S.codeType)}
     </div>
     <div class="report-score-center">
@@ -11161,7 +11171,7 @@ function showReport(){
     </div>
     <div style="margin:16px 0;padding:14px 18px;background:#f0f7ff;border:2px solid #1a56db;border-radius:10px;text-align:center;">
       <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#1a56db;text-transform:uppercase;margin-bottom:4px;">Access Code Used</div>
-      <div style="font-family:monospace;font-size:20px;font-weight:900;color:#0f2044;letter-spacing:3px;">${S.code||'—'}</div>
+      <div style="font-family:monospace;font-size:20px;font-weight:900;color:#0f2044;letter-spacing:3px;">${reportCode}</div>
     </div>
     <div class="report-3grid">
       <div class="r3c"><div class="r3n" style="color:#ef4444">${inc.length}</div><div class="r3l">Needs Attention</div></div>
