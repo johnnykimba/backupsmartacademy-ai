@@ -11038,6 +11038,12 @@ async function saveReportAsPDF(){
   const renewal = days<=7
     ? `⚠️ Access code expires in ${days} day(s). Please renew.`
     : `✅ Access valid — ${days} days remaining`;
+  // Resolve the access code from all available sources
+  const reportCode = S.code ||
+    localStorage.getItem('saa_last_report_code') ||
+    localStorage.getItem('_currentTrialCode') ||
+    (function(){ try{ var a=JSON.parse(localStorage.getItem('saa_saved_codes')||'[]'); return a.length?a[a.length-1].code:''; }catch(e){return '';} })() ||
+    '—';
 
   const wrongList = inc.length
     ? inc.map(a=>`Q${a.qIdx+1}: ${S.questions[a.qIdx]?.text||'–'}`).join('<br>')
@@ -11057,6 +11063,8 @@ async function saveReportAsPDF(){
       <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${S.subject}</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${S.lang}</td></tr>
       <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Questions</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Date</td></tr>
       <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${t}</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${S.date}</td></tr>
+      <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Access Code</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Code Type</td></tr>
+      <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:15px;color:#1a56db;letter-spacing:2px;">${reportCode}</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${S.codeType||'—'}</td></tr>
     </table>
     <div style="text-align:center;padding:24px 0;border-bottom:1px solid #e2e8f0;margin-bottom:20px;">
       <div style="font-size:56px;font-weight:900;color:#1a56db;line-height:1;">${p}%</div>
