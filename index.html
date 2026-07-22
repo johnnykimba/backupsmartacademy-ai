@@ -6614,35 +6614,7 @@ async function validateCode(){
     showPage('page-profile');
       if(btn){ btn.textContent='🚀 Verify & Continue to Setup →'; btn.style.background=''; btn.disabled=false; }
       errEl.style.display='none';
-      // Pre-fill name if already locked to this code
-      setTimeout(function(){
-        var savedName = S.code ? localStorage.getItem('saa_name_'+S.code) : null;
-        var nameEl = document.getElementById('pf-name');
-        var nameRow = nameEl ? nameEl.closest('.profile-field')||nameEl.parentElement : null;
-        if(savedName && nameEl){
-          nameEl.value = savedName;
-          nameEl.readOnly = true;
-          nameEl.style.opacity = '0.7';
-          nameEl.style.cursor = 'not-allowed';
-          // Switch to identity mode automatically
-          if(typeof setIdentityMode === 'function') setIdentityMode(true);
-          // Show lock indicator
-          var lockNote = document.getElementById('name-lock-note');
-          if(!lockNote && nameRow){
-            lockNote = document.createElement('div');
-            lockNote.id = 'name-lock-note';
-            lockNote.style.cssText = 'font-size:11px;color:#06b6d4;margin-top:4px;';
-            lockNote.innerHTML = '🔒 Name locked to this code on this device';
-            nameRow.appendChild(lockNote);
-          }
-        } else if(nameEl){
-          nameEl.readOnly = false;
-          nameEl.style.opacity = '';
-          nameEl.style.cursor = '';
-          var lockNote = document.getElementById('name-lock-note');
-          if(lockNote) lockNote.remove();
-        }
-      }, 100);
+      setTimeout(applyNameLock, 150);
     }, 800);
     return;
   }
@@ -6731,35 +6703,7 @@ async function validateCode(){
       showPage('page-profile');
       if(btn){ btn.textContent='🚀 Verify & Continue to Setup →'; btn.style.background=''; btn.disabled=false; }
       errEl.style.display='none';
-      // Pre-fill name if already locked to this code
-      setTimeout(function(){
-        var savedName = S.code ? localStorage.getItem('saa_name_'+S.code) : null;
-        var nameEl = document.getElementById('pf-name');
-        var nameRow = nameEl ? nameEl.closest('.profile-field')||nameEl.parentElement : null;
-        if(savedName && nameEl){
-          nameEl.value = savedName;
-          nameEl.readOnly = true;
-          nameEl.style.opacity = '0.7';
-          nameEl.style.cursor = 'not-allowed';
-          // Switch to identity mode automatically
-          if(typeof setIdentityMode === 'function') setIdentityMode(true);
-          // Show lock indicator
-          var lockNote = document.getElementById('name-lock-note');
-          if(!lockNote && nameRow){
-            lockNote = document.createElement('div');
-            lockNote.id = 'name-lock-note';
-            lockNote.style.cssText = 'font-size:11px;color:#06b6d4;margin-top:4px;';
-            lockNote.innerHTML = '🔒 Name locked to this code on this device';
-            nameRow.appendChild(lockNote);
-          }
-        } else if(nameEl){
-          nameEl.readOnly = false;
-          nameEl.style.opacity = '';
-          nameEl.style.cursor = '';
-          var lockNote = document.getElementById('name-lock-note');
-          if(lockNote) lockNote.remove();
-        }
-      }, 100);
+      setTimeout(applyNameLock, 150);
     }, 800);
 
   } catch(err) {
@@ -7169,6 +7113,41 @@ function setIdentityMode(withIdentity){
   }
 }
 
+function applyNameLock(){
+  if(!S.code) return;
+  var savedName = localStorage.getItem('saa_name_'+S.code);
+  var nameEl = document.getElementById('pf-name');
+  if(!nameEl) return;
+  if(savedName){
+    // Pre-fill and lock
+    nameEl.value = savedName;
+    nameEl.readOnly = true;
+    nameEl.style.opacity = '0.75';
+    nameEl.style.cursor = 'not-allowed';
+    nameEl.style.background = 'rgba(6,182,212,0.07)';
+    nameEl.style.borderColor = 'rgba(6,182,212,0.4)';
+    // Force identity mode on so name field is visible
+    if(typeof setIdentityMode === 'function') setIdentityMode(true);
+    // Show lock note
+    var existing = document.getElementById('name-lock-note');
+    if(existing) existing.remove();
+    var note = document.createElement('div');
+    note.id = 'name-lock-note';
+    note.style.cssText = 'font-size:11px;color:#06b6d4;margin-top:5px;font-weight:600;';
+    note.textContent = '🔒 Name locked to this code on this device';
+    nameEl.parentNode.insertBefore(note, nameEl.nextSibling);
+  } else {
+    // Unlock — fresh code, no name saved yet
+    nameEl.readOnly = false;
+    nameEl.style.opacity = '';
+    nameEl.style.cursor = '';
+    nameEl.style.background = '';
+    nameEl.style.borderColor = '';
+    var existing = document.getElementById('name-lock-note');
+    if(existing) existing.remove();
+  }
+}
+
 function startSession(){
   setTimeout(function(){ renderStreakBadge('streak-badge-study'); }, 500);
   const name = document.getElementById('pf-name').value.trim();
@@ -7197,11 +7176,11 @@ function startSession(){
   }
 
   var sessionDate = document.getElementById('pf-date') ? document.getElementById('pf-date').value : '';
-  S.name    = withIdentity ? name    : 'Learner';
+  S.name    = withIdentity ? name    : (name || 'Learner');
   S.level   = withIdentity ? level   : 'General';
   S.subject = withIdentity ? subject : 'General';
-  // Lock name to this code on this device
-  if(withIdentity && S.code && S.name && S.name !== 'Learner'){
+  // Lock name to this code on this device — save whenever a real name exists
+  if(S.code && S.name && S.name !== 'Learner'){
     localStorage.setItem('saa_name_'+S.code, S.name);
   }
   S.date    = sessionDate || new Date().toLocaleDateString();
