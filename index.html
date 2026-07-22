@@ -13978,11 +13978,11 @@ function mobSelectPlan(plan, price){
   _mobRegion = 'DRC';
   _uaPlan = plan;
   _uaRegion = 'DRC';
-  ['W','M','Y','RM'].forEach(function(p){
+  ['W','M','Y','RM','G30','G40','G50'].forEach(function(p){
     var el = document.getElementById('mob-plan-'+p);
     var radio = document.getElementById('mob-radio-'+p);
     var activeColor = p==='RM' ? '#a78bfa' : '#06b6d4';
-    if(el) el.style.borderColor = p===plan ? activeColor : 'rgba(255,255,255,0.15)';
+    if(el) el.style.borderColor = p===plan ? activeColor : (p.startsWith('G') ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.15)');
     if(radio) radio.style.background = p===plan ? activeColor : 'transparent';
   });
   mobCheckProceed();
