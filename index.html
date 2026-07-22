@@ -11148,6 +11148,9 @@ function showReport(){
   const renewal=days<=7
     ?`<div style="color:#f59e0b;padding:10px;background:rgba(245,158,11,0.08);border-radius:8px;border:1px solid rgba(245,158,11,0.2);margin-top:10px;">⚠️ Access code expires in ${days} day(s). Please renew.</div>`
     :`<span style="color:#10b981">✅ Access valid — ${days} days remaining</span>`;
+  function rcell(label,val){
+    return '<div class="rc"><div class="rc-label">'+label+'</div><div class="rc-val">'+(val||'—')+'</div></div>';
+  }
 
   document.getElementById('report-body').innerHTML=`
     <div class="report-header">
