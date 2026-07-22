@@ -7182,6 +7182,8 @@ function startSession(){
   // Lock name to this code on this device — save whenever a real name exists
   if(S.code && S.name && S.name !== 'Learner'){
     localStorage.setItem('saa_name_'+S.code, S.name);
+    // Apply the lock immediately so it shows if they go back
+    if(typeof applyNameLock === 'function') applyNameLock();
   }
   S.date    = sessionDate || new Date().toLocaleDateString();
   S.lang    = lang;
