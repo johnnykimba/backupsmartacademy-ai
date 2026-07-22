@@ -13669,14 +13669,12 @@ function pfStartPolling(clientId){
         clearInterval(poll);
         localStorage.removeItem('pf_pending_client');
         if(d.isClassPlan && d.codes && d.codes.length){
-          // Class plan — show bulk codes modal
-          showBulkCodesModal(d.codes, d.groupId, d.plan, Date.now()+30*24*60*60*1000);
-          // Save to local monitor list
-          var ccl=[]; try{ccl=JSON.parse(localStorage.getItem('saa_class_codes')||'[]');}catch(e){}
-          ccl.push({groupId:d.groupId,classPlan:d.plan,count:d.codes.length,codes:d.codes,radius:250,createdAt:Date.now(),expiresAt:Date.now()+30*24*60*60*1000,paymentRef:d.code});
-          localStorage.setItem('saa_class_codes',JSON.stringify(ccl));
-          if(typeof adminRenderClassCodes==='function') adminRenderClassCodes();
+          // Class plan — save each code individually, exactly like single codes
+          d.codes.forEach(function(c){ savePurchasedCode(c, d.plan, 'payfast'); });
+          renderSavedCodes();
           renderMyCodesTable();
+          toast('🎉 '+d.codes.length+' classroom codes saved to your device!', 'ok', 10000);
+          showPage('page-pricing');
         } else {
           pfShowCodeModal(d.code, d.plan);
         }
@@ -18201,25 +18199,19 @@ function drcInlinePoll(clientId){
         localStorage.removeItem('saa_drc_pending');
 
         if(d.isClassPlan && d.codes && d.codes.length){
-          // Class plan — show bulk codes modal + auto-download PDF/Word
-          showBulkCodesModal(d.codes, d.groupId, d.plan, Date.now()+30*24*60*60*1000);
-          // Auto-trigger Word download so teacher immediately gets the file
-          setTimeout(function(){ downloadBulkCodesWord(d.codes, d.groupId, d.plan); }, 1000);
-          // Save to local monitor list
-          var ccl=[]; try{ccl=JSON.parse(localStorage.getItem('saa_class_codes')||'[]');}catch(e){}
-          ccl.push({groupId:d.groupId,classPlan:d.plan,count:d.codes.length,codes:d.codes,
-            radius:250,createdAt:Date.now(),expiresAt:Date.now()+30*24*60*60*1000,paymentRef:clientId});
-          localStorage.setItem('saa_class_codes',JSON.stringify(ccl));
-          if(typeof adminRenderClassCodes==='function') adminRenderClassCodes();
+          // Class plan — save each code individually, exactly like existing single codes
+          d.codes.forEach(function(c){ savePurchasedCode(c, d.plan, 'drc'); });
+          renderSavedCodes();
           renderMyCodesTable();
           var st = document.getElementById('drc-inline-status');
           if(st){
             st.style.display='block'; st.style.background='rgba(16,185,129,0.15)';
             st.style.color='#10b981';
-            st.innerHTML='🎉 <b>'+d.codes.length+' classroom codes ready! See popup and check your downloads.</b>';
+            st.innerHTML='🎉 <b>'+d.codes.length+' classroom codes ready! See your codes above.</b>';
           }
+          toast('🎉 '+d.codes.length+' classroom codes saved to your device!', 'ok', 10000);
         } else {
-          // Individual code
+          // Individual code — existing flow unchanged
           showDrcCodeOverlay(d.code, d.plan);
           var st = document.getElementById('drc-inline-status');
           if(st){
@@ -18438,20 +18430,13 @@ async function adminDrcSubmit(){
     if(d.ok&&d.matched){
       st.style.background='rgba(16,185,129,0.15)';st.style.color='#10b981';
       if(d.isClassPlan && d.codes && d.codes.length){
-        // Class plan — show bulk codes modal and save to local monitor list
-        st.innerHTML='✅ Class codes generated! <b>'+d.codes.length+' codes</b> for plan '+d.plan+'<br><span style="font-size:11px;opacity:0.7;">Group ID: '+d.groupId+'</span>';
-        showBulkCodesModal(d.codes, d.groupId, d.plan, Date.now()+30*24*60*60*1000);
-        // Save to local class codes list
-        var classCodeList=[];
-        try{ classCodeList=JSON.parse(localStorage.getItem('saa_class_codes')||'[]'); }catch(e){}
-        classCodeList.push({
-          groupId:d.groupId, classPlan:d.plan, count:d.codes.length,
-          codes:d.codes, radius:250,
-          createdAt:Date.now(), expiresAt:Date.now()+30*24*60*60*1000,
-          paymentRef:d.adminRef
-        });
-        localStorage.setItem('saa_class_codes', JSON.stringify(classCodeList));
-        if(typeof adminRenderClassCodes==='function') adminRenderClassCodes();
+        // Class plan — list all codes in admin panel, same style as single code
+        var cHtml = d.codes.map(function(c,i){
+          return '<div style="font-family:monospace;font-size:12px;color:#06b6d4;padding:1px 0;">'+(i+1)+'. '+c+'</div>';
+        }).join('');
+        st.innerHTML='✅ '+d.codes.length+' codes generated:<br>'+
+          '<div style="max-height:180px;overflow-y:auto;margin-top:6px;padding:6px;background:rgba(0,0,0,0.2);border-radius:6px;">'+cHtml+'</div>'+
+          '<span style="font-size:11px;opacity:0.6;">Group: '+d.groupId+'</span>';
       } else {
         st.innerHTML='Match found!<br><b style="font-size:18px;letter-spacing:2px;">'+d.code+'</b><br><span style="font-size:11px;opacity:0.7;">Ref: '+(d.adminRef||d.ref||'')+'</span>';
       }
