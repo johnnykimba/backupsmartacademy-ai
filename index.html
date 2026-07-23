@@ -7133,40 +7133,105 @@ function setIdentityMode(withIdentity){
 // ── GLOBAL fixMath — converts raw math notation to LaTeX delimiters ──────
 // Defined globally so quizFracDisplay, downloadQuizPDF, and other renderers
 // can call it outside of the quiz response handler scope.
+
+// ═══════════════════════════════════════════════════════════════════
+// MATH NORMALISATION — definitive implementation
+// Handles all LaTeX patterns the AI produces:
+//   \frac{}{}, \sqrt{}, \int, ^{n}, ^n, (expr)^n,
+//   \theta, \pi, \alpha ... all Greek/trig/calculus commands
+//   Angles: 45°, 90°, \degree, ° symbol
+//   Degree: already Unicode ° → passed through; \degree → °
+// ═══════════════════════════════════════════════════════════════════
+
+
 function fixMath(s){
   if(!s || typeof s !== 'string') return s;
-  // Quick passthrough for already-wrapped strings — run the full chain
-  // regardless because mixed strings may have unwrapped carets alongside
-  // already-wrapped LaTeX (the tokeniser handles this correctly).
 
-  // 1. Protect date patterns
+  // STEP 0: form-feed fix — \f in JSON = char(12), restore backslash+f
+  s = s.replace(/\x0c([a-zA-Z])/g, function(m,c){ return '\\f'+c; });
+
+  // STEP 1: Protect dates from fraction conversion
   var _dp = [];
-  s = s.replace(/(\d{1,2}\/\d{1,2}\/\d{2,4})/g, function(m){ _dp.push(m); return 'DATE'+(_dp.length-1)+''; });
+  s = s.replace(/\b(\d{1,2}\/\d{1,2}\/\d{2,4})\b/g, function(m){
+    _dp.push(m); return '\x01DATE'+(_dp.length-1)+'\x01';
+  });
 
-  // 2. Unicode superscripts → LaTeX
-  s = s.replace(/([A-Za-z0-9\)\]])²/g,'\\($1^2\\)').replace(/([A-Za-z0-9\)\]])³/g,'\\($1^3\\)')
-       .replace(/([A-Za-z0-9\)\]])⁴/g,'\\($1^4\\)').replace(/([A-Za-z0-9\)\]])⁵/g,'\\($1^5\\)')
-       .replace(/([A-Za-z0-9\)\]])⁶/g,'\\($1^6\\)').replace(/([A-Za-z0-9\)\]])⁷/g,'\\($1^7\\)')
-       .replace(/([A-Za-z0-9\)\]])⁸/g,'\\($1^8\\)').replace(/([A-Za-z0-9\)\]])⁹/g,'\\($1^9\\)')
-       .replace(/([A-Za-z0-9\)\]])⁰/g,'\\($1^0\\)');
+  // STEP 1b: Normalise \left \right delimiters → plain brackets
+  s = s.replace(/\\left\s*\(/g,'(').replace(/\\right\s*\)/g,')');
+  s = s.replace(/\\left\s*\[/g,'[').replace(/\\right\s*\]/g,']');
+  s = s.replace(/\\left\s*\{/g,'{').replace(/\\right\s*\}/g,'}');
+  s = s.replace(/\\left\s*\|/g,'|').replace(/\\right\s*\|/g,'|');
+  s = s.replace(/\\left\b\s*/g,'').replace(/\\right\b\s*/g,'');
 
-  // 3. Wrap bare carets in plain-text segments (tokenise around existing LaTeX)
-  var parts = s.split(/(\\[\(\[][\s\S]*?\\[\)\]])/);
-  var rebuilt = '';
-  for(var pi=0;pi<parts.length;pi++){
-    if(pi%2===1){ rebuilt+=parts[pi]; }
-    else{
-      rebuilt+=parts[pi].replace(/([A-Za-z0-9\)\]])\^(\{[^}]+\}|-?[A-Za-z0-9]+)/g, function(m,base,exp){
-        return '\\('+base+'^{'+exp.replace(/^\{|\}$/g,'')+'}\\)';
-      });
-    }
+  // STEP 1c: Strip trailing backslashes/slashes the AI appends after +C
+  s = s.replace(/[\\\/]+\s*$/g,'').replace(/^\s*[\/]+/g,'');
+
+  // STEP 2: Greek & math symbols → Unicode
+  var _sym = {
+    theta:'θ',phi:'φ',psi:'ψ',alpha:'α',beta:'β',gamma:'γ',delta:'δ',
+    Delta:'Δ',epsilon:'ε',lambda:'λ',mu:'μ',sigma:'σ',omega:'ω',Omega:'Ω',
+    rho:'ρ',pi:'π',Pi:'Π',
+    times:'×',cdot:'·',pm:'±',mp:'∓',
+    leq:'≤',geq:'≥',neq:'≠',approx:'≈',infty:'∞',
+    'in':'∈',notin:'∉',
+    int:'∫',sum:'∑',prod:'∏',partial:'∂',nabla:'∇',
+    degree:'°',circ:'°'
+  };
+  Object.keys(_sym).forEach(function(k){
+    s = s.replace(new RegExp('\\\\'+k+'\\b','g'), _sym[k]);
+  });
+  // Trig/log functions — strip backslash
+  s = s.replace(/\\(sin|cos|tan|cot|sec|csc|arcsin|arccos|arctan|sinh|cosh|tanh|log|ln|exp|lim|max|min|det|gcd)\b/g,'$1');
+
+  // STEP 3: \sqrt{expr} → √(expr)
+  for(var _si=0;_si<3;_si++){
+    s = s.replace(/\\sqrt\{([^{}]+)\}/g, function(m,i){ return '\u221A('+i+')'; });
   }
-  s = rebuilt;
 
-  // 4. Restore dates
-  if(_dp.length) s = s.replace(/DATE(\d+)/g, function(m,i){ return _dp[parseInt(i,10)]; });
+  // STEP 4: \frac{n}{d} → \(\frac{n}{d}\) — loop handles nesting
+  for(var _fi=0;_fi<4;_fi++){
+    s = s.replace(/\\frac\{((?:[^{}]|\{[^{}]*\})*)\}\{((?:[^{}]|\{[^{}]*\})*)\}/g,
+      function(m,n,d){ return '\\(\\frac{'+n+'}{'+d+'}\\)'; });
+    // Deduplicate accidental double-wrap
+    s = s.replace(/\\\(\\\(\\frac/g,'\\(\\frac');
+    s = s.replace(/\}\\\)\\\)/g,'}\\)');
+  }
+
+  // STEP 5: Unicode superscripts → LaTeX
+  function wrapSup(str, ch, exp){
+    return str.replace(
+      new RegExp('(\\([^()]*\\)|[A-Za-z0-9])'+ch,'g'),
+      function(m,base){ return '\\('+base+'^{'+exp+'}\\)'; }
+    );
+  }
+  s=wrapSup(s,'\u00B2','2'); s=wrapSup(s,'\u00B3','3'); s=wrapSup(s,'\u2074','4');
+  s=wrapSup(s,'\u2075','5'); s=wrapSup(s,'\u2076','6'); s=wrapSup(s,'\u2077','7');
+  s=wrapSup(s,'\u2078','8'); s=wrapSup(s,'\u2079','9'); s=wrapSup(s,'\u2070','0');
+
+  // STEP 6: Bare carets — tokenise around existing \(...\) blocks
+  var _segs = s.split(/(\\\([\s\S]*?\\\))/);
+  var _out = '';
+  for(var pi=0; pi<_segs.length; pi++){
+    if(pi%2===1){ _out+=_segs[pi]; continue; }
+    var seg = _segs[pi];
+    // (expr)^n — full parenthesised base (allow spaces around ^)
+    seg = seg.replace(/(\([^()]*\))\s*\^\s*(\{[^}]+\}|[A-Za-z0-9][A-Za-z0-9\/]*)/g, function(m,b,e){
+      return '\\('+b.trim()+'^{'+e.replace(/^\{|\}$/g,'').trim()+'}\\)';
+    });
+    // word^n — single char/word base (allow spaces around ^)
+    seg = seg.replace(/([A-Za-z0-9])\s*\^\s*(\{[^}]+\}|[A-Za-z0-9][A-Za-z0-9\/]*)/g, function(m,b,e){
+      return '\\('+b+'^{'+e.replace(/^\{|\}$/g,'').trim()+'}\\)';
+    });
+    _out += seg;
+  }
+  s = _out;
+
+  // STEP 7: Restore dates
+  if(_dp.length) s = s.replace(/\x01DATE(\d+)\x01/g, function(m,i){ return _dp[+i]; });
+
   return s;
 }
+
 
 function applyNameLock(){
   if(!S.code) return;
@@ -7630,7 +7695,7 @@ async function initQuiz(){
     });
 
     // ── FIX MATH WORD FORMS → SYMBOLS ────────────────────────────
-    function fixMath(s){
+    function _localFixMath_unused(s){ // disabled - using global fixMath instead
       if(!s || typeof s !== 'string') return s;
       // ── PROTECT: date-like patterns (DD/MM/YYYY etc) from fraction conversion ──
       // Bug fix: a date such as "10/07/2024" was being misread by the
@@ -7840,10 +7905,15 @@ async function initQuiz(){
               rebuilt += parts[pi];
             } else {
               // Even indices are plain text — wrap any bare carets
-              rebuilt += parts[pi].replace(/([A-Za-z0-9\)\]])\^(\{[^}]+\}|-?[A-Za-z0-9]+)/g, function(m, base, exp){
-                var cleanExp = exp.replace(/^\{|\}$/g, '');
-                return '\\('+base+'^{'+cleanExp+'}\\)';
+              // First capture whole (expr)^n groups, then single-char bases
+              var _seg = parts[pi];
+              _seg = _seg.replace(/(\([^()]*\))\^(\{[^}]+\}|-?[A-Za-z0-9]+)/g, function(m, base, exp){
+                return '\\('+base+'^{'+exp.replace(/^\{|\}$/g, '')+'}\\)';
               });
+              _seg = _seg.replace(/([A-Za-z0-9])\^(\{[^}]+\}|-?[A-Za-z0-9]+)/g, function(m, base, exp){
+                return '\\('+base+'^{'+exp.replace(/^\{|\}$/g, '')+'}\\)';
+              });
+              rebuilt += _seg;
             }
           }
           s = rebuilt;
@@ -8173,17 +8243,28 @@ function buildUserMsg(){
 // LaTeX (for MathJax to render) or readable Unicode, so math never displays as raw markup.
 function fixFreeTextMath(s){
   if(!s || typeof s !== 'string') return s;
+  // Normalize form-feed escapes (\f in JS = char 12, not backslash-f)
+  s = s.replace(/rac\{/g, '\\frac{');
+  s = s.replace(/([a-zA-Z]+)/g, '\\$1');
   var supMap3 = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
   var lines = s.split('\n');
   var fixedLines = lines.map(function(line){
     var out = line;
 
-    // If the line already has a proper \( \) or \[ \] pair, trust it as-is —
-    // just fix any bare superscripts inside, and skip everything else to avoid
-    // double-wrapping already-correct LaTeX.
+    // If the line already has a proper \( \) or \[ \] pair, fix bare superscripts
+    // but ALSO wrap any bare \frac{}{} that are NOT inside delimiters yet.
     var hasProperDelimiter = /\\\([\s\S]*?\\\)/.test(out) || /\\\[[\s\S]*?\\\]/.test(out);
     if(hasProperDelimiter){
       out = out.replace(/\^(\d)(?!\d)/g, function(m, d){ return supMap3[d]||m; });
+      // Wrap bare \frac and bare carets not already inside \( \) using tokeniser
+      var parts = out.split(/(\\[\(\[][\s\S]*?\\[\)\]])/);
+      out = parts.map(function(p,i){
+        if(i%2===1) return p; // already-wrapped block
+        p = p.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'\\(\\frac{$1}{$2}\\)');
+        p = p.replace(/([A-Za-z0-9\)])\^\{([^}]+)\}/g,'\\($1^{$2}\\)');
+        p = p.replace(/([A-Za-z0-9\)])\^([0-9]+)/g,'\\($1^{$2}\\)');
+        return p;
+      }).join('');
       return out;
     }
 
@@ -8298,41 +8379,26 @@ function fixFreeTextMath(s){
   return fixedLines.join('\n');
 }
 
-function quizFracDisplay(s){
-  // Run fixMath to handle all LaTeX conversions including carets and superscripts
-  if(typeof fixMath === 'function') s = fixMath(s);
-  // Now handle any remaining bare fractions that fixMath didn't wrap
-  // (fixMath handles digits-only fractions; quizFracDisplay adds bracketed expr support)
-  // IMPORTANT: do NOT HTML-escape here — MathJax needs raw backslashes
-  // Only convert patterns that are NOT already inside \( ... \) blocks
-  var parts = s.split(/(\\[\(\[][\s\S]*?\\[\)\]])/);
-  var rebuilt = '';
-  for(var pi=0;pi<parts.length;pi++){
-    if(pi%2===1){
-      // Already-wrapped LaTeX — pass through untouched
-      rebuilt += parts[pi];
-    } else {
-      // Plain text — convert any remaining n/d fractions
-      var plain = parts[pi];
-      // (expr)^n/d → \(\frac{expr^n}{d}\)
-      plain = plain.replace(/(\([^()]+\)[⁰¹²³⁴⁵⁶⁷⁸⁹]*)\/(\d+)/g, function(m,num,den){
-        return '\(\frac{'+num+'}{'+den+'}\)';
-      });
-      // (n/d) → \(\frac{n}{d}\)
-      plain = plain.replace(/\((-?\d+)\/(\d+)\)/g, function(m,n,d){
-        return '\(\frac{'+n+'}{'+d+'}\)';
-      });
-      // standalone n/d
-      plain = plain.replace(/(?<!\{)(?<!\d)(-?\d+)\/(\d+)(?![\d}])/g, function(m,n,d){
-        return '\(\frac{'+n+'}{'+d+'}\)';
-      });
-      rebuilt += plain;
-    }
-  }
-  return rebuilt;
-}
 
-// PRESENT QUESTION
+function quizFracDisplay(s){
+  if(!s) return '';
+  // Normalise form-feed then run full fixMath pipeline
+  s = String(s);
+  if(typeof fixMath === 'function') s = fixMath(s);
+  // Handle any remaining bare n/d fractions in plain-text segments
+  var parts = s.split(/(\\\([\s\S]*?\\\))/);
+  var out = '';
+  for(var i=0;i<parts.length;i++){
+    if(i%2===1){ out+=parts[i]; continue; }
+    // (expr)/n  — parenthesised numerator
+    var seg = parts[i];
+    seg = seg.replace(/(\([^()]+\))\/(\d+)/g, function(m,n,d){ return '\\(\\frac{'+n+'}{'+d+'}\\)'; });
+    // n/d standalone
+    seg = seg.replace(/(?<!\{)(?<!\d)(-?\d+)\/(\d+)(?!\d|\})/g, function(m,n,d){ return '\\(\\frac{'+n+'}{'+d+'}\\)'; });
+    out+=seg;
+  }
+  return out;
+}
 
 function presentQ(idx){
   if(idx>=S.questions.length){endQuiz();return;}
@@ -11339,26 +11405,27 @@ function downloadQuizPDF(){
   var win = window.open('','_blank');
   if(!win){ toast('Please allow popups to download PDF','err'); return; }
 
-  // Convert LaTeX to readable Unicode for PDF (no MathJax dependency)
+  // Convert LaTeX to readable HTML for PDF (no MathJax dependency)
   function pdfMath(s){
     if(!s) return '';
-    // Run fixMath first to normalise bare carets etc
-    if(typeof fixMath==='function') s = fixMath(s);
-    // Convert \(\frac{n}{d}\) → n⁄d (using fraction slash U+2044) with HTML stacked display
-    s = s.replace(/\\\(\\frac\{([^}]+)\}\{([^}]+)\}\\\)/g, function(m,n,d){
-      return '<span style="display:inline-block;text-align:center;vertical-align:middle;line-height:1.1;font-size:0.95em;margin:0 2px;">'+
-        '<span style="display:block;border-bottom:1px solid #000;padding:0 2px;">'+n+'</span>'+
-        '<span style="display:block;padding:0 2px;">'+d+'</span></span>';
-    });
-    // Convert \(x^{n}\) → x<sup>n</sup>
-    s = s.replace(/\\\(([^)]+)\^\{([^}]+)\}([^)]*)\\\)/g, function(m,base,exp,rest){
-      return base+'<sup>'+exp+'</sup>'+(rest||'');
-    });
-    // Convert remaining \(expr\) → expr (strip delimiters)
-    s = s.replace(/\\\(([\s\S]*?)\\\)/g,'$1');
-    s = s.replace(/\\\[([\s\S]*?)\\\]/g,'$1');
+    // Apply fixMath first to normalise all LaTeX
+    if(typeof fixMath === 'function') s = fixMath(s);
+    // Now convert \(...\) blocks to HTML
+    function fracHtml(n,d){
+      return '<table style="display:inline-table;vertical-align:middle;border-collapse:collapse;margin:0 3px;text-align:center;">'+
+        '<tr><td style="border-bottom:1.5px solid #000;padding:0 4px;font-size:0.9em;line-height:1.4;">'+n+'</td></tr>'+
+        '<tr><td style="padding:0 4px;font-size:0.9em;line-height:1.4;">'+d+'</td></tr></table>';
+    }
+    // \(\frac{n}{d}\) → stacked HTML
+    s = s.replace(/\\\(\\frac\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\\\)/g,
+      function(m,n,d){ return fracHtml(n,d); });
+    // \(base^{exp}\) → base<sup>exp</sup>
+    s = s.replace(/\\\(([^\\]*)\^\{([^}]+)\}\\\)/g, function(m,base,exp){ return base+'<sup>'+exp+'</sup>'; });
+    // \(expr\) → expr (strip delimiters, keep content)
+    s = s.replace(/\\\(([\s\S]*?)\\\)/g, function(m,g){ return g||''; });
     return s;
   }
+
   var rows = '';
   S.questions.forEach(function(q, i){
     var userAns = S.answers[i] ? S.answers[i].chosen : '—';
@@ -11387,8 +11454,8 @@ function downloadQuizPDF(){
       '<div style="padding:14px 16px;">' +
         '<div style="font-size:15px;font-weight:600;color:#0f172a;margin-bottom:12px;line-height:1.6;">'+pdfMath(q.text)+'</div>' +
         '<table style="width:100%;border-collapse:collapse;margin-bottom:12px;">'+optRows+'</table>' +
-        '<div style="font-size:12px;color:#64748b;margin-bottom:4px;"><strong>Your answer:</strong> '+userAns+') '+userText+'</div>' +
-        '<div style="font-size:12px;color:#064e3b;margin-bottom:'+(explanation?'8px':'0')+'"><strong>Correct answer:</strong> '+corLetter+') '+corText+'</div>' +
+        '<div style="font-size:12px;color:#64748b;margin-bottom:4px;"><strong>Your answer:</strong> '+userAns+') '+pdfMath(userText)+'</div>' +
+        '<div style="font-size:12px;color:#064e3b;margin-bottom:'+(explanation?'8px':'0')+'"><strong>Correct answer:</strong> '+corLetter+') '+pdfMath(corText)+'</div>' +
         (explanation ? '<div style="font-size:13px;background:#f8fafc;border-left:3px solid #1a56db;padding:10px 12px;border-radius:0 6px 6px 0;line-height:1.7;color:#1e293b;"><strong>Explanation:</strong> '+pdfMath(explanation)+'</div>' : '') +
       '</div>' +
     '</div>';
@@ -11588,16 +11655,14 @@ function addAI(md){
   d.innerHTML='<div class="msg-av">🤖</div>'
     +'<div style="flex:1;min-width:0;">'
     +'<div class="msg-bub" id="'+msgId+'">'+md2html(md)+'</div>'
-    +'<button onclick="speakTutorMsg(this,\''+msgId+'\')" id="btn-'+msgId+'" '
-    +'style="margin-top:10px;width:100%;background:#06b6d4;border:none;border-radius:12px;'
-    +'color:#0a1628;font-size:14px;font-weight:800;padding:10px 0;cursor:pointer;'
-    +'font-family:\'DM Sans\',sans-serif;display:block;text-align:center;">'
-    +'🔊 Listen</button>'
     +'</div>';
   box.appendChild(d);
   box.scrollTop=box.scrollHeight;
-  // Render LaTeX fractions with MathJax
-  if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([d]).catch(function(){});
+  // Render LaTeX - call immediately and again after delay
+  if(window.MathJax&&MathJax.typesetPromise){
+    MathJax.typesetPromise([d]).catch(function(){});
+    setTimeout(function(){ MathJax.typesetPromise([d]).catch(function(){}); }, 500);
+  }
 
   // Auto-speak if enabled and audio already unlocked by user tap
   if(window._tutorAutoSpeak && window._audioUnlocked){
