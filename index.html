@@ -11339,8 +11339,26 @@ function downloadQuizPDF(){
   var win = window.open('','_blank');
   if(!win){ toast('Please allow popups to download PDF','err'); return; }
 
-  // Apply fixMath to all text for correct LaTeX in PDF
-  function pdfMath(s){ return typeof fixMath==='function' ? fixMath(s||'') : (s||''); }
+  // Convert LaTeX to readable Unicode for PDF (no MathJax dependency)
+  function pdfMath(s){
+    if(!s) return '';
+    // Run fixMath first to normalise bare carets etc
+    if(typeof fixMath==='function') s = fixMath(s);
+    // Convert \(\frac{n}{d}\) → n⁄d (using fraction slash U+2044) with HTML stacked display
+    s = s.replace(/\\\(\\frac\{([^}]+)\}\{([^}]+)\}\\\)/g, function(m,n,d){
+      return '<span style="display:inline-block;text-align:center;vertical-align:middle;line-height:1.1;font-size:0.95em;margin:0 2px;">'+
+        '<span style="display:block;border-bottom:1px solid #000;padding:0 2px;">'+n+'</span>'+
+        '<span style="display:block;padding:0 2px;">'+d+'</span></span>';
+    });
+    // Convert \(x^{n}\) → x<sup>n</sup>
+    s = s.replace(/\\\(([^)]+)\^\{([^}]+)\}([^)]*)\\\)/g, function(m,base,exp,rest){
+      return base+'<sup>'+exp+'</sup>'+(rest||'');
+    });
+    // Convert remaining \(expr\) → expr (strip delimiters)
+    s = s.replace(/\\\(([\s\S]*?)\\\)/g,'$1');
+    s = s.replace(/\\\[([\s\S]*?)\\\]/g,'$1');
+    return s;
+  }
   var rows = '';
   S.questions.forEach(function(q, i){
     var userAns = S.answers[i] ? S.answers[i].chosen : '—';
@@ -11380,8 +11398,7 @@ function downloadQuizPDF(){
   var pct = Math.round(score/S.questions.length*100);
 
   win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Quiz — '+S.name+'</title>' +
-    '<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]]},svg:{fontCache:"global"}};<\/script>' +
-    '<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"><\/script>' +
+
     '<style>body{font-family:Arial,sans-serif;padding:30px;max-width:800px;margin:0 auto;}' +
     'h1{color:#0f2044;}h2{color:#1a56db;margin-top:4px;}' +
     '.header{background:#0f2044;color:#fff;padding:20px 24px;border-radius:10px;margin-bottom:24px;}' +
