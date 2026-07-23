@@ -7130,6 +7130,44 @@ function setIdentityMode(withIdentity){
   }
 }
 
+// ── GLOBAL fixMath — converts raw math notation to LaTeX delimiters ──────
+// Defined globally so quizFracDisplay, downloadQuizPDF, and other renderers
+// can call it outside of the quiz response handler scope.
+function fixMath(s){
+  if(!s || typeof s !== 'string') return s;
+  // Quick passthrough for already-wrapped strings — run the full chain
+  // regardless because mixed strings may have unwrapped carets alongside
+  // already-wrapped LaTeX (the tokeniser handles this correctly).
+
+  // 1. Protect date patterns
+  var _dp = [];
+  s = s.replace(/(\d{1,2}\/\d{1,2}\/\d{2,4})/g, function(m){ _dp.push(m); return 'DATE'+(_dp.length-1)+''; });
+
+  // 2. Unicode superscripts → LaTeX
+  s = s.replace(/([A-Za-z0-9\)\]])²/g,'\\($1^2\\)').replace(/([A-Za-z0-9\)\]])³/g,'\\($1^3\\)')
+       .replace(/([A-Za-z0-9\)\]])⁴/g,'\\($1^4\\)').replace(/([A-Za-z0-9\)\]])⁵/g,'\\($1^5\\)')
+       .replace(/([A-Za-z0-9\)\]])⁶/g,'\\($1^6\\)').replace(/([A-Za-z0-9\)\]])⁷/g,'\\($1^7\\)')
+       .replace(/([A-Za-z0-9\)\]])⁸/g,'\\($1^8\\)').replace(/([A-Za-z0-9\)\]])⁹/g,'\\($1^9\\)')
+       .replace(/([A-Za-z0-9\)\]])⁰/g,'\\($1^0\\)');
+
+  // 3. Wrap bare carets in plain-text segments (tokenise around existing LaTeX)
+  var parts = s.split(/(\\[\(\[][\s\S]*?\\[\)\]])/);
+  var rebuilt = '';
+  for(var pi=0;pi<parts.length;pi++){
+    if(pi%2===1){ rebuilt+=parts[pi]; }
+    else{
+      rebuilt+=parts[pi].replace(/([A-Za-z0-9\)\]])\^(\{[^}]+\}|-?[A-Za-z0-9]+)/g, function(m,base,exp){
+        return '\\('+base+'^{'+exp.replace(/^\{|\}$/g,'')+'}\\)';
+      });
+    }
+  }
+  s = rebuilt;
+
+  // 4. Restore dates
+  if(_dp.length) s = s.replace(/DATE(\d+)/g, function(m,i){ return _dp[parseInt(i,10)]; });
+  return s;
+}
+
 function applyNameLock(){
   if(!S.code) return;
   var savedName = localStorage.getItem('saa_name_'+S.code);
@@ -8261,28 +8299,37 @@ function fixFreeTextMath(s){
 }
 
 function quizFracDisplay(s){
-  // Run fixMath first to catch all LaTeX patterns before fraction display
+  // Run fixMath to handle all LaTeX conversions including carets and superscripts
   if(typeof fixMath === 'function') s = fixMath(s);
-  var supMap = {'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9'};
-  var supToCaret = function(text){
-    // Convert unicode superscript digits right after ) into ^{n} for LaTeX (e.g. (2x-6)⁵ → (2x-6)^{5})
-    return text.replace(/\)([⁰¹²³⁴⁵⁶⁷⁸⁹]+)/g, function(m, digits){
-      var out=''; for(var i=0;i<digits.length;i++) out += supMap[digits[i]]||digits[i];
-      return ')^{'+out+'}';
-    });
-  };
-  var s2 = String(s||'')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    // (expression)^superscript/denominator → \(\frac{(expression)^{n}}{denominator}\)
-    // handles "(2x-6)⁵/5", "(x²-4)³/3" etc — a parenthesized expr (with optional superscript) over a number
-    .replace(/(\([^()]+\)[⁰¹²³⁴⁵⁶⁷⁸⁹]*)\/(\d+)/g, function(m, numerator, denom){
-      return '\\(\\frac{'+supToCaret(numerator)+'}{'+denom+'}\\)';
-    })
-    // (n/d) → \(\frac{n}{d}\)  — handles "(2/4)x⁴", "(1/6)x⁶" etc.
-    .replace(/\((-?\d+)\/(\d+)\)/g, function(m,n,d){ return '\\(\\frac{'+n+'}{'+d+'}\\)'; })
-    // standalone n/d not already inside parentheses-converted form (e.g. "1/3", "x = 2/4")
-    .replace(/(?<!\{)(?<![0-9])(-?\d+)\/(\d+)(?![0-9}])/g, function(m,n,d){ return '\\(\\frac{'+n+'}{'+d+'}\\)'; });
-  return s2;
+  // Now handle any remaining bare fractions that fixMath didn't wrap
+  // (fixMath handles digits-only fractions; quizFracDisplay adds bracketed expr support)
+  // IMPORTANT: do NOT HTML-escape here — MathJax needs raw backslashes
+  // Only convert patterns that are NOT already inside \( ... \) blocks
+  var parts = s.split(/(\\[\(\[][\s\S]*?\\[\)\]])/);
+  var rebuilt = '';
+  for(var pi=0;pi<parts.length;pi++){
+    if(pi%2===1){
+      // Already-wrapped LaTeX — pass through untouched
+      rebuilt += parts[pi];
+    } else {
+      // Plain text — convert any remaining n/d fractions
+      var plain = parts[pi];
+      // (expr)^n/d → \(\frac{expr^n}{d}\)
+      plain = plain.replace(/(\([^()]+\)[⁰¹²³⁴⁵⁶⁷⁸⁹]*)\/(\d+)/g, function(m,num,den){
+        return '\(\frac{'+num+'}{'+den+'}\)';
+      });
+      // (n/d) → \(\frac{n}{d}\)
+      plain = plain.replace(/\((-?\d+)\/(\d+)\)/g, function(m,n,d){
+        return '\(\frac{'+n+'}{'+d+'}\)';
+      });
+      // standalone n/d
+      plain = plain.replace(/(?<!\{)(?<!\d)(-?\d+)\/(\d+)(?![\d}])/g, function(m,n,d){
+        return '\(\frac{'+n+'}{'+d+'}\)';
+      });
+      rebuilt += plain;
+    }
+  }
+  return rebuilt;
 }
 
 // PRESENT QUESTION
@@ -8372,9 +8419,10 @@ function presentQ(idx){
     setTimeout(quizStartListening, 300);
   }
 
-  // Render LaTeX math in question
+  // Render LaTeX math in question — delay ensures DOM is ready
   if(window.MathJax && MathJax.typesetPromise){
     MathJax.typesetPromise([ui]).catch(function(){});
+    setTimeout(function(){ MathJax.typesetPromise([ui]).catch(function(){}); }, 400);
   }
   if(hasTri||hasSVG){
     const panel=document.getElementById(`drawing-panel-${idx}`);
