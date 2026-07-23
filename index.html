@@ -4306,7 +4306,7 @@ function copyProofCode(){
             <span class="uz-icon">📄</span>
             <div class="uz-title" data-t="upload_drag">Drag & drop files here (PNG, JPG, PDF, Excel) — multiple supported</div>
             <div class="uz-sub" data-t="upload_browse">Or use the buttons below to browse</div>
-            <div id="upload-counter" style="margin-top:6px;font-size:12px;font-weight:700;color:#1a56db;" data-t="upload_counter_zero">0 / 30 pages uploaded</div>
+            <div id="upload-counter" style="margin-top:6px;font-size:12px;font-weight:700;color:#1a56db;display:none;" data-t="upload_counter_zero"></div>
             <div id="pdf-status" style="margin-top:3px;font-size:12px;font-weight:700;color:#1a56db;"></div>
           </div>
 
@@ -4394,8 +4394,16 @@ function copyProofCode(){
 
         <!-- QUIZ MODE -->
         <div style="margin-bottom:8px;">
-          <button class="btn-start" onclick="startSession()" style="max-width:100%;">
-<span data-t="start_quiz" id="btn-start-quiz">📝 Start Quiz</span>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;max-width:100%;">
+            <button class="btn-start" onclick="startSession('gpt')" style="flex:1;min-width:140px;">
+              <span data-t="start_quiz" id="btn-start-quiz">📝 Start Quiz</span>
+              <div style="font-size:10px;opacity:0.7;font-weight:400;margin-top:2px;">GPT · Up to 30 pages</div>
+            </button>
+            <button class="btn-start" onclick="startSession('claude')" style="flex:1;min-width:140px;background:linear-gradient(135deg,#7c3aed,#4f46e5);">
+              🧠 Claude Quiz
+              <div style="font-size:10px;opacity:0.7;font-weight:400;margin-top:2px;">Claude · Up to 200 pages</div>
+            </button>
+          </div>
           </button>
           <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px;">
             <span data-t="quiz_sub">Answer questions · Get scored · Track progress</span>
@@ -4642,6 +4650,7 @@ function copyProofCode(){
           <button class="btn-menu secondary" onclick="newQuestions()" data-t="results_new">🔀 New Questions (Same Document)</button>
           <button class="btn-menu secondary" onclick="restartFull()" data-t="results_restart">🔄 Full Restart</button>
           <button class="btn-menu secondary" onclick="saveReportAsPDF()">⬇️ Download PDF</button>
+          <button class="btn-menu secondary" onclick="downloadQuizPDF()" style="background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(79,70,229,0.2));border-color:rgba(124,58,237,0.5);color:#a78bfa;">📄 Quiz Questions &amp; Answers PDF</button>
           
           <button class="btn-menu ghost" onclick="exitToHome()" data-t="back_home">🏠 Back to Home</button>
           <button id="celeb-toggle-btn" onclick="setCelebration(!isCelebrationOn())"
@@ -4662,6 +4671,7 @@ function copyProofCode(){
     <div class="report-wrap">
       <div class="report-card" id="report-body"></div>
       <div style="text-align:center;margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-print" onclick="downloadQuizPDF()" id="btn-download-quiz-pdf" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">📄 Quiz PDF</button>
         <button class="btn-print" onclick="downloadReport()" id="btn-download" data-i18n="download_report">⬇️ Download Report</button>
         <button class="btn-print" onclick="saveAsPDF()" id="btn-pdf" style="background:linear-gradient(135deg,#10b981,#059669);" data-t="save_pdf">📄 Save as PDF</button>
         <button class="btn-back" onclick="showPage('page-results')" data-i18n="back_results">← Back to Results</button>
@@ -5614,10 +5624,11 @@ async function extractPDFPages(){
     return;
   }
 
-  // Respect the combined 30-item session cap (shared across photos/PDF/Excel)
+  // Page cap: 200 for Claude quiz, 30 for GPT (enforced at generation time via tip)
+  // Both are allowed to upload up to 200 pages
   const existingCount = S.images.length;
-  const sessionRemaining = Math.max(1, 30 - existingCount);
-  const effectiveMax = Math.min(30, sessionRemaining);
+  const sessionRemaining = Math.max(1, 200 - existingCount);
+  const effectiveMax = Math.min(200, sessionRemaining);
 
   // Bug fix: this used to always keep pages [from, from+effectiveMax-1] —
   // a plain contiguous cut starting from the beginning of the range. With
@@ -5672,11 +5683,11 @@ async function extractPDFPages(){
     const toEl = document.getElementById('pdf-to');
     if(toEl) toEl.value = to;
 
-    var multiFileNote = '\n\nNote: You uploaded ' + pdfDocs.length + ' PDF files (total ' + pdfTotalPages + ' pages combined). Since this exceeds the 30-page limit, pages were selected proportionally from EACH file (not just the first file) so every document is represented.';
+    var multiFileNote = '\n\nNote: You uploaded ' + pdfDocs.length + ' PDF files (total ' + pdfTotalPages + ' pages combined). Pages selected proportionally from EACH file so every document is represented.';
     if(existingCount > 0){
-      alert('⚠️ Session limit is 30 items total (combined photos/PDF/Excel).\n\nYou already have ' + existingCount + ' item(s) in this session. ' + count + ' pages will be added, spread fairly across your uploaded files.' + multiFileNote);
+      alert('⚠️ Session limit is 200 pages total.\n\nYou already have ' + existingCount + ' item(s) in this session. ' + count + ' pages will be added, spread fairly across your uploaded files.' + multiFileNote);
     } else {
-      alert('⚠️ Learning mode is limited to 30 pages.\n\nYour combined PDFs have more than 30 pages. ' + count + ' pages will be used, spread fairly across your uploaded files.' + multiFileNote);
+      alert('ℹ️ Large document: ' + count + ' pages will be used from your combined PDFs, spread fairly across all files.\n\nTip: GPT works best with up to 30 pages. For larger documents, use the 🧠 Claude Quiz button.' + multiFileNote);
     }
   } else if(count > effectiveMax){
     // Single file (or no pdfDocs tracking) — original simple contiguous cut
@@ -5685,9 +5696,9 @@ async function extractPDFPages(){
     const toEl = document.getElementById('pdf-to');
     if(toEl) toEl.value = to;
     if(existingCount > 0){
-      alert('⚠️ Session limit is 30 items total (combined photos/PDF/Excel).\n\nYou already have ' + existingCount + ' item(s) in this session. Only pages ' + from + ' to ' + to + ' will be added.');
+      alert('⚠️ Session limit is 200 pages total.\n\nYou already have ' + existingCount + ' item(s) in this session. Only pages ' + from + ' to ' + to + ' will be added.');
     } else {
-      alert('⚠️ Learning mode is limited to 30 pages.\n\nYour PDF has ' + count + ' pages. Only pages ' + from + ' to ' + to + ' will be used.\n\nTip: Upload 3–5 focused pages for best results.');
+      alert('ℹ️ Large document: your PDF has ' + count + ' pages. Pages ' + from + ' to ' + to + ' will be used.\n\nTip: GPT works best with up to 30 pages. For larger documents, use the 🧠 Claude Quiz button.');
     }
     for(var p2 = from; p2 <= to; p2++) pagesToExtract.push(p2);
   } else {
@@ -6598,7 +6609,7 @@ async function validateCode(){
       if(!storedFp) localStorage.setItem('saa_fp_'+raw, fingerprint);
     }
     // Valid — proceed
-    const typeMap = {W:'Weekly',M:'Monthly'};
+    const typeMap = {W:'Weekly',M:'Monthly',Y:'Yearly',H:'Hourly',D:'Daily',RM:'Research',RS:'Research',RY:'Research',S:'Student',T:'Trial'};
     S.code     = raw;
     S.codeType = localMatch.type || typeMap[raw[0]] || 'Weekly';
     S.codeExpiry = expDate;
@@ -6679,7 +6690,7 @@ async function validateCode(){
     }
 
     // ✅ Valid server code
-    const typeMap = {W:'Weekly',M:'Monthly'};
+    const typeMap = {W:'Weekly',M:'Monthly',Y:'Yearly',H:'Hourly',D:'Daily',RM:'Research',RS:'Research',RY:'Research',S:'Student',T:'Trial'};
     S.code           = raw;
     S.codeType       = typeMap[raw[0]] || 'Weekly';
     S.codeExpiry     = new Date(data.expiresAt);
@@ -6719,7 +6730,7 @@ async function validateCode(){
       return;
     }
     if(stored && new Date() < new Date(parseInt(stored))){
-      const typeMap = {W:'Weekly',M:'Monthly'};
+      const typeMap = {W:'Weekly',M:'Monthly',Y:'Yearly',H:'Hourly',D:'Daily',RM:'Research',RS:'Research',RY:'Research',S:'Student',T:'Trial'};
       S.code = raw; S.codeType = typeMap[raw[0]]||'Weekly';
       S.codeExpiry = new Date(parseInt(stored));
       showPage('page-profile');
@@ -7006,8 +7017,13 @@ function handleFiles(files){
         var parts = [];
         if(S.images.filter(function(i){ return i.type!=='excel'; }).length) parts.push(S.images.filter(function(i){ return i.type!=='excel'; }).length + ' image(s)');
         if(saPDFText) parts.push('Excel');
-        counter.textContent = parts.length ? '✅ ' + parts.join(' + ') + ' attached' : S.images.length + ' / 10 ' + (saT('pages_uploaded')||'pages uploaded');
-        counter.style.color = S.images.length > 0 ? '#10b981' : '#1a56db';
+        if(parts.length){
+          counter.textContent = '✅ ' + parts.join(' + ') + ' attached';
+          counter.style.display = 'block';
+          counter.style.color = '#10b981';
+        } else {
+          counter.style.display = 'none';
+        }
       }
     };
     r.readAsDataURL(f);
@@ -7038,7 +7054,7 @@ function clearAllUploads(){
   if(status){ status.textContent = ''; }
   // Reset counter
   var counter = document.getElementById('upload-counter');
-  if(counter){ counter.textContent = '0 / 30 ' + (saT('pages_uploaded')||'pages uploaded'); counter.style.color = '#1a56db'; }
+  if(counter){ counter.textContent = ''; counter.style.display = 'none'; counter.style.color = '#1a56db'; }
   // Hide reset button
   var resetBtn = document.getElementById('btn-reset-uploads');
   if(resetBtn) resetBtn.style.display = 'none';
@@ -7149,7 +7165,11 @@ function applyNameLock(){
   }
 }
 
-function startSession(){
+function startSession(llm){
+  llm = llm || 'gpt'; // default to GPT
+  window._quizEngine = llm;        // used by initQuiz — separate from _studyLLM (summarize/keypoints)
+  S.quizLLM = llm;                 // saved to session for report
+  window._claudeQuizMode = (llm === 'claude');
   setTimeout(function(){ renderStreakBadge('streak-badge-study'); }, 500);
   const name = document.getElementById('pf-name').value.trim();
   const level = document.getElementById('pf-level').value;
@@ -7402,7 +7422,9 @@ async function initQuiz(){
 
   var _wt = saT('quiz_loading_msg') || 'Welcome, {name}! I\'ve received your {pages} page(s).\n\nReading your document now...';
   var _wtMsg = _wt.replace('{name}', S.name||'').replace('{pages}', saPDFText ? '1 Excel file' : (S.extractedPageCount || S.images.filter(function(i){return i.type!=='excel';}).length || 0));
-  addAI('👋 ' + _wtMsg);
+  var _quizLLM = window._quizEngine || 'gpt';
+  var _aiLabel = _quizLLM === 'claude' ? '🧠 Claude' : '🤖 GPT';
+  addAI('👋 ' + _wtMsg + '\n\nGenerating your quiz with ' + _aiLabel + '...');
   showTyping();
 
   const sys = buildSystem();
@@ -7428,6 +7450,7 @@ async function initQuiz(){
         codeType: S.codeType,
         seed:     Date.now().toString(36) + Math.random().toString(36).slice(2,8),
         max_tokens: S.qCount > 15 ? 8000 : 6000,
+        studyLLM: _quizLLM,  // 'gpt' or 'claude'
         // Only the user message with images — NO prompt sent from browser
         messages: [{role:'user', content: usr}]
       })
@@ -7449,6 +7472,7 @@ async function initQuiz(){
 
     // Log response status for debugging
     console.log('[Quiz] Worker response status:', res.status);
+    console.log('[Quiz] Worker response data:', JSON.stringify(data).slice(0,500));
 
     // Handle Worker errors
     if(!res.ok){
@@ -7459,7 +7483,8 @@ async function initQuiz(){
     // Handle OpenAI errors (wrong key, quota, etc.)
     if(data.error){
       const errMsg = data.error.message || data.error || 'Unknown error';
-      addAI(`❌ **API Error:** ${errMsg}\n\nPlease check your OpenAI API key in the Admin panel.`);
+      var _errHint = (_quizLLM === 'claude') ? 'Claude API error. Please try the GPT Quiz button instead.' : 'Please check the OpenAI API key in the Admin panel.';
+      addAI(`❌ **API Error:** ${errMsg}\n\n${_errHint}`);
       return;
     }
 
@@ -7761,20 +7786,30 @@ async function initQuiz(){
         .replace(/([A-Za-z0-9\)\]])⁸/g, '\\($1^8\\)')
         .replace(/([A-Za-z0-9\)\]])⁹/g, '\\($1^9\\)')
         .replace(/([A-Za-z0-9\)\]])⁰/g, '\\($1^0\\)');
-        // ── UNWRAPPED CARET — genuinely new gap found by direct testing:
-        // the AI sometimes writes the correct symbol (x^2) but forgets
-        // to wrap it in \(...\), so MathJax has nothing to render and it
-        // displays as literal characters "x^2". Only applies when the
-        // text has NO LaTeX delimiters anywhere — if it already contains
-        // \( or \[ elsewhere, trust it and skip, since a per-expression
-        // check risked corrupting already-correct nested LaTeX (e.g.
-        // \frac{x^2}{4} would otherwise get double-wrapped incorrectly).
-        if(s.indexOf('\\(') === -1 && s.indexOf('\\[') === -1){
-          s = s.replace(/([A-Za-z0-9\)\]])\^(\{[^}]+\}|-?[A-Za-z0-9]+)/g, function(m, base, exp){
-            var cleanExp = exp.replace(/^\{|\}$/g, '');
-            return '\\('+base+'^{'+cleanExp+'}\\)';
-          });
-        }
+        // ── UNWRAPPED CARET — wrap x^2, x^{2} etc in \(...\) when not
+        // already inside LaTeX delimiters. The previous approach skipped
+        // the whole string if ANY \( existed — this missed bare carets
+        // mixed with already-wrapped LaTeX (e.g. "\(\frac{1}{2}\) and x^2").
+        // New approach: split by \(...\) and \[...\] blocks, wrap carets
+        // only in the plain-text segments between them.
+        (function(){
+          // Tokenise into [plaintext, latexblock, plaintext, latexblock, ...]
+          var parts = s.split(/(\\[\(\[][\s\S]*?\\[\)\]])/);
+          var rebuilt = '';
+          for(var pi=0; pi<parts.length; pi++){
+            if(pi % 2 === 1){
+              // Odd indices are already-wrapped LaTeX blocks — pass through unchanged
+              rebuilt += parts[pi];
+            } else {
+              // Even indices are plain text — wrap any bare carets
+              rebuilt += parts[pi].replace(/([A-Za-z0-9\)\]])\^(\{[^}]+\}|-?[A-Za-z0-9]+)/g, function(m, base, exp){
+                var cleanExp = exp.replace(/^\{|\}$/g, '');
+                return '\\('+base+'^{'+cleanExp+'}\\)';
+              });
+            }
+          }
+          s = rebuilt;
+        })();
         // Restore any date patterns that were shielded from fraction
         // conversion at the start of this function, completely unchanged.
         if(_dateRepairPlaceholders.length){
@@ -8226,6 +8261,8 @@ function fixFreeTextMath(s){
 }
 
 function quizFracDisplay(s){
+  // Run fixMath first to catch all LaTeX patterns before fraction display
+  if(typeof fixMath === 'function') s = fixMath(s);
   var supMap = {'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9'};
   var supToCaret = function(text){
     // Convert unicode superscript digits right after ) into ^{n} for LaTeX (e.g. (2x-6)⁵ → (2x-6)^{5})
@@ -10187,8 +10224,8 @@ function buildResults(c,t,p){
 
     // Show first question as sample
     if(sampleQ){
-      var qText = (sampleQ.text||sampleQ.question||sampleQ.q||'').substring(0,150);
-      if(qText.length === 150) qText += '…';
+      var qText = (typeof fixMath==='function'?fixMath((sampleQ.text||sampleQ.question||sampleQ.q||'')):( sampleQ.text||sampleQ.question||sampleQ.q||'')).substring(0,200);
+      if(qText.length === 200) qText += '…';
       var isRight = sampleQ.correct;
       html += '<div style="margin-bottom:4px;">';
       html += '<div style="font-size:10px;color:#06b6d4;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">📝 Sample Question (Q1)</div>';
@@ -10200,6 +10237,7 @@ function buildResults(c,t,p){
     html += '</div>';
     summaryEl.innerHTML = html;
     summaryEl.style.display = 'block';
+    if(window.MathJax && MathJax.typesetPromise) setTimeout(function(){ MathJax.typesetPromise([summaryEl]).catch(function(){}); },200);
   }
 
 
@@ -10839,7 +10877,7 @@ function resetQuiz(){
   // Reset upload UI
   renderThumbs();
   const counter = document.getElementById('upload-counter');
-  if(counter){ counter.textContent = '0 / 30 ' + (saT('pages_uploaded')||'pages uploaded'); counter.style.color = '#1a56db'; }
+  if(counter){ counter.textContent = ''; counter.style.display = 'none'; counter.style.color = '#1a56db'; }
 
   // Reset PDF UI
   const pdfStatus = document.getElementById('pdf-status');
@@ -10999,7 +11037,7 @@ function restartFull(){
   // Reset uploads
   renderThumbs();
   const counter = document.getElementById('upload-counter');
-  if(counter){ counter.textContent = '0 / 30 ' + (saT('pages_uploaded')||'pages uploaded'); counter.style.color = '#1a56db'; }
+  if(counter){ counter.textContent = ''; counter.style.display = 'none'; counter.style.color = '#1a56db'; }
   const pdfStatus = document.getElementById('pdf-status');
   if(pdfStatus) pdfStatus.textContent = '';
   const pdfRange = document.getElementById('pdf-range-section');
@@ -11046,7 +11084,7 @@ async function saveReportAsPDF(){
     '—';
 
   const wrongList = inc.length
-    ? inc.map(a=>`Q${a.qIdx+1}: ${S.questions[a.qIdx]?.text||'–'}`).join('<br>')
+    ? inc.map(a=>`Q${a.qIdx+1}: ${typeof fixMath==='function'?fixMath(S.questions[a.qIdx]?.text||'–'):(S.questions[a.qIdx]?.text||'–')}`).join('<br>')
     : 'None — excellent performance!';
 
   const recommendation = getRecommendation(p, inc.length, guessed.length);
@@ -11063,8 +11101,10 @@ async function saveReportAsPDF(){
       <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${S.subject}</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${S.lang}</td></tr>
       <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Questions</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Date</td></tr>
       <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${t}</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${S.date}</td></tr>
-      <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Access Code</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Code Type</td></tr>
-      <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:15px;color:#1a56db;letter-spacing:2px;">${reportCode}</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${S.codeType||'—'}</td></tr>
+      <tr><td colspan="2" style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Access Code</td></tr>
+      <tr><td colspan="2" style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:15px;color:#1a56db;letter-spacing:2px;">${reportCode}</td></tr>
+      <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">AI Engine</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Pages Used</td></tr>
+      <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:700;color:#7c3aed;">${(S.quizLLM||window._quizEngine||'gpt')==='claude'?'🧠 Claude (Anthropic)':'🤖 GPT-4o (OpenAI)'}</td><td style="padding:6px 0;font-weight:600;">${S.images?S.images.length:0} page(s)</td></tr>
     </table>
     <div style="text-align:center;padding:24px 0;border-bottom:1px solid #e2e8f0;margin-bottom:20px;">
       <div style="font-size:56px;font-weight:900;color:#1a56db;line-height:1;">${p}%</div>
@@ -11240,6 +11280,79 @@ function showReport(){
   rp.classList.add('active');
   rp.style.display='block';
   window.scrollTo(0,0);
+  // Typeset math in report
+  if(window.MathJax && MathJax.typesetPromise) setTimeout(function(){ MathJax.typesetPromise([rp]).catch(function(){}); },200);
+}
+
+function downloadQuizPDF(){
+  if(!S.questions || !S.questions.length){
+    toast('No quiz to download','err'); return;
+  }
+  var win = window.open('','_blank');
+  if(!win){ toast('Please allow popups to download PDF','err'); return; }
+
+  // Apply fixMath to all text for correct LaTeX in PDF
+  function pdfMath(s){ return typeof fixMath==='function' ? fixMath(s||'') : (s||''); }
+  var rows = '';
+  S.questions.forEach(function(q, i){
+    var userAns = S.answers[i] ? S.answers[i].chosen : '—';
+    var correct = S.answers[i] ? S.answers[i].correct : false;
+    var corLetter = q.correct || q.correctAnswer || '';
+    var corText = q.options ? (q.options[corLetter] || corLetter) : corLetter;
+    var userText = q.options ? (q.options[userAns] || userAns) : userAns;
+
+    var optRows = '';
+    if(q.options){
+      Object.keys(q.options).forEach(function(k){
+        var isCorrect = k === corLetter;
+        var isUser = k === userAns;
+        var bg = isCorrect ? '#d1fae5' : (isUser && !correct ? '#fee2e2' : '#f9f9f9');
+        var mark = isCorrect ? ' ✅' : (isUser && !correct ? ' ❌' : '');
+        optRows += '<tr style="background:'+bg+';"><td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:600;width:30px;">'+k+'</td><td style="padding:6px 10px;border:1px solid #e2e8f0;">'+pdfMath(q.options[k])+mark+'</td></tr>';
+      });
+    }
+
+    var explanation = q.explanation || q.solution || '';
+    rows += '<div style="margin-bottom:24px;page-break-inside:avoid;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">' +
+      '<div style="background:'+(correct?'#ecfdf5':'#fff1f2')+';padding:12px 16px;border-bottom:1px solid #e2e8f0;">' +
+        '<span style="font-size:11px;font-weight:700;text-transform:uppercase;color:'+(correct?'#059669':'#dc2626')+';">'+(correct?'✅ Correct':'❌ Wrong')+'</span>' +
+        '<span style="float:right;font-size:11px;color:#64748b;">Q'+(i+1)+'</span>' +
+      '</div>' +
+      '<div style="padding:14px 16px;">' +
+        '<div style="font-size:15px;font-weight:600;color:#0f172a;margin-bottom:12px;line-height:1.6;">'+pdfMath(q.text)+'</div>' +
+        '<table style="width:100%;border-collapse:collapse;margin-bottom:12px;">'+optRows+'</table>' +
+        '<div style="font-size:12px;color:#64748b;margin-bottom:4px;"><strong>Your answer:</strong> '+userAns+') '+userText+'</div>' +
+        '<div style="font-size:12px;color:#064e3b;margin-bottom:'+(explanation?'8px':'0')+'"><strong>Correct answer:</strong> '+corLetter+') '+corText+'</div>' +
+        (explanation ? '<div style="font-size:13px;background:#f8fafc;border-left:3px solid #1a56db;padding:10px 12px;border-radius:0 6px 6px 0;line-height:1.7;color:#1e293b;"><strong>Explanation:</strong> '+pdfMath(explanation)+'</div>' : '') +
+      '</div>' +
+    '</div>';
+  });
+
+  var score = S.answers.filter(function(a){return a.correct;}).length;
+  var pct = Math.round(score/S.questions.length*100);
+
+  win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Quiz — '+S.name+'</title>' +
+    '<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]]},svg:{fontCache:"global"}};<\/script>' +
+    '<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"><\/script>' +
+    '<style>body{font-family:Arial,sans-serif;padding:30px;max-width:800px;margin:0 auto;}' +
+    'h1{color:#0f2044;}h2{color:#1a56db;margin-top:4px;}' +
+    '.header{background:#0f2044;color:#fff;padding:20px 24px;border-radius:10px;margin-bottom:24px;}' +
+    '.score{font-size:28px;font-weight:900;}' +
+    '.meta{font-size:13px;opacity:0.8;margin-top:6px;}' +
+    '@media print{.no-print{display:none;} body{padding:15px;}}</style></head><body>' +
+    '<div class="header">' +
+      '<div style="font-size:12px;opacity:0.7;margin-bottom:4px;">Smart Academy AI — Quiz Report</div>' +
+      '<div style="font-size:20px;font-weight:800;">'+S.name+'</div>' +
+      '<div class="meta">'+S.subject+' &nbsp;|&nbsp; '+S.level+' &nbsp;|&nbsp; '+S.date+'</div>' +
+      '<div class="score" style="margin-top:12px;">'+pct+'% &nbsp; <span style="font-size:16px;font-weight:600;">'+score+' / '+S.questions.length+' correct</span></div>' +
+    '</div>' +
+    '<div class="no-print" style="margin-bottom:20px;text-align:center;">' +
+      '<button onclick="window.print()" style="padding:12px 28px;background:#0f2044;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;margin-right:10px;">🖨️ Print / Save PDF</button>' +
+    '</div>' +
+    rows +
+    '<p style="margin-top:24px;font-size:11px;color:#94a3b8;text-align:center;">Generated by Smart Academy AI · www.smartacademy-ai.com · AI-generated content — please verify answers independently.</p>' +
+    '</body></html>');
+  win.document.close();
 }
 
 function downloadReport(){
