@@ -13684,6 +13684,7 @@ function _pwaTranslate(){
 window.addEventListener('beforeinstallprompt', function(e){
   e.preventDefault();
   _pwaPrompt = e;
+  window._pwaPromptStored = e; // store on window for persistence
   // Clear old dismissed flags older than 7 days
   var dismissed = localStorage.getItem('pwa_dismissed');
   if(dismissed && (Date.now() - parseInt(dismissed)) > 7*24*60*60*1000){
@@ -13698,12 +13699,14 @@ window.addEventListener('beforeinstallprompt', function(e){
   }, 3000);
 });
 
-// FALLBACK: If beforeinstallprompt never fires after 12s,
-// show bar anyway — clicking it will use the prompt if available
+// FALLBACK: Only show install bar if native prompt was captured
+// Never show manual instructions from the bar — only real installs
 setTimeout(function(){
   if(localStorage.getItem('pwa_dismissed')) return;
   if(localStorage.getItem('pwa_installed')) return;
   if(window.matchMedia('(display-mode: standalone)').matches) return;
+  // Only show bar if we have the actual prompt
+  if(!_pwaPrompt && !window._pwaPromptStored) return;
   var bar = document.getElementById('pwa-install-bar');
   if(bar && bar.style.display !== 'flex'){
     if(typeof _pwaTranslate === 'function') _pwaTranslate();
@@ -13721,35 +13724,42 @@ function pwaBtnInstall(){
   var bar = document.getElementById('pwa-install-bar');
   if(bar) bar.style.display = 'none';
 
-  // If we have the native prompt — use it directly, no notes
-  if(_pwaPrompt){
-    _pwaPrompt.prompt();
-    _pwaPrompt.userChoice.then(function(result){
-      if(result.outcome === 'accepted'){
-        localStorage.setItem('pwa_installed','1');
-        toast('✅ Smart Academy AI installed!','ok');
-      }
-      _pwaPrompt = null;
-    });
-    return;
-  }
-
-  // No prompt available yet — try triggering via a user gesture workaround
-  // Check if running in standalone already
+  // Already installed?
   if(window.matchMedia('(display-mode: standalone)').matches){
     toast('✅ Already installed!','ok');
     return;
   }
 
-  // Last resort — brief instructions (no long note)
-  var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  // Recover prompt from window if local variable was cleared
+  var prompt = _pwaPrompt || window._pwaPromptStored;
+
+  if(prompt){
+    try {
+      prompt.prompt();
+      prompt.userChoice.then(function(result){
+        if(result.outcome === 'accepted'){
+          localStorage.setItem('pwa_installed','1');
+          window._pwaPromptStored = null;
+          _pwaPrompt = null;
+          toast('✅ Smart Academy AI installed!','ok');
+        } else {
+          // User dismissed — re-store for next time
+          _pwaPrompt = prompt;
+        }
+      });
+    } catch(e){
+      // Prompt already used — request fresh one by reloading
+      toast('Tap Install in your browser menu to install the app','ok',4000);
+    }
+    return;
+  }
+
+  // No prompt at all — show one-line hint only
   var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   if(isIOS){
-    toast('Tap the Share button then "Add to Home Screen"','ok',5000);
-  } else if(isMobile){
-    toast('Tap the 3-dot menu → "Add to Home Screen"','ok',5000);
+    toast('Tap Share (□↑) then "Add to Home Screen"','ok',5000);
   } else {
-    toast('Click the install icon (⊕) in the address bar','ok',5000);
+    toast('Tap the 3-dot menu → "Add to Home Screen"','ok',4000);
   }
 }
 
