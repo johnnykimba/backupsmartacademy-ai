@@ -46,7 +46,11 @@
 <script>
 window.MathJax = {
   tex: {inlineMath:[['\\(','\\)'],['$','$']], displayMath:[['\\[','\\]'],['$$','$$']]},
-  options:{skipHtmlTags:['script','noscript','style','textarea','pre'], enableMenu:false},
+  options:{
+    skipHtmlTags:['script','noscript','style','textarea','pre'],
+    ignoreHtmlClass:'saa-frac',
+    enableMenu:false
+  },
   startup:{typeset:false}
 };
 </script>
@@ -88,35 +92,8 @@ window.MathJax = {
 <!-- PWA Icons -->
 <link rel="manifest" id="pwa-manifest-link" href="manifest.json">
 <script>
-// Inject manifest as blob URL so Samsung/Android Chrome always finds the icon
-(function(){
-  var icon192 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAEaUlEQVR4nO3ZzY0bRxSFUSbgGJyJ8w/AATgTG1oI0IxH4oy6+G5X3VPAWRL10+9b8fHYZP3x51//so/0vGy10h8LkYyv9ONzL+l5HFnpR2YP6TldvtIPyp7Sc3t5pR+QM6Tn+Msr/WCcKT3XT1f6geiQnvMPV/pR6JKe9zcr/Rh0Ss+9wecWDD/1DD/1DD/1DD/1DD/1BEA1w089w089w089AVDN8FNPAFQz/NQTANUMP/UEQDXDTz0BUE0AVDP81BMA1QRANcNPPQFQTQBUEwDVBEA1AVBNAFQTANUEQDXDTz0BUE0AVBMA1QRANQFQTQBUEwDVBEA1AVBNAFQTANUEQDUBUE0AVBMA1QRANQFQTQBUEwDVBEA1AVBNAFQTANUEQDUBUK0qgMff/7xU+n7fPFvp892NAARQTQACqCYAAVQTgACqCUAA1QQggGoCEEC1owJID+jE/lcHXCDvvln6AEsvI4CX//40AthsfwEs/mbpAyy9jABe/vvTCGCz/QWw+JulD7D0MgJ4+e9PI4DN9hfA4m+WPsDSywjg5b8/jQBuJj2g6f3HZyZ9gKWXEcD2+4/PTPoASy8jgO33H5+Z9AGWXkYA2+8/PjPpAyy9jAC23398ZtIHWHoZAWy///jMpA+w9DIC2H7/8ZlJH2DpZQSw/f7jM5M+wOhlnwRy1cQAplf6GwpAANGV/oYCEEB0pb+hAAQQXelvKAABRFf6GwpAANGV/oYCEEB0pb+hAAQQXelvKIAbWxFIegDT+49/s/QBTiKA/Qhg5WMKYDsCWPmYAtiOAFY+pgC2I4CVjymA7Qhg5WMKYDsCWPmYAtjOUQFM/FH16v3TA5jef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gcYveyTAb3qhAFM7z8+E+kDjF5WALfff3wm0gcYvawAbr//+EykDzB6WQHcfv/xmUgfYPSyArj9/uMzkT7A6GUFcPv9x2cifYDRywrg9vuPz0T6AKOXFcDt9x+fifQBIEkAVBMA1QRANQFQTQBUEwDVBEA1AVBNAFQTANUEQDUBUE0AVBMA1QRANQFQTQBUEwDVBEA1AVBNAFQTANUEQDUBUE0AVHt8W+lDQMLj+0ofBBIEQDUBUE0AVBMA1QRANQFQTQBUe/y40oeBSY/3K30gmCQAqv0vABHQ4sPhFwAtBEC1nwYgAk73y+EXAKd7GoAIONWnhl8AnOrTAYiA03xp+AXAab4cgAg4xW8NvwA4xW8HIAJ2d2n4RcDOlgy/CNjR0uEXALtZHoAI2MVLhl8E7OClwy8C7mxk+EXAHY0Ovwi4k8jwC4G09Ny/WenHoEt63j9c6UehQ3rOn670A3Gm9Fx/eaUfjDOk5/jySj8ge0rP7fKVflD2kJ7TkZV+ZO4lPY/RlX58DP3tV/pjceZw/wf68+Bt1SxEmgAAAABJRU5ErkJggg==';
-  var icon512 = 'data:image/png;base64,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';
-
-  var manifest = {
-    name: 'Smart Academy AI',
-    short_name: 'Smart Academy',
-    description: 'Your Personal AI Study Coach',
-    start_url: 'https://www.smartacademy-ai.com/',
-    scope: 'https://www.smartacademy-ai.com/',
-    display: 'standalone',
-    background_color: '#0a1628',
-    theme_color: '#1a56db',
-    orientation: 'portrait-primary',
-    categories: ['education'],
-    icons: [
-      { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any' },
-      { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'maskable' },
-      { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any' },
-      { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-    ]
-  };
-
-  var blob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
-  var url  = URL.createObjectURL(blob);
-  var link = document.getElementById('pwa-manifest-link');
-  if(link) link.href = url;
-})();
+// manifest.json served as static file — no blob injection needed
+// Icons: icon-192.png and icon-512.png must be in GitHub repo root
 </script>
 <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAEaUlEQVR4nO3ZzY0bRxSFUSbgGJyJ8w/AATgTG1oI0IxH4oy6+G5X3VPAWRL10+9b8fHYZP3x51//so/0vGy10h8LkYyv9ONzL+l5HFnpR2YP6TldvtIPyp7Sc3t5pR+QM6Tn+Msr/WCcKT3XT1f6geiQnvMPV/pR6JKe9zcr/Rh0Ss+9wecWDD/1DD/1DD/1DD/1DD/1BEA1w089w089w089AVDN8FNPAFQz/NQTANUMP/UEQDXDTz0BUE0AVDP81BMA1QRANcNPPQFQTQBUEwDVBEA1AVBNAFQTANUEQDXDTz0BUE0AVBMA1QRANQFQTQBUEwDVBEA1AVBNAFQTANUEQDUBUE0AVBMA1QRANQFQTQBUEwDVBEA1AVBNAFQTANUEQDUBUK0qgMff/7xU+n7fPFvp892NAARQTQACqCYAAVQTgACqCUAA1QQggGoCEEC1owJID+jE/lcHXCDvvln6AEsvI4CX//40AthsfwEs/mbpAyy9jABe/vvTCGCz/QWw+JulD7D0MgJ4+e9PI4DN9hfA4m+WPsDSywjg5b8/jQBuJj2g6f3HZyZ9gKWXEcD2+4/PTPoASy8jgO33H5+Z9AGWXkYA2+8/PjPpAyy9jAC23398ZtIHWHoZAWy///jMpA+w9DIC2H7/8ZlJH2DpZQSw/f7jM5M+wOhlnwRy1cQAplf6GwpAANGV/oYCEEB0pb+hAAQQXelvKAABRFf6GwpAANGV/oYCEEB0pb+hAAQQXelvKIAbWxFIegDT+49/s/QBTiKA/Qhg5WMKYDsCWPmYAtiOAFY+pgC2I4CVjymA7Qhg5WMKYDsCWPmYAtjOUQFM/FH16v3TA5jef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gcYveyTAb3qhAFM7z8+E+kDjF5WALfff3wm0gcYvawAbr//+EykDzB6WQHcfv/xmUgfYPSyArj9/uMzkT7A6GUFcPv9x2cifYDRywrg9vuPz0T6AKOXFcDt9x+fifQBIEkAVBMA1QRANQFQTQBUEwDVBEA1AVBNAFQTANUEQDUBUE0AVBMA1QRANQFQTQBUEwDVBEA1AVBNAFQTANUEQDUBUE0AVHt8W+lDQMLj+0ofBBIEQDUBUE0AVBMA1QRANQFQTQBUe/y40oeBSY/3K30gmCQAqv0vABHQ4sPhFwAtBEC1nwYgAk73y+EXAKd7GoAIONWnhl8AnOrTAYiA03xp+AXAab4cgAg4xW8NvwA4xW8HIAJ2d2n4RcDOlgy/CNjR0uEXALtZHoAI2MVLhl8E7OClwy8C7mxk+EXAHY0Ovwi4k8jwC4G09Ny/WenHoEt63j9c6UehQ3rOn670A3Gm9Fx/eaUfjDOk5/jySj8ge0rP7fKVflD2kJ7TkZV+ZO4lPY/RlX58DP3tV/pjceZw/wf68+Bt1SxEmgAAAABJRU5ErkJggg==">
 <link rel="icon" type="image/png" sizes="192x192" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAEaUlEQVR4nO3ZzY0bRxSFUSbgGJyJ8w/AATgTG1oI0IxH4oy6+G5X3VPAWRL10+9b8fHYZP3x51//so/0vGy10h8LkYyv9ONzL+l5HFnpR2YP6TldvtIPyp7Sc3t5pR+QM6Tn+Msr/WCcKT3XT1f6geiQnvMPV/pR6JKe9zcr/Rh0Ss+9wecWDD/1DD/1DD/1DD/1DD/1BEA1w089w089w089AVDN8FNPAFQz/NQTANUMP/UEQDXDTz0BUE0AVDP81BMA1QRANcNPPQFQTQBUEwDVBEA1AVBNAFQTANUEQDXDTz0BUE0AVBMA1QRANQFQTQBUEwDVBEA1AVBNAFQTANUEQDUBUE0AVBMA1QRANQFQTQBUEwDVBEA1AVBNAFQTANUEQDUBUK0qgMff/7xU+n7fPFvp892NAARQTQACqCYAAVQTgACqCUAA1QQggGoCEEC1owJID+jE/lcHXCDvvln6AEsvI4CX//40AthsfwEs/mbpAyy9jABe/vvTCGCz/QWw+JulD7D0MgJ4+e9PI4DN9hfA4m+WPsDSywjg5b8/jQBuJj2g6f3HZyZ9gKWXEcD2+4/PTPoASy8jgO33H5+Z9AGWXkYA2+8/PjPpAyy9jAC23398ZtIHWHoZAWy///jMpA+w9DIC2H7/8ZlJH2DpZQSw/f7jM5M+wOhlnwRy1cQAplf6GwpAANGV/oYCEEB0pb+hAAQQXelvKAABRFf6GwpAANGV/oYCEEB0pb+hAAQQXelvKIAbWxFIegDT+49/s/QBTiKA/Qhg5WMKYDsCWPmYAtiOAFY+pgC2I4CVjymA7Qhg5WMKYDsCWPmYAtjOUQFM/FH16v3TA5jef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gdYehkBXJbef3xm0gcYveyTAb3qhAFM7z8+E+kDjF5WALfff3wm0gcYvawAbr//+EykDzB6WQHcfv/xmUgfYPSyArj9/uMzkT7A6GUFcPv9x2cifYDRywrg9vuPz0T6AKOXFcDt9x+fifQBIEkAVBMA1QRANQFQTQBUEwDVBEA1AVBNAFQTANUEQDUBUE0AVBMA1QRANQFQTQBUEwDVBEA1AVBNAFQTANUEQDUBUE0AVHt8W+lDQMLj+0ofBBIEQDUBUE0AVBMA1QRANQFQTQBUe/y40oeBSY/3K30gmCQAqv0vABHQ4sPhFwAtBEC1nwYgAk73y+EXAKd7GoAIONWnhl8AnOrTAYiA03xp+AXAab4cgAg4xW8NvwA4xW8HIAJ2d2n4RcDOlgy/CNjR0uEXALtZHoAI2MVLhl8E7OClwy8C7mxk+EXAHY0Ovwi4k8jwC4G09Ny/WenHoEt63j9c6UehQ3rOn670A3Gm9Fx/eaUfjDOk5/jySj8ge0rP7fKVflD2kJ7TkZV+ZO4lPY/RlX58DP3tV/pjceZw/wf68+Bt1SxEmgAAAABJRU5ErkJggg==">
@@ -227,6 +204,9 @@ nav{
   border:1px solid rgba(255,255,255,0.2)!important;
   cursor:pointer!important;
 }
+/* Admin button hidden by default — revealed only by 1111 code */
+#nav-admin-btn{display:none!important;}
+#nav-admin-btn.admin-visible{display:inline-flex!important;}
 .nav-adm:hover{
   background:rgba(255,255,255,0.18)!important;
   color:var(--white)!important;
@@ -2297,6 +2277,34 @@ footer{
 }
 /* ── END CELEBRATION ANIMATION ── */
 
+
+/* ── Quiz explanation full-screen overlay ─────────────────────── */
+#quiz-explanation-overlay{
+  display:none;
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(10,22,40,0.97);
+  z-index:9999;
+  overflow-y:auto;
+  padding:0;
+  animation:fadeInUp 0.25s ease;
+}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:none;}}
+#quiz-explanation-overlay .qeo-header{
+  position:sticky;top:0;
+  background:rgba(10,22,40,0.98);
+  border-bottom:1px solid rgba(6,182,212,0.3);
+  padding:16px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  z-index:1;
+}
+#quiz-explanation-overlay .qeo-body{
+  padding:24px 20px 60px;
+  max-width:760px;margin:0 auto;
+  font-size:15px;line-height:1.8;color:#e2e8f0;
+}
+#quiz-explanation-overlay .qeo-body p{ margin:0 0 14px; }
+#quiz-explanation-overlay .qeo-body strong{ color:#fff; }
+#quiz-explanation-overlay .qeo-body .saa-frac{ color:#e2e8f0; }
 </style>
 </head>
 <body>
@@ -2336,7 +2344,7 @@ function showLegalTab(tab){
     
     <a href="#" onclick="closeMenu();showPage('page-pricing');" data-i18n="nav_pricing">Pricing</a>
     <a href="#contact" onclick="closeMenu()" data-i18n="nav_contact" class="nav-marketing">Contact</a>
-    <button class="nav-adm nav-non-research" id="nav-admin-btn" onclick="document.querySelectorAll('.page').forEach(function(p){p.style.display='none';});document.getElementById('admin-overlay').style.display='flex';document.getElementById('admin-overlay').style.zIndex='99999';setTimeout(function(){if(typeof adminCheckLayout==='function')adminCheckLayout();if(typeof adminRenderCodesTable==='function')adminRenderCodesTable();if(typeof adminLoadDmStats==='function')adminLoadDmStats();if(typeof adminRefreshTrialDeviceCount==='function')adminRefreshTrialDeviceCount();if(typeof adminRefreshResearchTrialDeviceCount==='function')adminRefreshResearchTrialDeviceCount();},50);">⚙️ Admin</button>
+    <button class="nav-adm nav-non-research" id="nav-admin-btn" onclick="openAdmin()">⚙️ Admin</button>
     <a href="#" id="nav-cta-btn" class="nav-cta" onclick="document.getElementById('admin-overlay').style.display='none'; goToLearnerArea();closeMenu();return false;" data-i18n="nav_start">🚀 Learner / Student</a>
     <a href="#" id="nav-cta-prof-btn" class="nav-cta" onclick="goToResearchArea();return false;" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">🔬 Research / Professional</a>
   </div>
@@ -2949,7 +2957,7 @@ function adminSaveCdfRate(){
   var cur=document.getElementById('cdf-current-display');
   if(cur) cur.textContent='Active rate: 1 USD = '+val+' CDF · $5='+(5*val).toLocaleString()+' · $10='+(10*val).toLocaleString()+' · $90='+(90*val).toLocaleString();
   // Update pricing page
-  if(typeof mobUpdateCdfPrices==='function') mobUpdateCdfPrices();
+  
   // Save to KV so all devices get the rate
   var adminKey = localStorage.getItem('saa_admin_key')||'SmartAdmin2024';
   fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},
@@ -3556,7 +3564,7 @@ window.addEventListener('load', function(){
       // Research codes (RM-/RS-/RY-) belong on the standalone research.html
       // gate, not the Learner/Student access page — without this check,
       // every saved code was being sent to page-access regardless of type.
-      if(/^(RM|RS|RY)-/i.test(code)){
+      if(/^(RW|RM|RS|RY)-/i.test(code)){
         sessionStorage.setItem('prof_pending_code', code);
         window.location.href = 'research.html?code=' + encodeURIComponent(code);
         return;
@@ -3662,38 +3670,53 @@ window.addEventListener('load', function(){
         </div>
 
         <!-- Plan selector -->
-        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Select Plan</div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">🎓 Learner / Student</div>
+        <div style="font-size:10px;color:rgba(45,212,191,0.8);margin-bottom:6px;">✅ Includes QuizChallenge AI access</div>
         <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:8px;">≈ Prices shown in USD — PayFast charges in ZAR, so the final amount may vary slightly with the exchange rate.</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+          <label onclick="pfSelectPlan('D',2)" id="pf-plan-D" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div id="pf-radio-D" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
+              <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">⚡ 1 Day</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 24 hours · Exam day</div></div>
+            </div>
+            <div id="pf-price-D" style="font-size:16px;font-weight:900;color:#a78bfa;text-align:right;">≈$2<br><span style="font-size:11px;font-weight:600;opacity:0.7;">R36</span></div>
+          </label>
           <label onclick="pfSelectPlan('W',5)" id="pf-plan-W" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-W" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">📅 1 Week</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 7 days</div></div>
             </div>
-            <div id="pf-price-W" style="font-size:16px;font-weight:900;color:#60a5fa;">≈$5</div>
+            <div id="pf-price-W" style="font-size:16px;font-weight:900;color:#a78bfa;text-align:right;">≈$5<br><span style="font-size:11px;font-weight:600;opacity:0.7;">R90</span></div>
           </label>
           <label onclick="pfSelectPlan('M',10)" id="pf-plan-M" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-M" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🗓 1 Month</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 30 days</div></div>
             </div>
-            <div id="pf-price-M" style="font-size:16px;font-weight:900;color:#60a5fa;">≈$10</div>
+            <div id="pf-price-M" style="font-size:16px;font-weight:900;color:#a78bfa;text-align:right;">≈$10<br><span style="font-size:11px;font-weight:600;opacity:0.7;">R180</span></div>
           </label>
           <label onclick="pfSelectPlan('Y',120)" id="pf-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-Y" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">🏆 1 Year</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Full access · 365 days · Best value</div></div>
             </div>
-            <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#60a5fa;">≈$120</div>
+            <div id="pf-price-Y" style="font-size:16px;font-weight:900;color:#a78bfa;text-align:right;">≈$120<br><span style="font-size:11px;font-weight:600;opacity:0.7;">R1800</span></div>
           </label>
           <div style="height:1px;background:rgba(255,255,255,0.1);margin:14px 0;"></div>
-          <div style="font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;" data-t="p_research_title">🔬 Research / Professional</div>
-          <label onclick="pfSelectPlan('RM',25)" id="pf-plan-RM" style="display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.08);border:2px solid rgba(124,58,237,0.25);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+          <div style="font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">🔬 Research / Professional</div>
+          <label onclick="pfSelectPlan('RW',7)" id="pf-plan-RW" style="display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.06);border:2px solid rgba(124,58,237,0.18);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;margin-bottom:8px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div id="pf-radio-RW" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
+                <div><div style="font-size:13px;font-weight:800;color:#ffffff;">🔬 Research Weekly</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">7 days access · RW code</div></div>
+              </div>
+              <div id="pf-price-RW" style="font-size:16px;font-weight:900;color:#a78bfa;text-align:right;">≈$7<br><span style="font-size:11px;font-weight:600;opacity:0.7;">R130</span></div>
+            </label>
+          <label onclick="pfSelectPlan('RM',15)" id="pf-plan-RM" style="display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.08);border:2px solid rgba(124,58,237,0.25);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div id="pf-radio-RM" style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;"></div>
               <div><div style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);" data-t="p_research_desc">🔬 Research Monthly</div><div style="font-size:11px;color:rgba(255,255,255,0.5);" data-t="p_research_sub">Document analysis · 30 days</div></div>
             </div>
-            <div id="pf-price-RM" style="font-size:16px;font-weight:900;color:#a78bfa;">≈$25</div>
+            <div id="pf-price-RM" style="font-size:16px;font-weight:900;color:#a78bfa;text-align:right;">≈$15<br><span style="font-size:11px;font-weight:600;opacity:0.7;">R270</span></div>
           </label>
         </div>
 
@@ -3737,8 +3760,19 @@ window.addEventListener('load', function(){
       <div id="mob-step0" style="background:linear-gradient(135deg,#0a1628,#0c4a6e);border:1px solid rgba(255,255,255,0.2);border-radius:14px;padding:14px;margin-bottom:16px;">
         <div style="font-size:11px;font-weight:800;color:#06b6d4;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🇨🇩 DRC Mobile Money — Select Your Plan</div>
         <!-- PLAN -->
-        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">① Select Plan</div>
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">🎓 Learner / Student Plan</div>
+        <div style="font-size:10px;color:rgba(45,212,191,0.7);margin-bottom:6px;">✅ Also unlocks QuizChallenge AI</div>
         <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px;">
+          <label onclick="mobSelectPlan('D',2)" id="mob-plan-D" style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.25);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;margin-bottom:6px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div id="mob-radio-D" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
+              <span style="font-size:13px;font-weight:800;color:#ffffff;">⚡ 1 Day</span>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:14px;font-weight:900;color:#fbbf24;">$2</div>
+              <div id="mob-cdf-D" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;">≈ R36</div>
+            </div>
+          </label>
           <label onclick="mobSelectPlan('W',5)" id="mob-plan-W" style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.4);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:8px;">
               <div id="mob-radio-W" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
@@ -3746,7 +3780,7 @@ window.addEventListener('load', function(){
             </div>
             <div style="text-align:right;min-width:90px;">
               <div style="font-size:16px;font-weight:900;color:#fbbf24;">$5</div>
-              <div id="mob-cdf-W" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
+              <div id="mob-cdf-W" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;">≈ R90</div>
             </div>
           </label>
           <label onclick="mobSelectPlan('M',10)" id="mob-plan-M" style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.4);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
@@ -3756,7 +3790,7 @@ window.addEventListener('load', function(){
             </div>
             <div style="text-align:right;min-width:90px;">
               <div style="font-size:16px;font-weight:900;color:#fbbf24;">$10</div>
-              <div id="mob-cdf-M" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
+              <div id="mob-cdf-M" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;">≈ R180</div>
             </div>
           </label>
           <label onclick="mobSelectPlan('Y',120)" id="mob-plan-Y" style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.4);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
@@ -3766,43 +3800,34 @@ window.addEventListener('load', function(){
             </div>
             <div style="text-align:right;min-width:90px;">
               <div style="font-size:16px;font-weight:900;color:#fbbf24;">$120</div>
-              <div id="mob-cdf-Y" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
+              <div id="mob-cdf-Y" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;">≈ R1800</div>
             </div>
           </label>
           <div style="height:1px;background:rgba(255,255,255,0.15);margin:8px 0;"></div>
-          <div style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;" data-t="p_research_title">🔬 Research / Professional</div>
-          <label onclick="mobSelectPlan('RM',25)" id="mob-plan-RM" style="display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.15);border:2px solid rgba(167,139,250,0.4);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
+          <div style="font-size:10px;font-weight:700;color:rgba(167,139,250,0.7);text-transform:uppercase;letter-spacing:1px;margin-top:8px;margin-bottom:5px;">🔬 Research / Professional Plan</div>
+          <label onclick="mobSelectPlan('RW',7)" id="mob-plan-RW" style="display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.1);border:2px solid rgba(167,139,250,0.3);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div id="mob-radio-RW" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
+                <div><div style="font-size:13px;font-weight:700;color:#fff;">🔬 Research Weekly</div><div style="font-size:10px;color:rgba(255,255,255,0.6);">7 days · RW code</div></div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:14px;font-weight:900;color:#a78bfa;">$7</div>
+                <div id="mob-cdf-RW" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;">≈ R130</div>
+              </div>
+            </label>
+          <label onclick="mobSelectPlan('RM',15)" id="mob-plan-RM" style="display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.15);border:2px solid rgba(167,139,250,0.4);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;">
             <div style="display:flex;align-items:center;gap:8px;">
               <div id="mob-radio-RM" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;flex-shrink:0;"></div>
               <span style="font-size:13px;font-weight:800;color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);" data-t="p_research_desc">🔬 Research Monthly</span>
             </div>
             <div style="text-align:right;min-width:90px;">
-              <div style="font-size:16px;font-weight:900;color:#fbbf24;">$25</div>
-              <div id="mob-cdf-RM" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;"></div>
+              <div style="font-size:16px;font-weight:900;color:#fbbf24;">$15</div>
+              <div id="mob-cdf-RM" style="font-size:11px;color:#ffffff;font-weight:600;opacity:0.85;">≈ R270</div>
             </div>
           </label>
         </div>
         <script>
-        function mobUpdateCdfPrices(){
-          var rate = parseFloat(localStorage.getItem('saa_fx_cdf')||'2800');
-          var prices = {W:5,M:10,Y:100,RM:20};
-          ['W','M','Y','RM'].forEach(function(p){
-            var el = document.getElementById('mob-cdf-'+p);
-            if(el) el.textContent = '≈ CDF '+Math.round(prices[p]*rate).toLocaleString();
-          });
-        }
-        // Fetch latest rate from KV
-        fetch('https://smartacademy-ai.kasongokimba.workers.dev',{method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({_appSecret:'sWN-UZpoi6PLUgCgZ7KiZi2iRPNUXq9f',action:'get-fx-rates'})
-        }).then(function(r){return r.json();}).then(function(d){
-          if(d.ok && d.cdf){
-            localStorage.setItem('saa_fx_cdf', d.cdf.toString());
-            mobUpdateCdfPrices();
-          }
-        }).catch(function(){});
-        mobUpdateCdfPrices();
-        window.addEventListener('storage',function(e){if(e.key==='saa_fx_cdf')mobUpdateCdfPrices();});
+        // ZAR prices shown statically — no dynamic update needed
         </script>
         <!-- CONTINUE -->
         <button onclick="mobProceed()" id="mob-proceed-btn"
@@ -4142,6 +4167,15 @@ function copyProofCode(){
 <div class="page" id="page-profile">
   <div id="page-profile-inner" style="padding:30px 20px 60px;">
 
+    <!-- AI DISCLAIMER BANNER -->
+    <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
+      <span style="font-size:16px;flex-shrink:0;">⚠️</span>
+      <span style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5;">
+        <strong style="color:rgba(245,158,11,0.9);">Use AI to learn,</strong>
+        your teacher or professor to confirm.
+      </span>
+    </div>
+
     <!-- MY PERFORMANCE BUTTON — always visible -->
     <button id="prog-open-btn" onclick="showPage('page-progress')"
       style="width:100%;padding:14px;background:linear-gradient(135deg,#1a56db,#7c3aed);border:none;border-radius:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 4px 14px rgba(26,86,219,0.3);">
@@ -4224,8 +4258,8 @@ function copyProofCode(){
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="width:26px;height:26px;min-width:26px;background:linear-gradient(135deg,#1a56db,#3b82f6);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;">A</div>
               <div>
-                <div style="font-weight:700;font-size:13px;color:var(--text);" data-t="diff_doc_title">Questions from the document only</div>
-                <div style="font-size:11px;color:var(--muted);margin-top:1px;" data-t="diff_doc_desc">Questions strictly from what is written on your uploaded pages</div>
+                <div style="font-weight:700;font-size:13px;color:var(--text);">Questions from the document only</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:1px;">Priority: document content only. AI never invents questions outside what is written on your uploaded pages</div>
               </div>
             </div>
           </div>
@@ -4234,8 +4268,8 @@ function copyProofCode(){
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="width:26px;height:26px;min-width:26px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;">B</div>
               <div>
-                <div style="font-weight:700;font-size:13px;color:var(--text);" data-t="diff_hard_title">Questions outside the document</div>
-                <div style="font-size:11px;color:var(--muted);margin-top:1px;" data-t="diff_hard_desc">Same topic and logic — AI generates new questions beyond what is in your document</div>
+                <div style="font-weight:700;font-size:13px;color:var(--text);">Questions outside the document</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:1px;">AI uses your document to identify the topic only — then generates brand new questions NOT from the document</div>
               </div>
             </div>
           </div>
@@ -4754,14 +4788,15 @@ function saaCodePrice(code){
   var prefix = (code||'').split('-')[0] || '';
   if(isClassroom){
     var key = prefix + 'C';
-    return CODE_PRICE_MAP[key] || CODE_PRICE_MAP[prefix] || 5;
+    return CODE_PRICE_MAP[key] || CODE_PRICE_MAP[prefix] || 7;
   }
   // Check admin-saved research prices from localStorage first
   var adminPrices = JSON.parse(localStorage.getItem('saa_research_prices')||'{}');
+  if(prefix === 'RW' && adminPrices.rw) return parseFloat(adminPrices.rw);
   if(prefix === 'RM' && adminPrices.rm) return parseFloat(adminPrices.rm);
   if(prefix === 'RS' && adminPrices.rs) return parseFloat(adminPrices.rs);
   if(prefix === 'RY' && adminPrices.ry) return parseFloat(adminPrices.ry);
-  return CODE_PRICE_MAP[prefix] || 5;
+  return CODE_PRICE_MAP[prefix] || 7;
 }
 
 function saaCodeLimit(code){
@@ -5130,7 +5165,7 @@ function doGenerateCode(){
   var msMap = {
     H:60*60*1000, D:24*60*60*1000,
     W:7*24*60*60*1000, M:30*24*60*60*1000, Y:365*24*60*60*1000,
-    RM:30*24*60*60*1000, RS:180*24*60*60*1000, RY:365*24*60*60*1000
+    RW:7*24*60*60*1000, RM:30*24*60*60*1000, RS:180*24*60*60*1000, RY:365*24*60*60*1000
   };
   var durationMs = msMap[type] || msMap.W;
   var expiresAt = Date.now() + durationMs;
@@ -5144,9 +5179,9 @@ function doGenerateCode(){
   // Helper to display the generated code
   function _showCode(expiresAt){
     var expStr = new Date(expiresAt).toLocaleDateString('en-GB');
-    var labelMap = {W:'Weekly',M:'Monthly',RM:'Research 30d'};
+    var labelMap = {D:'Daily',W:'Weekly',M:'Monthly',RW:'Research 7d',RM:'Research 30d'};
     var label = labelMap[type] || type;
-    var isResearch = (type==='RM'||type==='RS'||type==='RY');
+    var isResearch = (type==='RW'||type==='RM'||type==='RS'||type==='RY');
     var codeColor = isResearch ? '#a78bfa' : '#3b82f6';
     var borderColor = isResearch ? 'rgba(124,58,237,0.4)' : 'rgba(59,130,246,0.3)';
     var stored = JSON.parse(localStorage.getItem('saa_codes')||'[]');
@@ -5948,7 +5983,7 @@ function goToResearchArea(){
   try{
     var saved = JSON.parse(localStorage.getItem('saa_saved_codes')||'[]');
     var researchCodes = saved.filter(function(c){
-      return c.code && /^(RM|RS|RY)-/i.test(c.code);
+      return c.code && /^(RW|RM|RS|RY)-/i.test(c.code);
     });
     if(researchCodes.length){
       var mostRecent = researchCodes.reduce(function(a,b){ return (b.savedAt||0) > (a.savedAt||0) ? b : a; });
@@ -6007,7 +6042,7 @@ function showPage(id){
     }).then(function(r){ return r.json(); })
     .then(function(data){
       if(data.ok && data.prices && window._pricingData && _pricingData.research){
-        if(_pricingData.research && _pricingData.research[0]) _pricingData.research[0][1] = data.prices.rm||20;
+        if(_pricingData.research && _pricingData.research[0]) _pricingData.research[0][1] = data.prices.rm||15;
       }
       renderPricingPage();
     }).catch(function(){
@@ -6045,6 +6080,28 @@ function showPage(id){
 // ════════════════════════════════════════════════
 // ADMIN PANEL
 // ════════════════════════════════════════════════
+// ── SECRET ADMIN REVEAL — click nav logo 3x within 2 seconds ────
+(function(){
+  var _taps = 0, _tapTimer = null;
+  document.addEventListener('DOMContentLoaded', function(){
+    var logo = document.querySelector('.nav-logo');
+    if(!logo) return;
+    logo.addEventListener('click', function(e){
+      _taps++;
+      if(_tapTimer) clearTimeout(_tapTimer);
+      _tapTimer = setTimeout(function(){ _taps = 0; }, 2000);
+      if(_taps >= 3){
+        _taps = 0;
+        var btn = document.getElementById('nav-admin-btn');
+        if(btn){
+          btn.classList.add('admin-visible');
+          setTimeout(function(){ btn.classList.remove('admin-visible'); }, 30000);
+        }
+      }
+    });
+  });
+})();
+
 function openAdmin(){
   const overlay = document.getElementById('admin-overlay');
   overlay.style.display = 'flex';
@@ -6064,7 +6121,7 @@ function closeAdmin(){
 window.addEventListener('load', function(){
 
   // Code type buttons
-  ['W','M'].forEach(function(t){
+  ['D','W','M'].forEach(function(t){
     var el = document.getElementById('ctype-'+t);
     if(!el) return;
     el.addEventListener('click', function(){
@@ -6291,7 +6348,7 @@ function generateCode(){
     expiry.setDate(expiry.getDate() + 365);
   }
 
-  const typeMap = {W:'Weekly', M:'Monthly'};
+  const typeMap = {D:'Daily', W:'Weekly', M:'Monthly', Y:'Yearly'};
   const label = typeMap[selectedCodeType] || 'Weekly';
 
   // Format expiry — H codes store full datetime, others store date only
@@ -6496,9 +6553,9 @@ async function validateCode(){
   var rawCode = (document.getElementById('code-input')||{}).value||'';
   var prefix = rawCode.toUpperCase().split('-')[0];
   // RM/RS/RY are Research-only codes — block from learning
-  if(prefix==='RM'||prefix==='RS'||prefix==='RY'){
+  if(prefix==='RW'||prefix==='RM'||prefix==='RS'||prefix==='RY'){
     var errEl2 = document.getElementById('code-error');
-    showErr(errEl2, '');
+    showErr(errEl2, '🔬 This is a Research / Professional code. Please go to Research / Professional to use it.');
     return;
   }
   const raw   = document.getElementById('code-input').value.trim().toUpperCase();
@@ -6525,9 +6582,9 @@ async function validateCode(){
   // Check if classroom/group code (starts with C- or G-)
   const isClassCode = raw.startsWith('C-') || raw.startsWith('G-');
 
-  const pattern = /^([WMYCG])-([A-Z0-9]{4,12})$/;
+  const pattern = /^([DWMYCG]|RW|RM|RS|RY)-([A-Z0-9]{4,12})$/;
   if(!pattern.test(raw)){
-    showErr(errEl,'❌ Invalid code format. Must start with W-, M-, Y-, C-, or G-');
+    showErr(errEl,'❌ Invalid code format. Must start with D-, W-, M-, Y-, C-, G-, or R-');
     return;
   }
 
@@ -6609,7 +6666,7 @@ async function validateCode(){
       if(!storedFp) localStorage.setItem('saa_fp_'+raw, fingerprint);
     }
     // Valid — proceed
-    const typeMap = {W:'Weekly',M:'Monthly',Y:'Yearly',H:'Hourly',D:'Daily',RM:'Research',RS:'Research',RY:'Research',S:'Student',T:'Trial'};
+    const typeMap = {W:'Weekly',M:'Monthly',Y:'Yearly',H:'Hourly',D:'Daily',RW:'Research',RM:'Research',RS:'Research',RY:'Research',S:'Student',T:'Trial'};
     S.code     = raw;
     S.codeType = localMatch.type || typeMap[raw[0]] || 'Weekly';
     S.codeExpiry = expDate;
@@ -6656,6 +6713,7 @@ async function validateCode(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
+        _appSecret: APP_SECRET,
         action:'validate-code',
         code: raw,
         fingerprint: fingerprint,
@@ -6667,7 +6725,11 @@ async function validateCode(){
     const data = await res.json();
 
     if(!data.valid){
-      if(data.error === 'rate_limited'){
+      if(data.error === 'Unauthorized'){
+        showErr(errEl, '⚠️ Connection error. Please try again.');
+        if(btn){ btn.textContent='🚀 Verify & Continue to Setup →'; btn.disabled=false; }
+        return;
+      } else if(data.error === 'rate_limited'){
         showErrAlert(errEl, '⛔ Too many failed attempts. Please wait 20 minutes before trying again.');
       } else if(data.error === 'disabled'){
         showErr(errEl, '🚫 This code has been deactivated. Please contact your administrator for a new code.');
@@ -6690,7 +6752,7 @@ async function validateCode(){
     }
 
     // ✅ Valid server code
-    const typeMap = {W:'Weekly',M:'Monthly',Y:'Yearly',H:'Hourly',D:'Daily',RM:'Research',RS:'Research',RY:'Research',S:'Student',T:'Trial'};
+    const typeMap = {W:'Weekly',M:'Monthly',Y:'Yearly',H:'Hourly',D:'Daily',RW:'Research',RM:'Research',RS:'Research',RY:'Research',S:'Student',T:'Trial'};
     S.code           = raw;
     S.codeType       = typeMap[raw[0]] || 'Weekly';
     S.codeExpiry     = new Date(data.expiresAt);
@@ -6730,7 +6792,7 @@ async function validateCode(){
       return;
     }
     if(stored && new Date() < new Date(parseInt(stored))){
-      const typeMap = {W:'Weekly',M:'Monthly',Y:'Yearly',H:'Hourly',D:'Daily',RM:'Research',RS:'Research',RY:'Research',S:'Student',T:'Trial'};
+      const typeMap = {W:'Weekly',M:'Monthly',Y:'Yearly',H:'Hourly',D:'Daily',RW:'Research',RM:'Research',RS:'Research',RY:'Research',S:'Student',T:'Trial'};
       S.code = raw; S.codeType = typeMap[raw[0]]||'Weekly';
       S.codeExpiry = new Date(parseInt(stored));
       showPage('page-profile');
@@ -7144,91 +7206,118 @@ function setIdentityMode(withIdentity){
 // ═══════════════════════════════════════════════════════════════════
 
 
+
+
 function fixMath(s){
   if(!s || typeof s !== 'string') return s;
 
-  // STEP 0: form-feed fix — \f in JSON = char(12), restore backslash+f
+  // STEP 0: form-feed char(12) \f → restore backslash+f
   s = s.replace(/\x0c([a-zA-Z])/g, function(m,c){ return '\\f'+c; });
 
-  // STEP 1: Protect dates from fraction conversion
-  var _dp = [];
-  s = s.replace(/\b(\d{1,2}\/\d{1,2}\/\d{2,4})\b/g, function(m){
-    _dp.push(m); return '\x01DATE'+(_dp.length-1)+'\x01';
-  });
+  // STEP 1: Protect dates + integral/sum limits
+  var _dp=[], _lim=[];
+  s = s.replace(/\b(\d{1,2}\/\d{1,2}\/\d{2,4})\b/g, function(m){ _dp.push(m); return '\x01D'+(_dp.length-1)+'\x01'; });
+  s = s.replace(/(_\{?[^{}\s^\\]+\}?)\s*(\^\{?[^{}\s\\]+\}?)/g, function(m){ _lim.push(m); return '\x01L'+(_lim.length-1)+'\x01'; });
 
-  // STEP 1b: Normalise \left \right delimiters → plain brackets
+  // STEP 1b: \left \right → plain brackets
   s = s.replace(/\\left\s*\(/g,'(').replace(/\\right\s*\)/g,')');
   s = s.replace(/\\left\s*\[/g,'[').replace(/\\right\s*\]/g,']');
   s = s.replace(/\\left\s*\{/g,'{').replace(/\\right\s*\}/g,'}');
-  s = s.replace(/\\left\s*\|/g,'|').replace(/\\right\s*\|/g,'|');
-  s = s.replace(/\\left\b\s*/g,'').replace(/\\right\b\s*/g,'');
+  s = s.replace(/\\left\s*[|]/g,'|').replace(/\\right\s*[|]/g,'|');
+  s = s.replace(/\\bigg?[|]/g,'|').replace(/\\Big[|]/g,'|');
+  s = s.replace(/\\left\b/g,'').replace(/\\right\b/g,'');
 
-  // STEP 1c: Strip trailing backslashes/slashes the AI appends after +C
-  s = s.replace(/[\\\/]+\s*$/g,'').replace(/^\s*[\/]+/g,'');
+  // STEP 1c: Strip slash/spacing artifacts
+  s = s.replace(/\\\//g,'');
+  s = s.replace(/\\,/g,' ').replace(/\\;/g,' ').replace(/\\!/g,'');
+  s = s.replace(/\\quad\b/g,' ').replace(/\\qquad\b/g,' ');
+  s = s.replace(/\\text\{([^}]*)\}/g,'$1');
+  s = s.replace(/\\mathrm\{([^}]*)\}/g,'$1');
+  s = s.replace(/\\mathbf\{([^}]*)\}/g,'$1');
+  s = s.replace(/\/\s*$/g,'').replace(/\\\\\s*$/g,'');
+  s = s.replace(/^\/\s*/g,'');
 
-  // STEP 2: Greek & math symbols → Unicode
-  var _sym = {
-    theta:'θ',phi:'φ',psi:'ψ',alpha:'α',beta:'β',gamma:'γ',delta:'δ',
-    Delta:'Δ',epsilon:'ε',lambda:'λ',mu:'μ',sigma:'σ',omega:'ω',Omega:'Ω',
-    rho:'ρ',pi:'π',Pi:'Π',
-    times:'×',cdot:'·',pm:'±',mp:'∓',
-    leq:'≤',geq:'≥',neq:'≠',approx:'≈',infty:'∞',
-    'in':'∈',notin:'∉',
-    int:'∫',sum:'∑',prod:'∏',partial:'∂',nabla:'∇',
-    degree:'°',circ:'°'
-  };
-  Object.keys(_sym).forEach(function(k){
-    s = s.replace(new RegExp('\\\\'+k+'\\b','g'), _sym[k]);
-  });
-  // Trig/log functions — strip backslash
+  // STEP 2: Greek & symbols
+  var _sym={theta:'\u03B8',phi:'\u03C6',psi:'\u03C8',alpha:'\u03B1',beta:'\u03B2',gamma:'\u03B3',
+    delta:'\u03B4',Delta:'\u0394',epsilon:'\u03B5',lambda:'\u03BB',mu:'\u03BC',sigma:'\u03C3',
+    omega:'\u03C9',Omega:'\u03A9',rho:'\u03C1',pi:'\u03C0',Pi:'\u03A0',eta:'\u03B7',
+    kappa:'\u03BA',nu:'\u03BD',xi:'\u03BE',tau:'\u03C4',
+    times:'\u00D7',cdot:'\u00B7',pm:'\u00B1',mp:'\u2213',
+    leq:'\u2264',geq:'\u2265',neq:'\u2260',approx:'\u2248',infty:'\u221E',
+    'in':'\u2208',notin:'\u2209',
+    int:'\u222B',sum:'\u2211',prod:'\u220F',partial:'\u2202',nabla:'\u2207',
+    degree:'\u00B0',circ:'\u00B0'};
+  Object.keys(_sym).forEach(function(k){ s=s.replace(new RegExp('\\\\'+k+'\\b','g'),_sym[k]); });
   s = s.replace(/\\(sin|cos|tan|cot|sec|csc|arcsin|arccos|arctan|sinh|cosh|tanh|log|ln|exp|lim|max|min|det|gcd)\b/g,'$1');
 
-  // STEP 3: \sqrt{expr} → √(expr)
-  for(var _si=0;_si<3;_si++){
-    s = s.replace(/\\sqrt\{([^{}]+)\}/g, function(m,i){ return '\u221A('+i+')'; });
-  }
+  // STEP 3: \sqrt{} and plain sqrt() → √()
+  // \sqrt{x} with backslash (standard LaTeX)
+  for(var _si=0;_si<3;_si++) s=s.replace(/\\sqrt\{([^{}]+)\}/g,function(m,i){return '\u221A('+i+')';});
+  // plain sqrt{x} — AI sometimes omits backslash
+  s=s.replace(/\bsqrt\{([^{}]+)\}/g,function(m,i){return '\u221A('+i+')';});
+  // sqrt(x) — with or without backslash
+  s=s.replace(/\\?sqrt\(([^()]+)\)/g,function(m,i){return '\u221A('+i+')';});
+  // sqrt followed by single term: sqrt 3, sqrt x
+  s=s.replace(/\bsqrt\s+([A-Za-z0-9]+)/g,function(m,i){return '\u221A('+i+')';});
 
-  // STEP 4: \frac{n}{d} → \(\frac{n}{d}\) — loop handles nesting
+  // STEP 4: \frac{}{} → CSS horizontal bar (no MathJax needed)
+  function _fh(n,d){
+    // Apply caret→superscript inside numerator and denominator
+    var _su={'0':'\u2070','1':'\u00B9','2':'\u00B2','3':'\u00B3','4':'\u2074',
+             '5':'\u2075','6':'\u2076','7':'\u2077','8':'\u2078','9':'\u2079','-':'\u207B'};
+    function _fhSup(t){
+      return t.replace(/([A-Za-z0-9])\^\{(-?\d+)\}/g,function(m,b,e){
+        return b+e.split('').map(function(c){return _su[c]||c;}).join('');
+      }).replace(/([A-Za-z0-9])\^(-?\d+)/g,function(m,b,e){
+        return b+e.split('').map(function(c){return _su[c]||c;}).join('');
+      });
+    }
+    return '<span class="saa-frac" style="display:inline-block;vertical-align:middle;text-align:center;margin:0 3px;line-height:1.2;">'+
+      '<span style="display:block;border-bottom:1.5px solid currentColor;padding:0 3px;font-size:0.9em;">'+_fhSup(n)+'</span>'+
+      '<span style="display:block;padding:0 3px;font-size:0.9em;">'+_fhSup(d)+'</span></span>';
+  }
   for(var _fi=0;_fi<4;_fi++){
-    s = s.replace(/\\frac\{((?:[^{}]|\{[^{}]*\})*)\}\{((?:[^{}]|\{[^{}]*\})*)\}/g,
-      function(m,n,d){ return '\\(\\frac{'+n+'}{'+d+'}\\)'; });
-    // Deduplicate accidental double-wrap
-    s = s.replace(/\\\(\\\(\\frac/g,'\\(\\frac');
-    s = s.replace(/\}\\\)\\\)/g,'}\\)');
+    s=s.replace(/\\frac\{((?:[^{}]|\{[^{}]*\})*)\}\{((?:[^{}]|\{[^{}]*\})*)\}/g,function(m,n,d){return _fh(n,d);});
   }
 
-  // STEP 5: Unicode superscripts → LaTeX
-  function wrapSup(str, ch, exp){
-    return str.replace(
-      new RegExp('(\\([^()]*\\)|[A-Za-z0-9])'+ch,'g'),
-      function(m,base){ return '\\('+base+'^{'+exp+'}\\)'; }
-    );
-  }
-  s=wrapSup(s,'\u00B2','2'); s=wrapSup(s,'\u00B3','3'); s=wrapSup(s,'\u2074','4');
-  s=wrapSup(s,'\u2075','5'); s=wrapSup(s,'\u2076','6'); s=wrapSup(s,'\u2077','7');
-  s=wrapSup(s,'\u2078','8'); s=wrapSup(s,'\u2079','9'); s=wrapSup(s,'\u2070','0');
+  // STEP 5: Unicode superscripts already handled — keep them as Unicode (no conversion)
 
-  // STEP 6: Bare carets — tokenise around existing \(...\) blocks
-  var _segs = s.split(/(\\\([\s\S]*?\\\))/);
-  var _out = '';
-  for(var pi=0; pi<_segs.length; pi++){
-    if(pi%2===1){ _out+=_segs[pi]; continue; }
-    var seg = _segs[pi];
-    // (expr)^n — full parenthesised base (allow spaces around ^)
-    seg = seg.replace(/(\([^()]*\))\s*\^\s*(\{[^}]+\}|[A-Za-z0-9][A-Za-z0-9\/]*)/g, function(m,b,e){
-      return '\\('+b.trim()+'^{'+e.replace(/^\{|\}$/g,'').trim()+'}\\)';
+  // STEP 5b: Handle plain text ^ followed by braces: x^{2} x^{10}
+  s=s.replace(/([A-Za-z0-9])\s*\^\s*\{(-?\d+(?:\.\d+)?)\}/g,function(m,b,e){
+    var _su={'0':'\u2070','1':'\u00B9','2':'\u00B2','3':'\u00B3','4':'\u2074',
+             '5':'\u2075','6':'\u2076','7':'\u2077','8':'\u2078','9':'\u2079','-':'\u207B'};
+    return b+e.split('').map(function(c){return _su[c]||c;}).join('');
+  });
+
+  // STEP 6: Bare carets → Unicode superscripts (no MathJax)
+  var _supU={'0':'\u2070','1':'\u00B9','2':'\u00B2','3':'\u00B3',
+             '4':'\u2074','5':'\u2075','6':'\u2076','7':'\u2077',
+             '8':'\u2078','9':'\u2079','-':'\u207B'};
+  function _toSup(exp){
+    exp=exp.replace(/^\{|\}$/g,'').trim();
+    if(/^-?\d+$/.test(exp)) return exp.split('').map(function(c){return _supU[c]||c;}).join('');
+    return '^('+exp+')'; // complex/fraction exponents — keep as text
+  }
+  var _segs=s.split(/(\\\([\s\S]*?\\\))/), _out='';
+  for(var pi=0;pi<_segs.length;pi++){
+    if(pi%2===1){_out+=_segs[pi];continue;}
+    var seg=_segs[pi];
+    seg=seg.replace(/(\([^()]*\))\s*\^\s*(\{[^}]+\}|[A-Za-z0-9][A-Za-z0-9\/]*)/g,function(m,b,e){
+      return b.trim()+_toSup(e);
     });
-    // word^n — single char/word base (allow spaces around ^)
-    seg = seg.replace(/([A-Za-z0-9])\s*\^\s*(\{[^}]+\}|[A-Za-z0-9][A-Za-z0-9\/]*)/g, function(m,b,e){
-      return '\\('+b+'^{'+e.replace(/^\{|\}$/g,'').trim()+'}\\)';
+    seg=seg.replace(/([A-Za-z0-9])\s*\^\s*(\{[^}]+\}|[A-Za-z0-9][A-Za-z0-9\/]*)/g,function(m,b,e){
+      return b+_toSup(e);
     });
-    _out += seg;
+    _out+=seg;
   }
-  s = _out;
-
-  // STEP 7: Restore dates
-  if(_dp.length) s = s.replace(/\x01DATE(\d+)\x01/g, function(m,i){ return _dp[+i]; });
-
+  s=_out;
+  // Strip stray \\( \\) left in text
+  // Strip stray \\( \\) delimiters left in text
+  s=s.replace(/\\\)/g,')').replace(/\\\(/g,'(');
+  s=s.replace(/\\\]/g,']').replace(/\\\[/g,'[');
+  // STEP 7: Restore limits and dates
+  if(_lim.length) s=s.replace(/\x01L(\d+)\x01/g,function(m,i){return _lim[+i];});
+  if(_dp.length)  s=s.replace(/\x01D(\d+)\x01/g,function(m,i){return _dp[+i];});
   return s;
 }
 
@@ -8161,7 +8250,9 @@ function buildUserMsg(){
   const diffInstructions = {
     'hard': `YOU MUST FOLLOW THIS RULE: Do NOT ask any question that can be answered from the document images. Read the document ONLY to identify the subject/topic. Then generate ${S.qCount} completely NEW questions on that topic from your own knowledge that are NOT in the document. If a student reads only this document, they should NOT be able to answer these questions without additional study. Every question must come from OUTSIDE the document.`,
     'complex': `YOU MUST FOLLOW THIS RULE: Read the document to identify the base concepts only. Then generate ${S.qCount} HARDER multi-step questions that go significantly BEYOND what is shown in the document. Combine two or more concepts, add extra calculation steps, use real-world application scenarios. Do NOT copy or paraphrase any question from the document.`,
-    'doc': S.isNewQRetry ? `Generate ${S.qCount} COMPLETELY NEW and DIFFERENT questions from your previous set, but STRICTLY from what is written in the document images only. Every answer must be found directly in the document. DO NOT generate questions from outside the document.` : `Generate ${S.qCount} questions STRICTLY from what is written in the document images. Every answer must be directly found in the document.`
+    'doc': S.isNewQRetry
+      ? `Generate ${S.qCount} COMPLETELY NEW and DIFFERENT questions from your previous set. PRIORITY: questions STRICTLY from what is written in the document. If the document does not have enough content for all ${S.qCount} questions, fill the remainder with SIMILAR PRACTICE questions on the same topic — but prefix every such question with exactly: "Similar practice (not from document): ". Never copy or repeat questions from the previous set.`
+      : `Generate ${S.qCount} questions. PRIORITY RULE: Document content first — always. Generate as many questions as possible STRICTLY from the document. If the document does not have enough content for all ${S.qCount} questions, fill the remainder with SIMILAR PRACTICE questions on the same topic — but prefix every such question with exactly: "Similar practice (not from document): ". Never invent facts from the document that are not there.`
   };
   const diffInstruction = diffInstructions[S.diffMode] || diffInstructions['doc'];
 
@@ -8241,11 +8332,50 @@ function buildUserMsg(){
 // sometimes omit LaTeX backslashes (writes "frac{1}{3}" instead of "\\frac{1}{3}") or use
 // raw markup like "\\(int (sin x...) \\, dx = ...\\)" — converts these into either proper
 // LaTeX (for MathJax to render) or readable Unicode, so math never displays as raw markup.
+
 function fixFreeTextMath(s){
   if(!s || typeof s !== 'string') return s;
+  // Form-feed fix
+  s = s.replace(/([a-zA-Z])/g, function(m,c){ return '\\f'+c; });
+  // Strip LaTeX delimiters and slash artifacts
+  s = s.replace(/\\left\s*\(/g,'(').replace(/\\right\s*\)/g,')');
+  s = s.replace(/\\left\s*\[/g,'[').replace(/\\right\s*\]/g,']');
+  s = s.replace(/\\left\s*[|]/g,'|').replace(/\\right\s*[|]/g,'|');
+  s = s.replace(/\\left\b/g,'').replace(/\\right\b/g,'');
+  s = s.replace(/\\bigg?[|]/g,'|').replace(/\\Big[|]/g,'|');
+  s = s.replace(/\\\//g,''); // strip \/ italic correction
+  s = s.replace(/\\,/g,' ').replace(/\\;/g,' ').replace(/\\!/g,'');
+  s = s.replace(/\\quad\b/g,' ').replace(/\\qquad\b/g,' ');
+  s = s.replace(/\\text\{([^}]*)\}/g,'$1');
+  s = s.replace(/\\mathrm\{([^}]*)\}/g,'$1');
+  s = s.replace(/\\mathbf\{([^}]*)\}/g,'$1');
+  s = s.replace(/\/\s*$/g,'').replace(/^\/\s*/g,'');
   // Normalize form-feed escapes (\f in JS = char 12, not backslash-f)
   s = s.replace(/rac\{/g, '\\frac{');
   s = s.replace(/([a-zA-Z]+)/g, '\\$1');
+  // ── Strip LaTeX spacing/correction commands that show as / ────
+  s = s.replace(/\\\//g,'');           // \/ italic correction → remove (NOT \( or \[)
+  s = s.replace(/\\,/g,' ');            // \, thin space → space
+  s = s.replace(/\\;/g,' ');            // \; medium space → space
+  s = s.replace(/\\!(?![a-zA-Z])/g,''); // \! negative space → remove (not \!word)
+  s = s.replace(/\\quad/g,' ');       // \quad → space
+  s = s.replace(/\\qquad/g,' ');      // \qquad → space
+  s = s.replace(/\\text\{([^}]*)\}/g,'$1'); // \text{word} → word
+  s = s.replace(/\\mathrm\{([^}]*)\}/g,'$1'); // \mathrm{x} → x
+  s = s.replace(/\\mathbf\{([^}]*)\}/g,'$1'); // \mathbf{x} → x
+  // ── Strip evaluation bars that appear as / or | in integrals ───
+  // \left| ... \right| → [ ... ] (evaluation bracket)
+  s = s.replace(/\\left\s*\|/g,'[').replace(/\\right\s*\|/g,']');
+  s = s.replace(/\\bigg?\s*\|/g,'|').replace(/\\Big\s*\|/g,'|');
+  s = s.replace(/\\Bigg?\s*\|/g,'|').replace(/\\middle\s*\|/g,'|');
+  // \left \ and \right \ (invisible delimiters)
+  s = s.replace(/\\left\s*\\/g,'').replace(/\\right\s*\\/g,'');
+  // \left. and \right. (invisible delimiters)
+  s = s.replace(/\\left\s*\./g,'').replace(/\\right\s*\./g,'');
+  // Remaining \left \right with brackets
+  s = s.replace(/\\left\s*\(/g,'(').replace(/\\right\s*\)/g,')');
+  s = s.replace(/\\left\s*\[/g,'[').replace(/\\right\s*\]/g,']');
+  s = s.replace(/\\left/g,'').replace(/\\right/g,'');
   var supMap3 = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
   var lines = s.split('\n');
   var fixedLines = lines.map(function(line){
@@ -8376,32 +8506,60 @@ function fixFreeTextMath(s){
     return out;
   });
 
-  return fixedLines.join('\n');
+  var result = fixedLines.join('\n');
+  // Use EXACTLY the same method as the quiz session:
+  // strip \( \) wrappers, then run quizFracDisplay (which calls fixMath internally)
+  if(result.indexOf('saa-frac') === -1){
+    result = result.replace(/\\\(([\s\S]*?)\\\)/g, '$1');
+    result = result.replace(/\\\[([\s\S]*?)\\\]/g, '$1');
+    if(typeof quizFracDisplay === 'function') result = quizFracDisplay(result);
+    else if(typeof fixMath === 'function') result = fixMath(result);
+  }
+  return result;
 }
+
+
 
 
 function quizFracDisplay(s){
   if(!s) return '';
-  // Normalise form-feed then run full fixMath pipeline
   s = String(s);
-  if(typeof fixMath === 'function') s = fixMath(s);
-  // Handle any remaining bare n/d fractions in plain-text segments
-  var parts = s.split(/(\\\([\s\S]*?\\\))/);
-  var out = '';
+  if(typeof fixMath==='function') s=fixMath(s);
+  function _fh(n,d){
+    // Apply caret→superscript inside numerator and denominator
+    var _su={'0':'\u2070','1':'\u00B9','2':'\u00B2','3':'\u00B3','4':'\u2074',
+             '5':'\u2075','6':'\u2076','7':'\u2077','8':'\u2078','9':'\u2079','-':'\u207B'};
+    function _fhSup(t){
+      return t.replace(/([A-Za-z0-9])\^\{(-?\d+)\}/g,function(m,b,e){
+        return b+e.split('').map(function(c){return _su[c]||c;}).join('');
+      }).replace(/([A-Za-z0-9])\^(-?\d+)/g,function(m,b,e){
+        return b+e.split('').map(function(c){return _su[c]||c;}).join('');
+      });
+    }
+    return '<span class="saa-frac" style="display:inline-block;vertical-align:middle;text-align:center;margin:0 3px;line-height:1.2;">'+
+      '<span style="display:block;border-bottom:1.5px solid currentColor;padding:0 3px;font-size:0.9em;">'+_fhSup(n)+'</span>'+
+      '<span style="display:block;padding:0 3px;font-size:0.9em;">'+_fhSup(d)+'</span></span>';
+  }
+  // Strip remaining \(...\) wrappers — content already converted by fixMath
+  s = s.replace(/\\\(([\s\S]*?)\\\)/g, function(m,g){ return g||''; });
+  // Handle remaining bare n/d fractions
+  var parts=s.split(/(<span class="saa-frac"[\s\S]*?<\/span><\/span>)/), out='';
   for(var i=0;i<parts.length;i++){
-    if(i%2===1){ out+=parts[i]; continue; }
-    // (expr)/n  — parenthesised numerator
-    var seg = parts[i];
-    seg = seg.replace(/(\([^()]+\))\/(\d+)/g, function(m,n,d){ return '\\(\\frac{'+n+'}{'+d+'}\\)'; });
-    // n/d standalone
-    seg = seg.replace(/(?<!\{)(?<!\d)(-?\d+)\/(\d+)(?!\d|\})/g, function(m,n,d){ return '\\(\\frac{'+n+'}{'+d+'}\\)'; });
+    if(i%2===1){out+=parts[i];continue;}
+    var seg=parts[i];
+    seg=seg.replace(/(\([^()]+\))\/(\d+)/g,function(m,n,d){return _fh(n,d);});
+    seg=seg.replace(/(?<!\{)(?<!\d)(-?\d+)\/(\d+)(?!\d|\})/g,function(m,n,d){return _fh(n,d);});
     out+=seg;
   }
   return out;
 }
 
+
 function presentQ(idx){
   if(idx>=S.questions.length){endQuiz();return;}
+
+  // Bad notation guard removed — fixMath handles ^ → Unicode superscripts directly
+
   S.currentQ=idx;
   selectedOpt=null;
   hintUsed=false;
@@ -8899,7 +9057,8 @@ function addTutorMsg(role,text){
       text = text.replace(/\s*\[CONFIDENCE:\d+\]/i,'').trimEnd();
     }
     // Also apply fixMath
-    if(typeof fixMath === 'function') text = fixMath(text);
+    if(typeof quizFracDisplay === 'function') text = quizFracDisplay(text);
+    else if(typeof fixMath === 'function') text = fixMath(text);
   }
   var div=document.createElement('div');
   div.style.display='flex';
@@ -8932,6 +9091,10 @@ function addTutorMsg(role,text){
   }
   var content=document.createElement('div');
   var cleanedText = typeof cleanLatex==='function' ? cleanLatex(text) : text;
+  // Apply math notation before markdown rendering
+  if(typeof fixMath === 'function' && cleanedText.indexOf('saa-frac') === -1){
+    cleanedText = fixMath(cleanedText);
+  }
   content.innerHTML = typeof md2html==='function' ? md2html(cleanedText) : cleanedText.split('\n').join('<br>');
   bub.appendChild(content);
 
@@ -8993,6 +9156,10 @@ function downloadTutorAnswer(answerText){
     if(tutorHistory[i].role==='user'){ questionText=tutorHistory[i].content; break; }
   }
   var cleanAnswer = typeof cleanLatex==='function' ? cleanLatex(answerText) : latexToReadable(answerText);
+  // Apply math before rendering answer/explanation
+  if(typeof fixMath === 'function' && cleanAnswer.indexOf('saa-frac') === -1){
+    cleanAnswer = fixMath(cleanAnswer);
+  }
   var bodyHtml = typeof md2html==='function' ? md2html(cleanAnswer) : cleanAnswer.split('\n').join('<br>');
   var now = new Date().toLocaleString('en-GB');
   var safeName = (S.name||'Learner').replace(/\s+/g,'_');
@@ -9053,6 +9220,10 @@ function downloadTutorAnswerPDF(answerText){
     if(tutorHistory[i].role==='user'){ questionText=tutorHistory[i].content; break; }
   }
   var cleanAnswer = typeof cleanLatex==='function' ? cleanLatex(answerText) : latexToReadable(answerText);
+  // Apply math before rendering answer/explanation
+  if(typeof fixMath === 'function' && cleanAnswer.indexOf('saa-frac') === -1){
+    cleanAnswer = fixMath(cleanAnswer);
+  }
   var bodyHtml = typeof md2html==='function' ? md2html(cleanAnswer) : cleanAnswer.split('\n').join('<br>');
   var now = new Date().toLocaleString('en-GB');
   var safeName = (S.name||'Learner').replace(/\s+/g,'_');
@@ -9358,8 +9529,11 @@ async function sendTutorMessage(){
             var ev = JSON.parse(raw);
             if(ev.t){
               streamText += ev.t;
-              // Strip leading dashes from list items
-              var display = streamText.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+              // During streaming — show raw text with basic markdown only
+              // quizFracDisplay runs on the COMPLETE answer after streaming ends
+              // (avoids broken math when \frac is split across chunks)
+              var display = streamText
+                .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
                 .replace(/\*(.+?)\*/g,'<em>$1</em>')
                 .replace(/(^|\n)[•\-\*]\s+/g,'$1')
                 .replace(/\n/g,'<br>');
@@ -9399,7 +9573,8 @@ async function sendTutorMessage(){
                   var rEv=JSON.parse(rRaw);
                   if(rEv.t){
                     rText+=rEv.t;
-                    var rDisplay=rText.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/(^|\n)[•\-\*]\s+/g,'$1').replace(/\n/g,'<br>');
+                    var _rt = typeof quizFracDisplay==='function' ? quizFracDisplay(rText) : (typeof fixMath==='function' ? fixMath(rText) : rText);
+                    var rDisplay=_rt.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/(^|\n)[•\-\*]\s+/g,'$1').replace(/\n/g,'<br>');
                     if(rBub) rBub.innerHTML=rDisplay;
                     if(rMsgs) rMsgs.scrollTop=rMsgs.scrollHeight;
                   }
@@ -9420,7 +9595,11 @@ async function sendTutorMessage(){
       // Update bubble with clean text
       // Update bubble with clean text + math notation
       if(streamBub){
-        var fixedAnswer = typeof fixMath === 'function' ? fixMath(answer) : answer;
+        // Apply quizFracDisplay on the COMPLETE answer — full \frac, ^ etc all present
+        var fixedAnswer = (typeof quizFracDisplay === 'function') ? quizFracDisplay(answer) : (typeof fixMath === 'function' ? fixMath(answer) : answer);
+        if(typeof fixMath === 'function' && fixedAnswer.indexOf('saa-frac') === -1){
+          fixedAnswer = fixMath(fixedAnswer);
+        }
         var cleanDisplay = typeof md2html === 'function' ? md2html(fixedAnswer)
           : fixedAnswer.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
             .replace(/\*(.+?)\*/g,'<em>$1</em>')
@@ -9959,7 +10138,11 @@ async function buildFeedback(q, correct, conf){
             if(solConfMatch) solAnswer = solAnswer.replace(/\s*\[CONFIDENCE:\d+\]/i,'').trimEnd();
             // Use shared helper — same defensive math-formatting fix applied to hints/challenges
             var stillStuckTip = '\n\n<span style="color:#06b6d4;font-style:italic;">💬 '+(saT('still_stuck_tip')||'Still not clear? Scroll down and ask the same question to your virtual tutor (**Ask the Tutor**) for a more detailed, conversational explanation. You can also switch to Claude using the toggle there to see a different explanation style.')+'</span>';
-            addAI(`📐 **${saT('solution_lbl')||'Detailed Solution:'}** (${qLabel})\n\n${fixFreeTextMath(solAnswer)}${stillStuckTip}`);
+            // Show detailed solution in full-screen overlay (not tiny chat bubble)
+            var _sol = fixFreeTextMath(solAnswer);
+            if(typeof quizFracDisplay === 'function') _sol = quizFracDisplay(_sol);
+            else if(typeof fixMath === 'function') _sol = fixMath(_sol);
+            showExplanationOverlay(qLabel, _sol);
             // Show confidence bar
             if(solConfidence !== null){
               var tutorBox = document.getElementById('chat-box');
@@ -9982,6 +10165,31 @@ async function buildFeedback(q, correct, conf){
     console.warn('buildFeedback error:', err);
     addAI(correct ? `🎯 **Correct!** Well done, ${S.name}!` : `❌ **Wrong.** Keep going, ${S.name}! 💪`);
   }
+}
+
+function showExplanationOverlay(label, html){
+  var overlay = document.getElementById('quiz-explanation-overlay');
+  var body    = document.getElementById('qeo-body');
+  var lbl     = document.getElementById('qeo-label');
+  if(!overlay || !body) return;
+  if(lbl) lbl.textContent = label;
+  // Convert markdown-style **bold** and newlines to HTML
+  var rendered = html
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/\n\n/g,'</p><p>')
+    .replace(/\n/g,'<br>');
+  body.innerHTML = '<p>' + rendered + '</p>';
+  overlay.style.display = 'block';
+  overlay.scrollTop = 0;
+  // Trigger MathJax on the overlay
+  if(window.MathJax && MathJax.typesetPromise){
+    setTimeout(function(){ MathJax.typesetPromise([body]).catch(function(){}); }, 200);
+  }
+}
+
+function closeExplanationOverlay(){
+  var overlay = document.getElementById('quiz-explanation-overlay');
+  if(overlay) overlay.style.display = 'none';
 }
 
 function checkMilestone(){
@@ -10471,7 +10679,7 @@ async function startStudySession(mode){
 
 
   const pages  = parseInt(document.getElementById('summary-pages')?.value) || 2;
-  const items  = parseInt(document.getElementById('key-things-count')?.value) || 5;
+  const items  = parseInt(document.getElementById('key-things-count')?.value) || 7;
 
   // Navigate to study page
   document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active');p.style.display='none';});
@@ -10572,7 +10780,7 @@ async function startStudySession(mode){
     S.studyMode = mode;
     saveOfflineStudy(mode, text, S.docName||S.subject||'Document'); // Save for offline
     // Apply math notation fixes before rendering
-    var mathText = typeof fixMath === 'function' ? fixMath(text) : text;
+    var mathText = (typeof quizFracDisplay === 'function' && text.indexOf('saa-frac') === -1) ? quizFracDisplay(text) : (typeof fixMath === 'function' && text.indexOf('saa-frac') === -1 ? fixMath(text) : text);
     const html = md2html(mathText);
     content.innerHTML = `
       <div style="background:#ffffff;border-radius:16px;padding:28px;color:#1e293b;line-height:1.9;font-size:15px;box-shadow:0 4px 24px rgba(0,0,0,0.15);">
@@ -10606,10 +10814,16 @@ async function startStudySession(mode){
 
       <!-- Start quiz -->
       <div style="margin-top:12px;">
-        <button onclick="exitStudySession(); startSession();"
-          style="width:100%;padding:13px;background:linear-gradient(135deg,#1a56db,#3b82f6);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">
-          📝 Now Take Quiz on This Document
-        </button>
+        <div style="display:flex;gap:10px;">
+          <button onclick="exitStudySession(); startSession('gpt');"
+            style="flex:1;padding:13px;background:linear-gradient(135deg,#1a56db,#3b82f6);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
+            📝 Quiz (GPT)<div style="font-size:10px;opacity:0.8;font-weight:400;margin-top:2px;">Up to 30 pages</div>
+          </button>
+          <button onclick="exitStudySession(); startSession('claude');"
+            style="flex:1;padding:13px;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
+            🧠 Quiz (Claude)<div style="font-size:10px;opacity:0.8;font-weight:400;margin-top:2px;">Up to 200 pages</div>
+          </button>
+        </div>
       </div>`;
 
     // Auto read aloud if enabled
@@ -11217,7 +11431,7 @@ async function saveReportAsPDF(){
       <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${t}</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${S.date}</td></tr>
       <tr><td colspan="2" style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Access Code</td></tr>
       <tr><td colspan="2" style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:15px;color:#1a56db;letter-spacing:2px;">${reportCode}</td></tr>
-      <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">AI Engine</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Pages Used</td></tr>
+      <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">AI Engine</td><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;text-transform:uppercase;">Pages Uploaded</td></tr>
       <tr><td style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-weight:700;color:#7c3aed;">${(S.quizLLM||window._quizEngine||'gpt')==='claude'?'🧠 Claude (Anthropic)':'🤖 GPT-4o (OpenAI)'}</td><td style="padding:6px 0;font-weight:600;">${S.images?S.images.length:0} page(s)</td></tr>
     </table>
     <div style="text-align:center;padding:24px 0;border-bottom:1px solid #e2e8f0;margin-bottom:20px;">
@@ -11405,24 +11619,15 @@ function downloadQuizPDF(){
   var win = window.open('','_blank');
   if(!win){ toast('Please allow popups to download PDF','err'); return; }
 
-  // Convert LaTeX to readable HTML for PDF (no MathJax dependency)
+  // Convert LaTeX to readable HTML for PDF (no MathJax)
   function pdfMath(s){
     if(!s) return '';
-    // Apply fixMath first to normalise all LaTeX
-    if(typeof fixMath === 'function') s = fixMath(s);
-    // Now convert \(...\) blocks to HTML
-    function fracHtml(n,d){
-      return '<table style="display:inline-table;vertical-align:middle;border-collapse:collapse;margin:0 3px;text-align:center;">'+
-        '<tr><td style="border-bottom:1.5px solid #000;padding:0 4px;font-size:0.9em;line-height:1.4;">'+n+'</td></tr>'+
-        '<tr><td style="padding:0 4px;font-size:0.9em;line-height:1.4;">'+d+'</td></tr></table>';
-    }
-    // \(\frac{n}{d}\) → stacked HTML
-    s = s.replace(/\\\(\\frac\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\\\)/g,
-      function(m,n,d){ return fracHtml(n,d); });
-    // \(base^{exp}\) → base<sup>exp</sup>
-    s = s.replace(/\\\(([^\\]*)\^\{([^}]+)\}\\\)/g, function(m,base,exp){ return base+'<sup>'+exp+'</sup>'; });
-    // \(expr\) → expr (strip delimiters, keep content)
-    s = s.replace(/\\\(([\s\S]*?)\\\)/g, function(m,g){ return g||''; });
+    // Use quizFracDisplay for consistent math rendering
+    if(typeof quizFracDisplay === 'function') s = quizFracDisplay(s);
+    else if(typeof fixMath === 'function') s = fixMath(s);
+    // Convert CSS fraction spans to print-friendly inline format: n/d
+    s = s.replace(/<span class="saa-frac"[^>]*><span[^>]*>([^<]*)<\/span><span[^>]*>([^<]*)<\/span><\/span>/g,
+      function(m, num, den){ return '<sup>'+num+'</sup>&frasl;<sub>'+den+'</sub>'; });
     return s;
   }
 
@@ -11644,8 +11849,11 @@ function getRecommendation(p,w,g){
 // CHAT HELPERS
 // ════════════════════════════════════════════════
 function addAI(md){
-  // Apply math symbol fixes before rendering
-  if(typeof fixMath === 'function') md = fixMath(md);
+  // Apply full math pipeline (same as quiz) — only if not already processed
+  if(md.indexOf('saa-frac') === -1){
+    if(typeof quizFracDisplay === 'function') md = quizFracDisplay(md);
+    else if(typeof fixMath === 'function') md = fixMath(md);
+  }
   const box=document.getElementById('chat-box');
   const d=document.createElement('div');
   d.className='msg ai';
@@ -11801,14 +12009,24 @@ function showTyping(){
 }
 function removeTyping(){const el=document.getElementById('typing-el');if(el)el.remove();}
 function md2html(t){
-  return t.replace(/^### (.+)$/gm,'<div style="font-size:13px;font-weight:800;color:#f59e0b;margin:10px 0 4px;">$1</div>')
-          .replace(/^## (.+)$/gm,'<div style="font-size:14px;font-weight:800;color:#06b6d4;margin:12px 0 6px;">$1</div>')
-          .replace(/^# (.+)$/gm,'<div style="font-size:15px;font-weight:800;color:#fff;margin:12px 0 6px;">$1</div>')
-          .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-          .replace(/\*(.+?)\*/g,'<em>$1</em>')
-          .replace(/_(.+?)_/g,'<em>$1</em>')
-          .replace(/(^|\n)[•\-\*]\s+/g,'$1')
-          .replace(/\n/g,'<br>');
+  // Protect saa-frac HTML spans from markdown regex mangling
+  // by temporarily replacing them with placeholders
+  var fracs = [];
+  t = t.replace(/<span class="saa-frac"[\s\S]*?<\/span><\/span>/g, function(m){
+    fracs.push(m);
+    return 'FRAC'+(fracs.length-1)+'';
+  });
+  t = t.replace(/^### (.+)$/gm,'<div style="font-size:13px;font-weight:800;color:#f59e0b;margin:10px 0 4px;">$1</div>')
+       .replace(/^## (.+)$/gm,'<div style="font-size:14px;font-weight:800;color:#06b6d4;margin:12px 0 6px;">$1</div>')
+       .replace(/^# (.+)$/gm,'<div style="font-size:15px;font-weight:800;color:#fff;margin:12px 0 6px;">$1</div>')
+       .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+       .replace(/\*(.+?)\*/g,'<em>$1</em>')
+       .replace(/_(.+?)_/g,'<em>$1</em>')
+       .replace(/(^|\n)[•\-\*]\s+/g,'$1')
+       .replace(/\n/g,'<br>');
+  // Restore fraction spans
+  t = t.replace(/FRAC(\d+)/g, function(m,i){ return fracs[parseInt(i)]||m; });
+  return t;
 }
 
 // ════════════════════════════════════════════════
@@ -11927,12 +12145,12 @@ function _showOfflineBanner(show){
   var banner = document.createElement('div');
   banner.id = 'saa-offline-banner';
   banner.style.cssText = "position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:99999;background:rgba(245,158,11,0.95);color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;font-family:Arial,sans-serif;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);";
-  banner.innerHTML = '📵 <span>You are offline — limited features available</span>';
+  banner.innerHTML = '📵 <span>You are offline</span>';
   document.body.appendChild(banner);
 }
 
 window.addEventListener('online',  function(){ _showOfflineBanner(false); toast('✅ Back online','ok'); });
-window.addEventListener('offline', function(){ _showOfflineBanner(true); toast('📵 You are offline — some features limited','inf'); });
+window.addEventListener('offline', function(){ _showOfflineBanner(true); toast('📵 You are offline','inf'); });
 // Check every 5 seconds in case browser doesn't fire the event
 setInterval(function(){
   if(!navigator.onLine){ _showOfflineBanner(true); }
@@ -12251,7 +12469,7 @@ var SA_STRINGS={
       pro_b1_title:'Dual verification', pro_b1_desc:'Two AI models cross-check every answer',
       pro_b2_title:'Confidence score', pro_b2_desc:'Know exactly how reliable the answer is',
       pro_b3_title:'Flags missing data', pro_b3_desc:'Tells you exactly what information is missing',
-      pro_b4_title:'Multi-file upload', pro_b4_desc:'PDF + Excel + Photos analysed together',how_title:'How It Works',step1_title:'Upload Your Notes',step2_title:'AI Reads Your Document',step3_title:'Get Personalised Quizzes',access_title:'Enter Access Code',access_btn:'🔓 Unlock',upload_images:'📸 Upload Images',upload_pdf:'📑 PDF / Excel',study_btn:'📚 Study Session',tutor_btn:'🧑‍🏫 Ask the Tutor',quiz_exit:'🏠 Exit',submit_btn:'Submit Answer',next_btn:'Next Question ➤',correct:'✅ Correct!',wrong:'❌ Wrong',retry:'🔁 Retry Wrong Questions',download_report:'⬇️ Download Report',download_word:'⬇️ Download Word',back_results:'← Back to Results',results_title:'Quiz Complete!',ask_placeholder:'Ask anything about your document...',send_btn:'Send ➤','access_h2':'Enter Your Access Code','access_desc':'Your code was provided by your teacher or administrator. Codes start with W, M, Y, RM, RS, or RY.','access_label':'Access Code','access_verify':'🚀 Verify & Continue to Setup →','back_home':'← Back to Home','upload_camera':'📷 Take Photo','hero_cta_learner_start':'🎓 Learner / Student (Start)','buy_code_cta':'Click here to buy code','trial_ended_title':'Your Trial Has Ended','trial_ended_desc':'Get full access from just <strong style="color:#00d4e0;">$5 / week</strong>.<br>Unlimited quizzes, tutor, summaries and more.','trial_ended_btn':'💳 Get Access Code — $5/week','setup_h2':'🎓 Set Up Your Session','setup_desc':'Tell us about yourself so we can personalise your quiz','setup_personal':'👤 Personal Details','setup_name_lbl':'Your First Name','setup_level_lbl':'Grade / Level','setup_subject_lbl':'Subject','setup_lang_lbl':'Language','setup_qcount':'📝 Number of Questions','qdesc_5':'Quick · Limited time','qdesc_10':'Full revision','qdesc_15':'Thorough prep','qdesc_20':'Full exam mode','setup_diff':'📊 Question Difficulty Mode','diff_desc':'How should questions relate to your document?','diff_doc_title':'Questions from the document only','diff_doc_desc':'Questions strictly from what is written on your uploaded pages','diff_hard_title':'Questions outside the document','diff_hard_desc':'Same topic — AI generates new questions beyond your document','upload_title_lbl':'📄 Upload Document','upload_drag':'Drag & drop PNG or PDF here','upload_browse':'Or use the buttons below to browse','upload_use_pages':'✅ Use Selected Pages for Quiz','tips_title':'💡 Tips for Best Results','session_title':'🎯 Choose Your Session','session_desc':'What would you like to do with your document?','start_quiz':'📝 Start Quiz','quiz_sub':'Answer questions · Get scored · Track progress','summarize_btn':'📄 Summarize Document','keypoints_btn':'⭐ Key Points','tutor_sub':'Chat with AI about your document · Step-by-step answers','tutor_hint':'Enter to send · Shift+Enter for new line · Answers based on your document','results_next':'What next?','results_new':'🔀 New Questions (Same Document)','results_restart':'🔄 Full Restart','save_pdf':'📄 Save as PDF','summarize_sub':'AI summarizes your document into X pages of clear notes','keypoints_sub':'AI extracts the X most important things to remember','hero_how':'How It Works ↓','study_btn':'📚 Study Session','download_word_short':'Download Word','name_ph':'e.g. Amara','setup_subject_ph':'e.g. Biology, Pure Mathematics...','level_ph':'Select level...','err_name':'Please enter your name','err_level':'Please select your grade level','err_subject':'Please enter your subject','how_h2':'Three Steps to Master Any Subject','how_h2_span':'Master Any Subject','how_sub':'Smart Academy AI turns your own notes and textbooks into a personalised study session in seconds.','step1_desc':'Take a photo of your handwritten notes or typed textbook pages. Our AI reads both printed and handwritten text with high accuracy.','step2_title':'AI Generates Questions','step2_desc':'The AI analyses your document and creates 5 or 10 personalised questions — strictly from your material.','step3_title':'Learn and Improve','step3_desc':'Get instant feedback, worked example explanations, percentage scores, and a detailed report you can share with your teacher or parent.','out_of_scope':'Question outside document scope — general answer provided','select_lang_lbl':'Select Language','there_word':'there','document_word':'document','tip1':'✓ Images: Good lighting, camera directly above, page flat, sharp focus','tip2':'✓ PDF: Select only the pages covering the topic you want to be tested on','tip3':'✓ Best results: 3–5 focused pages rather than entire chapters','pages_extracted':'pages extracted successfully! Ready to start your quiz.','quiz_loading_msg':'Welcome, {name}! I\'ve received your {pages} page(s).\n\nReading your document now...','select_first':'Select an answer first','submit_enabled':'Submit enabled','wrong_word':'WRONG','prev_q':'Previous question:','your_ans':'Your answer:','correct_ans':'Correct answer:','ai_calc':'AI calculation:','you_right':'You are RIGHT!','you_wrong':'You are WRONG.','solution_lbl':'Solution:','may_retry':'This may reappear in retry!','still_stuck_tip':'Still not clear? Scroll down and ask the same question to your virtual tutor (**Ask the Tutor**) for a more detailed, conversational explanation. You can also switch to Claude using the toggle there to see a different explanation style.','score_lbl':'Score:','err_pdf_extract':'Please click "Use Selected Pages for Quiz" to extract PDF pages first','err_no_doc':'Please upload your document or images first','feat_h2':'Everything You Need to Excel','feat_h2_span':'Excel','feat_sub':'Designed for learners, parents and teachers across all levels and subjects.','feat1_title':'Reads Handwriting','feat1_desc':'AI vision reads your handwritten notes directly from photos — no typing needed.','feat2_title':'19+ Languages','feat2_desc':'Study in English, French, Portuguese, Swahili, Zulu, Afrikaans, Hindi, Chinese and more.','feat3_title':'Smart Difficulty','feat3_desc':'Questions progress from simple recall to hard reasoning — always from your document.','feat4_title':'Hint System','feat4_desc':'Request a gentle hint per question without revealing the answer.','feat5_title':'Percentage Grading','feat5_desc':'Every session scored with Distinction, Merit, Credit, Pass or Not Yet grading bands.','feat6_title':'Teacher Reports','feat6_desc':'Generate a printable progress report for your teacher or parent after every session.','contact_us_tag':'Contact Us','contact_h2':'Get in Touch','contact_desc':'Have questions about access codes, school plans, or how Smart Academy AI works? We are here to help.','hero_badge':'AI-Powered Learning','hero_title':'Your Personal','hero_title_span':'AI Study Coach','hero_tagline':'Your Personal AI Study Coach','hero_sub2':'Smart Academy AI reads your handwritten or typed notes and creates personalised quizzes — in your language, at your level.','vc_books':'Books','vc_precision':'Precision','vc_languages':'Languages','vc_library':'Library','vc_lang_count':'Languages Supported','stat_questions':'Questions per Session','stat_languages':'Languages','stat_grades':'Grade Levels','stat_notes':'From Your Own Notes','study_session_lbl':'📚 Study Session','tutor_disclaimer':'⚠️ Academic Integrity Notice\n\nUsing this AI tutor to complete homework, assignments or research on behalf of your institution may violate academic integrity policies and lead to sanctions.\n\nThis tool is designed to help you understand your material — not to replace your own work.\n\nUse it wisely and responsibly.','btn_no_identity':'👤 Without Identity','btn_with_identity':'✏️ With Identity','setup_date_lbl':'Date','upload_drag':'Drag & drop files here (PNG, JPG, PDF, Excel) — multiple supported','upload_images':'📸 Photo (PNG/JPG)','pages_uploaded':'pages uploaded','upload_counter_zero':'0 / 30 pages uploaded','confirm_exit':'Are you sure you want to exit?','exit_lose_progress':'Your current quiz progress will be lost.','mid_quiz_warning':'You are in the middle of a quiz! Leaving will lose your progress. Are you sure?','confirm_restart':'Restart the full quiz with new questions?','clear_all_btn':'🗑️ Clear All','confirm_clear_all':'Remove all uploaded pages?','all_cleared':'All pages cleared','tour_btn_label':'Guided Tour','err_no_code':'Please enter your access code.','err_code_format':'Invalid code format. Must start with H-, D-, W-, M-, or Y-','err_device_locked':'This code is already activated on another device. Contact your administrator for a new code.','err_code_expired':'This code has expired. Please contact your administrator.','err_code_invalid':'Code not found. Please check and try again.','err_offline':'Cannot connect to server. Please check your internet connection.','code_verified':'Code verified','device_warning_title':'👆 Before you continue:','device_warning_body':'This code activates on this device only. Do not share.','pricing_title':'Pricing','pricing_sub':'Affordable AI learning for every student','p_ind_title':'👤 Individual Code','p_ind_desc':'One device only. Works anywhere — school, home, travel. Unlimited usage within validity period.','p_grp_title':'🏫 Group / Classroom Code','p_grp_desc':'Multiple devices, one code. Works only within 250m of the registered location (school, library, learning centre). Perfect for classrooms and study groups. Does not work from home. <strong>Maximum 30 students per code.</strong>','p_research_title':'🔬 Research / Professional','p_research_desc':'Research Monthly','p_research_sub':'Document analysis · 30 days','p_pay_cta':'📱 Pay to the number above','p_pay_whatsapp':'Then WhatsApp your proof of payment to the same number.','p_pay_delivery':'Code delivered within 24 hours.','p_1hour':'⏱ 1 Hour','p_1week':'📅 1 Week','p_1month':'🗓 1 Month','p_1year':'🏆 1 Year','p_pay_note_intl':'Pay to our DRC mobile number, then upload receipt above for instant code.','p_pay_note_za':'Send via bank-to-cellphone payment (any bank), then WhatsApp your receipt to the same number.','p_pay_note_drc':'Envoyer via Airtel Money, puis WhatsApp votre reçu.','ua_select_plan':'① SELECT PLAN','ua_select_region':'② SELECT REGION',
+      pro_b4_title:'Multi-file upload', pro_b4_desc:'PDF + Excel + Photos analysed together',how_title:'How It Works',step1_title:'Upload Your Notes',step2_title:'AI Reads Your Document',step3_title:'Get Personalised Quizzes',access_title:'Enter Access Code',access_btn:'🔓 Unlock',upload_images:'📸 Upload Images',upload_pdf:'📑 PDF / Excel',study_btn:'📚 Study Session',tutor_btn:'🧑‍🏫 Ask the Tutor',quiz_exit:'🏠 Exit',submit_btn:'Submit Answer',next_btn:'Next Question ➤',correct:'✅ Correct!',wrong:'❌ Wrong',retry:'🔁 Retry Wrong Questions',download_report:'⬇️ Download Report',download_word:'⬇️ Download Word',back_results:'← Back to Results',results_title:'Quiz Complete!',ask_placeholder:'Ask anything about your document...',send_btn:'Send ➤','access_h2':'Enter Your Access Code','access_desc':'Your code was provided by your teacher or administrator. Codes start with D, W, M, Y, RM, RS, or RY.','access_label':'Access Code','access_verify':'🚀 Verify & Continue to Setup →','back_home':'← Back to Home','upload_camera':'📷 Take Photo','hero_cta_learner_start':'🎓 Learner / Student (Start)','buy_code_cta':'Click here to buy code','trial_ended_title':'Your Trial Has Ended','trial_ended_desc':'Get full access from just <strong style="color:#00d4e0;">$5 / week</strong>.<br>Unlimited quizzes, tutor, summaries and more.','trial_ended_btn':'💳 Get Access Code — $5/week','setup_h2':'🎓 Set Up Your Session','setup_desc':'Tell us about yourself so we can personalise your quiz','setup_personal':'👤 Personal Details','setup_name_lbl':'Your First Name','setup_level_lbl':'Grade / Level','setup_subject_lbl':'Subject','setup_lang_lbl':'Language','setup_qcount':'📝 Number of Questions','qdesc_5':'Quick · Limited time','qdesc_10':'Full revision','qdesc_15':'Thorough prep','qdesc_20':'Full exam mode','setup_diff':'📊 Question Difficulty Mode','diff_desc':'How should questions relate to your document?','diff_doc_title':'Questions from the document only','diff_doc_desc':'Questions strictly from what is written on your uploaded pages','diff_hard_title':'Questions outside the document','diff_hard_desc':'Same topic — AI generates new questions beyond your document','upload_title_lbl':'📄 Upload Document','upload_drag':'Drag & drop PNG or PDF here','upload_browse':'Or use the buttons below to browse','upload_use_pages':'✅ Use Selected Pages for Quiz','tips_title':'💡 Tips for Best Results','session_title':'🎯 Choose Your Session','session_desc':'What would you like to do with your document?','start_quiz':'📝 Start Quiz','quiz_sub':'Answer questions · Get scored · Track progress','summarize_btn':'📄 Summarize Document','keypoints_btn':'⭐ Key Points','tutor_sub':'Chat with AI about your document · Step-by-step answers','tutor_hint':'Enter to send · Shift+Enter for new line · Answers based on your document','results_next':'What next?','results_new':'🔀 New Questions (Same Document)','results_restart':'🔄 Full Restart','save_pdf':'📄 Save as PDF','summarize_sub':'AI summarizes your document into X pages of clear notes','keypoints_sub':'AI extracts the X most important things to remember','hero_how':'How It Works ↓','study_btn':'📚 Study Session','download_word_short':'Download Word','name_ph':'e.g. Amara','setup_subject_ph':'e.g. Biology, Pure Mathematics...','level_ph':'Select level...','err_name':'Please enter your name','err_level':'Please select your grade level','err_subject':'Please enter your subject','how_h2':'Three Steps to Master Any Subject','how_h2_span':'Master Any Subject','how_sub':'Smart Academy AI turns your own notes and textbooks into a personalised study session in seconds.','step1_desc':'Take a photo of your handwritten notes or typed textbook pages. Our AI reads both printed and handwritten text with high accuracy.','step2_title':'AI Generates Questions','step2_desc':'The AI analyses your document and creates 5 or 10 personalised questions — strictly from your material.','step3_title':'Learn and Improve','step3_desc':'Get instant feedback, worked example explanations, percentage scores, and a detailed report you can share with your teacher or parent.','out_of_scope':'Question outside document scope — general answer provided','select_lang_lbl':'Select Language','there_word':'there','document_word':'document','tip1':'✓ Images: Good lighting, camera directly above, page flat, sharp focus','tip2':'✓ PDF: Select only the pages covering the topic you want to be tested on','tip3':'✓ Best results: 3–5 focused pages rather than entire chapters','pages_extracted':'pages extracted successfully! Ready to start your quiz.','quiz_loading_msg':'Welcome, {name}! I\'ve received your {pages} page(s).\n\nReading your document now...','select_first':'Select an answer first','submit_enabled':'Submit enabled','wrong_word':'WRONG','prev_q':'Previous question:','your_ans':'Your answer:','correct_ans':'Correct answer:','ai_calc':'AI calculation:','you_right':'You are RIGHT!','you_wrong':'You are WRONG.','solution_lbl':'Solution:','may_retry':'This may reappear in retry!','still_stuck_tip':'Still not clear? Scroll down and ask the same question to your virtual tutor (**Ask the Tutor**) for a more detailed, conversational explanation. You can also switch to Claude using the toggle there to see a different explanation style.','score_lbl':'Score:','err_pdf_extract':'Please click "Use Selected Pages for Quiz" to extract PDF pages first','err_no_doc':'Please upload your document or images first','feat_h2':'Everything You Need to Excel','feat_h2_span':'Excel','feat_sub':'Designed for learners, parents and teachers across all levels and subjects.','feat1_title':'Reads Handwriting','feat1_desc':'AI vision reads your handwritten notes directly from photos — no typing needed.','feat2_title':'19+ Languages','feat2_desc':'Study in English, French, Portuguese, Swahili, Zulu, Afrikaans, Hindi, Chinese and more.','feat3_title':'Smart Difficulty','feat3_desc':'Questions progress from simple recall to hard reasoning — always from your document.','feat4_title':'Hint System','feat4_desc':'Request a gentle hint per question without revealing the answer.','feat5_title':'Percentage Grading','feat5_desc':'Every session scored with Distinction, Merit, Credit, Pass or Not Yet grading bands.','feat6_title':'Teacher Reports','feat6_desc':'Generate a printable progress report for your teacher or parent after every session.','contact_us_tag':'Contact Us','contact_h2':'Get in Touch','contact_desc':'Have questions about access codes, school plans, or how Smart Academy AI works? We are here to help.','hero_badge':'AI-Powered Learning','hero_title':'Your Personal','hero_title_span':'AI Study Coach','hero_tagline':'Your Personal AI Study Coach','hero_sub2':'Smart Academy AI reads your handwritten or typed notes and creates personalised quizzes — in your language, at your level.','vc_books':'Books','vc_precision':'Precision','vc_languages':'Languages','vc_library':'Library','vc_lang_count':'Languages Supported','stat_questions':'Questions per Session','stat_languages':'Languages','stat_grades':'Grade Levels','stat_notes':'From Your Own Notes','study_session_lbl':'📚 Study Session','tutor_disclaimer':'⚠️ Academic Integrity Notice\n\nUsing this AI tutor to complete homework, assignments or research on behalf of your institution may violate academic integrity policies and lead to sanctions.\n\nThis tool is designed to help you understand your material — not to replace your own work.\n\nUse it wisely and responsibly.','btn_no_identity':'👤 Without Identity','btn_with_identity':'✏️ With Identity','setup_date_lbl':'Date','upload_drag':'Drag & drop files here (PNG, JPG, PDF, Excel) — multiple supported','upload_images':'📸 Photo (PNG/JPG)','pages_uploaded':'pages uploaded','upload_counter_zero':'0 / 30 pages uploaded','confirm_exit':'Are you sure you want to exit?','exit_lose_progress':'Your current quiz progress will be lost.','mid_quiz_warning':'You are in the middle of a quiz! Leaving will lose your progress. Are you sure?','confirm_restart':'Restart the full quiz with new questions?','clear_all_btn':'🗑️ Clear All','confirm_clear_all':'Remove all uploaded pages?','all_cleared':'All pages cleared','tour_btn_label':'Guided Tour','err_no_code':'Please enter your access code.','err_code_format':'Invalid code format. Must start with H-, D-, W-, M-, or Y-','err_device_locked':'This code is already activated on another device. Contact your administrator for a new code.','err_code_expired':'This code has expired. Please contact your administrator.','err_code_invalid':'Code not found. Please check and try again.','err_offline':'Cannot connect to server. Please check your internet connection.','code_verified':'Code verified','device_warning_title':'👆 Before you continue:','device_warning_body':'This code activates on this device only. Do not share.','pricing_title':'Pricing','pricing_sub':'Affordable AI learning for every student','p_ind_title':'👤 Individual Code','p_ind_desc':'One device only. Works anywhere — school, home, travel. Unlimited usage within validity period.','p_grp_title':'🏫 Group / Classroom Code','p_grp_desc':'Multiple devices, one code. Works only within 250m of the registered location (school, library, learning centre). Perfect for classrooms and study groups. Does not work from home. <strong>Maximum 30 students per code.</strong>','p_research_title':'🔬 Research / Professional','p_research_desc':'Research Monthly','p_research_sub':'Document analysis · 30 days','p_pay_cta':'📱 Pay to the number above','p_pay_whatsapp':'Then WhatsApp your proof of payment to the same number.','p_pay_delivery':'Code delivered within 24 hours.','p_1hour':'⏱ 1 Hour','p_1week':'📅 1 Week','p_1month':'🗓 1 Month','p_1year':'🏆 1 Year','p_pay_note_intl':'Pay to our DRC mobile number, then upload receipt above for instant code.','p_pay_note_za':'Send via bank-to-cellphone payment (any bank), then WhatsApp your receipt to the same number.','p_pay_note_drc':'Envoyer via Airtel Money, puis WhatsApp votre reçu.','ua_select_plan':'① SELECT PLAN','ua_select_region':'② SELECT REGION',
       'ua_proof_title':'Upload Payment Proof','ua_proof_sub':'Get your access code within 24 hours — no waiting',
       'ua_proof_subtitle':'Upload proof of payment below — code appears here instantly',
       'ua_tap_upload':'Tap to upload receipt or screenshot','ua_file_types':'PNG · JPG · PDF · any payment receipt',
@@ -13085,17 +13303,12 @@ var _trialTimer=null,_trialWarned=false,_trialEndTime=null;
 var WU='https://smartacademy-ai.kasongokimba.workers.dev';
 
 async function checkTrialCode(){
+  // New system: trial is always available per device — no need to check server
+  // Just show the trial button as active
   try{
-    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'get-trial-code'})});
-    var d=await r.json();
-    if(d.active){
-      var cd=document.getElementById('trial-countdown');
-      if(cd){cd.style.display='block';cd.textContent='FREE';cd.style.fontSize='18px';}
-      window._pendingTrialExpiry=d.expiresAt;
-      setTrialStatusBar(true);
-    } else {
-      setTrialStatusBar(false);
-    }
+    var cd=document.getElementById('trial-countdown');
+    if(cd){cd.style.display='none';}
+    setTrialStatusBar(true);
   }catch(e){}
 }
 
@@ -13123,10 +13336,16 @@ function updateTrialCountdown(){
 async function startTrial(){
   var fp = typeof getDeviceFingerprint==='function' ? getDeviceFingerprint() : 'unknown';
   try{
+    // Send fingerprint so worker auto-issues a personal 15-min trial for this device
     var r1=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({_appSecret:APP_SECRET,action:'get-trial-code',t:Date.now()})});
+      body:JSON.stringify({_appSecret:APP_SECRET,action:'get-trial-code',fingerprint:fp,t:Date.now()})});
     var trial=await r1.json();
-    if(!trial.active){toast('No active trial at the moment.','err');return;}
+    if(!trial.active){
+      if(trial.already_used||trial.expired){
+        showTrialExpired(); return;
+      }
+      toast('Trial not available right now. Please try again.','err'); return;
+    }
 
     var storedCode = localStorage.getItem('_currentTrialCode');
     var isSameCode = S.code === trial.code;
@@ -13160,20 +13379,19 @@ async function startTrial(){
 async function startResearchTrial(){
   var fp = typeof getDeviceFingerprint==='function' ? getDeviceFingerprint() : 'unknown';
   try{
+    // Auto-issue per device — same system as learner trial
     var r1=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({_appSecret:APP_SECRET,action:'get-research-trial-code',t:Date.now()})});
+      body:JSON.stringify({_appSecret:APP_SECRET,action:'get-research-trial-code',fingerprint:fp,t:Date.now()})});
     var trial=await r1.json();
-    if(!trial.active){toast('No active research trial at the moment.','err');return;}
-
-    var r2=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({_appSecret:APP_SECRET,action:'validate-research-trial-code',code:trial.code,fingerprint:fp})});
-    var data=await r2.json();
-    if(!data.valid){
-      toast(data.message||'Research trial not available','err');return;
+    if(!trial.active){
+      if(trial.already_used||trial.expired){
+        toast('You have already used the research free trial. Purchase a code to continue.','err');
+        return;
+      }
+      toast('Research trial not available right now. Please try again.','err');return;
     }
-    // Route to research.html with the trial code, same pattern as savedCodeUse
     sessionStorage.setItem('prof_pending_code', trial.code);
-    toast('Research trial started! You have '+data.minutes+' minutes of free access.','ok');
+    toast('Research trial started! You have '+trial.minutes+' minutes of free access.','ok');
     window.location.href = 'research.html?code=' + encodeURIComponent(trial.code);
   }catch(e){toast('Cannot connect to server. Please check your internet.','err');}
 }
@@ -13236,12 +13454,56 @@ async function adminLoadFxRates(){
   }catch(e){}
 }
 
+async function adminSetTrialMinutes(){
+  var adminKey = localStorage.getItem('saa_admin_key')||'';
+  var minutes = parseInt(document.getElementById('trial-minutes').value)||15;
+  if(minutes < 5 || minutes > 60){ toast('Duration must be 5–60 minutes','err'); return; }
+  try{
+    var r = await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:APP_SECRET,action:'set-trial-minutes',adminKey,minutes})});
+    var d = await r.json();
+    if(d.success){
+      toast('✅ Trial duration set to '+minutes+' minutes','ok');
+      document.getElementById('trial-minutes-status').textContent = 'Saved: '+minutes+' minutes per device.';
+    } else {
+      toast(d.error||'Failed to save','err');
+    }
+  }catch(e){ toast('Error: '+e.message,'err'); }
+}
+
+async function adminLoadTrialMinutes(){
+  try{
+    var r = await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:APP_SECRET,action:'get-trial-minutes',t:Date.now()})});
+    var d = await r.json();
+    if(d.minutes){
+      var el = document.getElementById('trial-minutes');
+      if(el) el.value = d.minutes;
+      var st = document.getElementById('trial-minutes-status');
+      if(st) st.textContent = 'Current setting: '+d.minutes+' minutes per device.';
+    }
+  }catch(e){}
+}
+
 async function adminRefreshTrialDeviceCount(){
   try{
-    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_appSecret:APP_SECRET,action:'get-trial-code',t:Date.now()})});
+    var adminKey=localStorage.getItem('saa_admin_key')||'';
+    var r=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_appSecret:APP_SECRET,action:'get-trial-stats',adminKey:adminKey,t:Date.now()})});
     var d=await r.json();
     var countEl=document.getElementById('trial-device-count');
-    if(countEl) countEl.textContent = d.active ? ('👥 '+(d.deviceCount||0)+' device(s) have used this trial code') : '';
+    if(countEl){
+      if(d.total !== undefined){
+        countEl.innerHTML =
+          '<div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:6px;">' +
+          '<div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:#00d4e0;">'+d.total+'</div><div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;">Total Devices</div></div>' +
+          '<div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:#10b981;">'+d.active+'</div><div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;">Active Now</div></div>' +
+          '<div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:#64748b;">'+d.expired+'</div><div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;">Completed</div></div>' +
+          '</div>';
+      } else {
+        countEl.textContent = d.error || 'Unable to load stats';
+      }
+    }
   }catch(e){}
 }
 
@@ -13272,7 +13534,7 @@ async function adminActivateTrial(){
       localStorage.setItem('_currentTrialCode', d.code);
       window._pendingTrialExpiry=d.expiresAt;
       toast('Trial activated — '+minutes+' min','ok');
-      if(typeof adminRefreshTrialDeviceCount==='function') adminRefreshTrialDeviceCount();
+      if(typeof adminRefreshTrialDeviceCount==='function') adminRefreshTrialDeviceCount();if(typeof adminLoadTrialMinutes==='function') adminLoadTrialMinutes();
     } else {toast(d.error||'Failed','err');}
   }catch(e){toast('Network error','err');}
 }
@@ -13368,6 +13630,17 @@ window.addEventListener('load',checkTrialCode);
 <script>
 // ════ PWA INSTALL PROMPT ════════════════════════════════════════
 var _pwaPrompt = null;
+// Clear old dismissed flag on each load (older than 7 days)
+(function(){
+  var d = localStorage.getItem('pwa_dismissed');
+  if(d && (Date.now() - parseInt(d)) > 7*24*60*60*1000){
+    localStorage.removeItem('pwa_dismissed');
+  }
+  // Clear if already installed
+  if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches){
+    localStorage.setItem('pwa_installed','1');
+  }
+})();
 
 // Translate install bar
 function _pwaTranslate(){
@@ -13411,36 +13684,73 @@ function _pwaTranslate(){
 window.addEventListener('beforeinstallprompt', function(e){
   e.preventDefault();
   _pwaPrompt = e;
-  // Don't show if already dismissed
+  // Clear old dismissed flags older than 7 days
+  var dismissed = localStorage.getItem('pwa_dismissed');
+  if(dismissed && (Date.now() - parseInt(dismissed)) > 7*24*60*60*1000){
+    localStorage.removeItem('pwa_dismissed');
+  }
   if(localStorage.getItem('pwa_dismissed')) return;
   // Show after 3 seconds
   setTimeout(function(){
-    _pwaTranslate();
+    if(typeof _pwaTranslate === 'function') _pwaTranslate();
     var bar = document.getElementById('pwa-install-bar');
     if(bar) bar.style.display = 'flex';
   }, 3000);
 });
 
+// FALLBACK: If beforeinstallprompt never fires after 12s,
+// show bar anyway — clicking it will use the prompt if available
+setTimeout(function(){
+  if(localStorage.getItem('pwa_dismissed')) return;
+  if(localStorage.getItem('pwa_installed')) return;
+  if(window.matchMedia('(display-mode: standalone)').matches) return;
+  var bar = document.getElementById('pwa-install-bar');
+  if(bar && bar.style.display !== 'flex'){
+    if(typeof _pwaTranslate === 'function') _pwaTranslate();
+    bar.style.display = 'flex';
+  }
+}, 12000);
+
+window.addEventListener('appinstalled', function(){
+  localStorage.setItem('pwa_installed', '1');
+  var bar = document.getElementById('pwa-install-bar');
+  if(bar) bar.style.display = 'none';
+});
+
 function pwaBtnInstall(){
   var bar = document.getElementById('pwa-install-bar');
   if(bar) bar.style.display = 'none';
-  if(!_pwaPrompt){
-    // No install prompt available — give context-appropriate instructions
-    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if(isMobile){
-      alert('To install on iPhone: tap the Share button (□↑) then select "Add to Home Screen".\n\nOn Android: tap the 3-dot menu then "Add to Home Screen".');
-    } else {
-      alert('To install on your computer:\n\n• Chrome/Edge: look for the install icon (⊕) in the address bar on the right, then click "Install".\n\n• If you don\'t see it, make sure you are on www.smartacademy-ai.com in Chrome or Edge — Firefox and Safari do not support app installation.');
-    }
+
+  // If we have the native prompt — use it directly, no notes
+  if(_pwaPrompt){
+    _pwaPrompt.prompt();
+    _pwaPrompt.userChoice.then(function(result){
+      if(result.outcome === 'accepted'){
+        localStorage.setItem('pwa_installed','1');
+        toast('✅ Smart Academy AI installed!','ok');
+      }
+      _pwaPrompt = null;
+    });
     return;
   }
-  _pwaPrompt.prompt();
-  _pwaPrompt.userChoice.then(function(result){
-    if(result.outcome === 'accepted'){
-      toast('✅ App installed successfully!','ok');
-    }
-    _pwaPrompt = null;
-  });
+
+  // No prompt available yet — try triggering via a user gesture workaround
+  // Check if running in standalone already
+  if(window.matchMedia('(display-mode: standalone)').matches){
+    toast('✅ Already installed!','ok');
+    return;
+  }
+
+  // Last resort — brief instructions (no long note)
+  var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(isIOS){
+    toast('Tap the Share button then "Add to Home Screen"','ok',5000);
+  } else if(isMobile){
+    toast('Tap the 3-dot menu → "Add to Home Screen"','ok',5000);
+  } else {
+    toast('Click the install icon (⊕) in the address bar','ok',5000);
+  }
 }
 
 function pwaDismiss(){
@@ -13487,7 +13797,8 @@ var _pricingData = {
     ['p_1year',  1700]
   ],
   research: [ // label, usd, code_prefix, description
-    ['⏱ Standard (RM-)', 22,  'RM', '30-day access · Best for occasional analysis']
+    ['⚡ Weekly (RW-)',   5,   'RW', '7-day access · Best for short projects'],
+    ['⏱ Standard (RM-)', 10,  'RM', '30-day access · Best for occasional analysis']
   ]
 };
 var _pricingCountry = 'intl';
@@ -13699,7 +14010,7 @@ function togglePayPanel(type){
 
   // Update CDF prices when mobile panel opens
   if(!isCard){
-    setTimeout(function(){ if(typeof mobUpdateCdfPrices==='function') mobUpdateCdfPrices(); }, 100);
+    setTimeout(function(){  }, 100);
     // Auto-select 1 Week plan so button shows immediately
     setTimeout(function(){ if(!_mobPlan && typeof mobSelectPlan==='function') mobSelectPlan('W', 5); }, 150);
   }
@@ -13718,8 +14029,8 @@ function togglePayPanel(type){
 
 function pfSelectPlan(plan, price){
   _pfPlan = plan; _pfPrice = price;
-  var labels = {W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Monthly'};
-  ['W','M','Y','RM'].forEach(function(p){
+  var labels = {D:'1 Day',W:'1 Week',M:'1 Month',Y:'1 Year',RW:'Research Weekly',RM:'Research Monthly'};
+  ['D','W','M','Y','RW','RM'].forEach(function(p){
     var row   = document.getElementById('pf-plan-'+p);
     var radio = document.getElementById('pf-radio-'+p);
     var activeColor = p==='RM' ? '#a78bfa' : '#60a5fa';
@@ -13815,7 +14126,7 @@ function pfStartPolling(clientId){
 function pfShowCodeModal(code, plan){
   savePurchasedCode(code, plan, 'payfast');
   renderMyCodesTable();
-  if(/^(RM|RS|RY)-/i.test(code)){
+  if(/^(RW|RM|RS|RY)-/i.test(code)){
     // Research code — show in Pricing with message
     toast('🎉 Payment confirmed! Your code is at the top of this page ↑', 'ok', 60000);
     showPage('page-pricing');
@@ -13848,7 +14159,7 @@ function savePurchasedCode(code, plan, source){
     var stored = JSON.parse(localStorage.getItem('saa_saved_codes')||'[]');
     // Avoid duplicates
     if(stored.some(function(s){ return s.code === code; })) return;
-    var planLabels = {W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Month',RS:'Research 6 Months',RY:'Research Year'};
+    var planLabels = {D:'1 Day',W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Month',RS:'Research 6 Months',RY:'Research Year'};
     // Detect plan from code prefix if not passed explicitly
     var detectedPlan = plan;
     if(!detectedPlan){
@@ -13876,7 +14187,7 @@ function showDrcCodeOverlay(code){
     console.log('[DRC] saa_saved_codes now contains:', check.length, 'codes', check);
   }catch(e){ console.error('[DRC] Failed to verify save:', e); }
   renderMyCodesTable();
-  if(/^(RM|RS|RY)-/i.test(code)){
+  if(/^(RW|RM|RS|RY)-/i.test(code)){
     // Research code — show in Pricing with message
     toast('🎉 Payment confirmed! Your code is at the top of this page ↑', 'ok', 60000);
     showPage('page-pricing');
@@ -13928,7 +14239,7 @@ var _mobPlan = null, _mobPrice = null, _mobRegion = 'DRC'; // DRC only
 function mobCheckProceed(){
   var btn = document.getElementById('mob-proceed-btn');
   if(_mobPlan){
-    var planNames = {W:'1 Week', M:'1 Month', Y:'1 Year', RM:'Research Monthly'};
+    var planNames = {D:'1 Day', W:'1 Week', M:'1 Month', Y:'1 Year', RM:'Research Monthly'};
     var planLabel = (planNames[_mobPlan] || _mobPlan) + ' — $' + (_mobPrice || '');
     btn.textContent = '🇨🇩 Continue — ' + planLabel;
     btn.style.background = 'linear-gradient(135deg,#0891b2,#0e7490)';
@@ -13949,7 +14260,7 @@ function mobSelectPlan(plan, price){
   _mobRegion = 'DRC';
   _uaPlan = plan;
   _uaRegion = 'DRC';
-  ['W','M','Y','RM'].forEach(function(p){
+  ['D','W','M','Y','RW','RM'].forEach(function(p){
     var el = document.getElementById('mob-plan-'+p);
     var radio = document.getElementById('mob-radio-'+p);
     var activeColor = p==='RM' ? '#a78bfa' : '#06b6d4';
@@ -13971,7 +14282,7 @@ function mobProceed(){
   // this table said $90) — the Continue/proceed step would silently show
   // the wrong, stale price. Now uses the real price captured when the
   // plan was selected via mobSelectPlan(plan, price).
-  var price = _mobPrice || 5;
+  var price = _mobPrice || 7;
 
   if(_mobRegion === 'DRC'){
     // Show: DRC numbers + code box. Hide: unique amount widget, proof upload
@@ -14056,7 +14367,7 @@ async function uaGetAmount(){
 
   if(_uaRegion === 'SA' || _uaRegion === 'DRC'){
     _uaClientId = uaGetClientId();
-    _uaAmount = fixedPrices[_uaPlan] || 5;
+    _uaAmount = fixedPrices[_uaPlan] || 7;
     _uaExpiry = Date.now() + 24*60*60*1000; // 24hr
     document.getElementById('ua-step1').style.display='none';
     document.getElementById('ua-step2').style.display='block';
@@ -14136,7 +14447,7 @@ function uaRenderSlots(){
   var container=document.getElementById('ua-slots-container');
   if(!container) return;
   container.innerHTML='';
-  var planNames={W:'1 Week Individual',M:'1 Month Individual',Y:'1 Year Individual',WC:'1 Week Classroom',MC:'1 Month Classroom',YC:'1 Year Classroom'};
+  var planNames={D:'1 Day Individual',W:'1 Week Individual',M:'1 Month Individual',Y:'1 Year Individual',WC:'1 Week Classroom',MC:'1 Month Classroom',YC:'1 Year Classroom'};
   slots.forEach(function(slot,i){
     var color=slot.code?'#10b981':slot.status==='waiting'?'#f59e0b':'#06b6d4';
     var statusText=slot.code?'✅ Code Ready':'⏳ Waiting for payment match';
@@ -17491,7 +17802,12 @@ window.openGuide = function(tab){
           <!-- CODE GENERATOR -->
           <div class="admin-section">
             <div class="admin-section-title">Generate Access Code</div>
-            <div class="code-gen-grid" style="grid-template-columns:repeat(3,1fr);">
+            <div class="code-gen-grid" style="grid-template-columns:repeat(4,1fr);">
+              <div class="code-type-btn" id="ctype-D" onclick="document.querySelectorAll('.code-type-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');window._codeType='D';">
+                <span class="ct-icon">⚡</span>
+                <strong>DAILY</strong><br>
+                <span style="font-size:11px;opacity:0.6;">1 day · $2 · D-XXXXXXX</span>
+              </div>
               <div class="code-type-btn active" id="ctype-W" onclick="document.querySelectorAll('.code-type-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');window._codeType='W';">
                 <span class="ct-icon">📅</span>
                 <strong>WEEKLY</strong><br>
@@ -17586,16 +17902,23 @@ window.openGuide = function(tab){
           <!-- TRIAL CODE ADMIN -->
           <div class="admin-section" style="border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.04);">
             <div class="admin-section-title" style="color:#f59e0b;">&#127919; Free Trial</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-              <div style="font-size:12px;color:rgba(255,255,255,0.6);">Duration:</div>
-              <input type="number" id="trial-minutes" value="15" min="1" max="15"
-                style="width:60px;padding:6px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;">
-              <div style="font-size:12px;color:rgba(255,255,255,0.4);">min (max 15)</div>
+            <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:12px;margin-bottom:14px;">
+              <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Free Trial Duration</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input type="number" id="trial-minutes" value="15" min="5" max="60"
+                  style="width:70px;padding:8px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:16px;font-weight:700;font-family:'DM Sans',sans-serif;text-align:center;">
+                <div style="font-size:13px;color:rgba(255,255,255,0.5);">minutes</div>
+                <button onclick="adminSetTrialMinutes()"
+                  style="margin-left:auto;padding:8px 16px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.5);border-radius:8px;color:#f59e0b;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
+                  💾 Save
+                </button>
+              </div>
+              <div id="trial-minutes-status" style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;">Range: 5–60 minutes. Current setting loads on open.</div>
             </div>
             <div id="trial-status-bar" style="text-align:center;padding:8px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:8px;background:rgba(239,68,68,0.1);color:#ef4444;">
               &#128308; INACTIVE
             </div>
-            <div id="trial-device-count" style="text-align:center;font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:12px;"></div>
+            <div id="trial-device-count" style="margin-bottom:12px;padding:10px;background:rgba(0,212,224,0.05);border-radius:8px;border:1px solid rgba(0,212,224,0.15);min-height:40px;"></div>
             <div style="display:grid;gap:8px;">
               <button onclick="adminActivateTrial()"
                 style="padding:12px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:8px;color:#10b981;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
@@ -18242,7 +18565,7 @@ function drcPoll(){
         document.getElementById('drc-modal-code-val').textContent=d.code;
         try{
           var sv=JSON.parse(localStorage.getItem('saa_saved_codes')||'[]');
-          sv.push({code:d.code,plan:({W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Monthly'})[d.plan]||d.plan,savedAt:Date.now(),origin:'DRC'});
+          sv.push({code:d.code,plan:({D:'1 Day',W:'1 Week',M:'1 Month',Y:'1 Year',RM:'Research Monthly'})[d.plan]||d.plan,savedAt:Date.now(),origin:'DRC'});
           localStorage.setItem('saa_saved_codes',JSON.stringify(sv));
         }catch(ex){}
         localStorage.removeItem('saa_drc_pending');
@@ -18316,7 +18639,7 @@ async function adminLoadDrcPending(){
       var age=Math.floor((Date.now()-p.submittedAt)/3600000),left=Math.max(0,48-age);
       var col=age>24?'#ef4444':age>12?'#f59e0b':'#10b981';
       return '<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;">'
-        +'<div><div style="font-size:12px;font-weight:700;color:#fff;">'+(p.plan==='W'?'1 Week':p.plan==='M'?'1 Month':'1 Year')+'</div>'
+        +'<div><div style="font-size:12px;font-weight:700;color:#fff;">'+(p.plan==='D'?'1 Day':p.plan==='W'?'1 Week':p.plan==='M'?'1 Month':'1 Year')+'</div>'
         +'<div style="font-size:11px;color:rgba(255,255,255,0.4);">Ref: '+(p.ref||'—')+'</div>'
         +'<div style="font-size:11px;color:rgba(255,255,255,0.4);">'+new Date(p.submittedAt).toLocaleString()+'</div></div>'
         +'<div style="text-align:right;"><div style="font-size:11px;font-weight:700;color:'+col+';">'+age+'h ago</div>'
@@ -18369,5 +18692,17 @@ async function adminLoadDrcPending(){
 })();
 </script>
 
+
+<!-- Quiz explanation full-screen overlay -->
+<div id="quiz-explanation-overlay">
+  <div class="qeo-header">
+    <div>
+      <div style="font-size:11px;color:#06b6d4;font-weight:700;text-transform:uppercase;letter-spacing:1px;">📐 Detailed Solution</div>
+      <div id="qeo-label" style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:2px;"></div>
+    </div>
+    <button onclick="closeExplanationOverlay()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;">✕ Close</button>
+  </div>
+  <div class="qeo-body" id="qeo-body"></div>
+</div>
 </body>
 </html>

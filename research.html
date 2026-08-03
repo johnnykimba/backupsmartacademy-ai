@@ -79,11 +79,13 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
 .loading-bar-fill{height:100%;width:100%;background:linear-gradient(90deg,#1a56db,#06b6d4,#1a56db);background-size:200% auto;border-radius:999px;animation:shimmer 1.5s ease infinite;}
 .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 @media(max-width:640px){.result-grid{grid-template-columns:1fr;}}
-.result-panel{border-radius:10px;padding:16px;font-size:13px;line-height:1.6;}
+.result-panel{border-radius:10px;padding:16px;font-size:15px;line-height:1.7;}
 .result-panel.gpt{background:rgba(26,86,219,0.08);border:1px solid rgba(26,86,219,0.25);}
 .result-panel.claude{background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);}
-.result-panel-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
-.result-merged{background:rgba(6,182,212,0.1);border:2px solid rgba(6,182,212,0.4);border-radius:12px;padding:18px;margin-top:12px;}
+.result-panel-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
+.result-merged{background:rgba(6,182,212,0.1);border:2px solid rgba(6,182,212,0.4);border-radius:12px;padding:20px;margin-top:12px;font-size:15px;line-height:1.7;}
+.result-merged-title{font-size:14px;font-weight:800;color:var(--cyan);margin-bottom:12px;}
+.result-merged-body{font-size:15px;line-height:1.7;color:var(--text);}
 .scorecard{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;}
 .scorecard-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin-bottom:10px;}
 .scorecard-hero{text-align:center;padding:8px 0 12px;border-bottom:1px solid var(--border);margin-bottom:10px;}
@@ -99,6 +101,10 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
 .score-label{font-size:10px;color:var(--muted);margin-top:2px;}
 .download-row{display:flex;gap:10px;margin-top:14px;}
 .download-btn{flex:1;padding:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;}
+.preset-btn{background:rgba(0,212,224,0.07);border:1px solid rgba(0,212,224,0.2);border-radius:99px;color:rgba(255,255,255,0.8);font-size:11px;font-weight:600;padding:5px 12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
+.preset-btn:hover{background:rgba(0,212,224,0.15);border-color:rgba(0,212,224,0.5);color:#fff;}
+.preset-btn-warn{background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.3);color:rgba(245,158,11,0.9);}
+.preset-btn-warn:hover{background:rgba(245,158,11,0.15);}
 .download-btn:hover{background:rgba(255,255,255,0.1);}
 .result-merged-title{font-size:12px;font-weight:800;color:var(--cyan);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
 .result-merged-body{font-size:14px;color:#fff;line-height:1.7;overflow-wrap:break-word;word-wrap:break-word;}
@@ -148,8 +154,8 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
   <div class="access-card">
     <div class="access-icon">🔬</div>
     <h2 data-rt="gate_title">Research / Professional Access</h2>
-    <p data-rt="gate_desc">Enter your Research access code (starts with RM-, RS-, or RY-) to unlock document analysis.</p>
-    <input id="gate-code-input" class="access-input" type="text" placeholder="e.g. RM-XXXXXXX" maxlength="14"
+    <p data-rt="gate_desc">Enter your Research access code (starts with RW-, RM-, RS-, or RY-) to unlock document analysis.</p>
+    <input id="gate-code-input" class="access-input" type="text" placeholder="e.g. RW-XXXXXXX or RM-XXXXXXX" maxlength="14"
       oninput="this.value=this.value.toUpperCase()"
       onkeydown="if(event.key==='Enter') verifyGate()">
     <div id="gate-error" class="access-error"></div>
@@ -169,9 +175,49 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
     </div>
 
     <div class="upload-zone">
-      <button class="attach-btn" id="attach-btn" data-rt="attach_files">📎 Attach files — PDF, photos, Excel, Word</button>
-      <input type="file" id="attach-input" multiple accept=".csv,.xlsx,.xls,.pdf,.png,.jpg,.jpeg,.doc,.docx" style="display:none;">
-      <div id="files-preview" style="margin-top:10px;"></div>
+
+      <!-- ── MODE TABS ── -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <button onclick="setResearchMode('doc')" id="mode-tab-doc"
+          style="flex:1;padding:9px;border:1.5px solid rgba(0,212,224,0.5);border-radius:9px;background:rgba(0,212,224,0.12);color:#00d4e0;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
+          📄 With Document
+        </button>
+        <button onclick="setResearchMode('nodoc')" id="mode-tab-nodoc"
+          style="flex:1;padding:9px;border:1.5px solid rgba(255,255,255,0.1);border-radius:9px;background:transparent;color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
+          💬 Ask AI Directly
+        </button>
+      </div>
+
+      <!-- ── DOCUMENT MODE ── -->
+      <div id="research-doc-mode">
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <button class="attach-btn" id="attach-btn" data-rt="attach_files" style="flex:1;">📎 Attach files — PDF, Excel, Word</button>
+          <button onclick="document.getElementById('camera-input').click()"
+            style="padding:10px 14px;border:1.5px solid rgba(0,212,224,0.35);border-radius:10px;background:rgba(0,212,224,0.08);color:#00d4e0;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;">
+            📷 Take Photo
+          </button>
+          <button onclick="clearAllResearchFiles()"
+            style="padding:10px 14px;border:1.5px solid rgba(239,68,68,0.35);border-radius:10px;background:rgba(239,68,68,0.08);color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;" title="Remove all uploaded files">
+            🗑️
+          </button>
+        </div>
+        <input type="file" id="attach-input" multiple accept=".csv,.xlsx,.xls,.pdf,.png,.jpg,.jpeg,.doc,.docx" style="display:none;">
+        <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;">
+        <div id="files-preview" style="margin-top:10px;"></div>
+      </div>
+
+      <!-- ── NO-DOC MODE ── -->
+      <div id="research-nodoc-mode" style="display:none;">
+        <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.25);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:rgba(255,255,255,0.6);line-height:1.5;">
+          🧠 Ask anything — research questions, analysis, explanations, calculations. No document needed.
+        </div>
+      </div>
+      <!-- ── NODOC ACTION BUTTONS (shown in nodoc mode only) ── -->
+      <div id="nodoc-action-btns" style="display:none;gap:8px;margin-top:10px;">
+        <button onclick="runNodocAnalysis('gpt')" style="flex:1;padding:11px;background:linear-gradient(135deg,#1a56db,#06b6d4);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">⚡ GPT-4o</button>
+        <button onclick="runNodocAnalysis('claude')" style="flex:1;padding:11px;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🧠 Claude</button>
+        <button onclick="runNodocAnalysis('dual')" style="flex:1;padding:11px;background:linear-gradient(135deg,#059669,#10b981);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🔬 DualMind</button>
+      </div>
 
       <div class="pdf-panel" id="pdf-panel">
         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -191,18 +237,82 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
         <div id="pdf-status" style="font-size:11px;color:#10b981;margin-top:6px;display:none;"></div>
       </div>
 
-      <textarea id="question-input" placeholder="Ask a question about your document (e.g. 'Summarize the key findings')" data-rt-ph="question_ph"></textarea>
+      <!-- ── PRESET ACTION BUTTONS ── -->
+      <div id="preset-btns-container" style="margin-top:12px;margin-bottom:4px;">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Quick Actions</div>
 
-      <div style="display:flex;gap:10px;margin-top:12px;">
+        <!-- Analysis group -->
+        <div style="font-size:10px;color:rgba(0,212,224,0.6);font-weight:700;letter-spacing:1px;margin-bottom:5px;">📊 ANALYSIS</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+          <button class="preset-btn" onclick="runPreset('Analyse this document thoroughly. Provide a structured analysis covering the main topics, key arguments, evidence presented, and overall conclusions.')">🔍 Analyse</button>
+          <button class="preset-btn" onclick="runPreset('Provide a comprehensive summary of this document in clear, structured paragraphs.')">📋 Summarize</button>
+          <button class="preset-btn" onclick="runPreset('Extract and list the most important key points from this document in bullet form.')">⭐ Key Points</button>
+          <button class="preset-btn" onclick="runPreset('Identify all trends and patterns visible in this document or data.')">📈 Trends</button>
+          <button class="preset-btn" onclick="runPreset('List the pros and cons or advantages and disadvantages discussed or implied in this document.')">⚖️ Pros & Cons</button>
+          <button class="preset-btn preset-btn-warn" onclick="runWhatsMissing()">🧩 What is Missing?</button>
+        </div>
+
+        <!-- Content group -->
+        <div style="font-size:10px;color:rgba(0,212,224,0.6);font-weight:700;letter-spacing:1px;margin-bottom:5px;">📝 CONTENT</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+          <button class="preset-btn" onclick="runPreset('Rewrite the main content of this document in simpler, easier to understand language.')">🔄 Simplify</button>
+          <div style="position:relative;display:inline-block;">
+            <button class="preset-btn" onclick="document.getElementById('translate-menu').style.display=document.getElementById('translate-menu').style.display==='block'?'none':'block'">🌍 Translate ▾</button>
+            <div id="translate-menu" style="display:none;position:absolute;top:110%;left:0;background:#0d1f3c;border:1px solid rgba(0,212,224,0.3);border-radius:10px;padding:6px;z-index:999;min-width:150px;box-shadow:0 8px 24px rgba(0,0,0,0.4);">
+              <div onclick="runPreset('Translate the full content of this document to French. Keep all technical terms accurate.');document.getElementById('translate-menu').style.display='none'" style="padding:7px 12px;cursor:pointer;color:#fff;font-size:12px;font-weight:600;border-radius:6px;" onmouseover="this.style.background='rgba(0,212,224,0.1)'" onmouseout="this.style.background='transparent'">🇫🇷 French</div>
+              <div onclick="runPreset('Translate the full content of this document to Spanish. Keep all technical terms accurate.');document.getElementById('translate-menu').style.display='none'" style="padding:7px 12px;cursor:pointer;color:#fff;font-size:12px;font-weight:600;border-radius:6px;" onmouseover="this.style.background='rgba(0,212,224,0.1)'" onmouseout="this.style.background='transparent'">🇪🇸 Spanish</div>
+              <div onclick="runPreset('Translate the full content of this document to Portuguese. Keep all technical terms accurate.');document.getElementById('translate-menu').style.display='none'" style="padding:7px 12px;cursor:pointer;color:#fff;font-size:12px;font-weight:600;border-radius:6px;" onmouseover="this.style.background='rgba(0,212,224,0.1)'" onmouseout="this.style.background='transparent'">🇧🇷 Portuguese</div>
+              <div onclick="runPreset('Translate the full content of this document to Arabic. Keep all technical terms accurate.');document.getElementById('translate-menu').style.display='none'" style="padding:7px 12px;cursor:pointer;color:#fff;font-size:12px;font-weight:600;border-radius:6px;" onmouseover="this.style.background='rgba(0,212,224,0.1)'" onmouseout="this.style.background='transparent'">🇸🇦 Arabic</div>
+              <div onclick="runPreset('Translate the full content of this document to Swahili. Keep all technical terms accurate.');document.getElementById('translate-menu').style.display='none'" style="padding:7px 12px;cursor:pointer;color:#fff;font-size:12px;font-weight:600;border-radius:6px;" onmouseover="this.style.background='rgba(0,212,224,0.1)'" onmouseout="this.style.background='transparent'">🌍 Swahili</div>
+              <div onclick="runPreset('Translate the full content of this document to Chinese (Mandarin). Keep all technical terms accurate.');document.getElementById('translate-menu').style.display='none'" style="padding:7px 12px;cursor:pointer;color:#fff;font-size:12px;font-weight:600;border-radius:6px;" onmouseover="this.style.background='rgba(0,212,224,0.1)'" onmouseout="this.style.background='transparent'">🇨🇳 Chinese</div>
+              <div onclick="runPreset('Translate the full content of this document to Afrikaans. Keep all technical terms accurate.');document.getElementById('translate-menu').style.display='none'" style="padding:7px 12px;cursor:pointer;color:#fff;font-size:12px;font-weight:600;border-radius:6px;" onmouseover="this.style.background='rgba(0,212,224,0.1)'" onmouseout="this.style.background='transparent'">🇿🇦 Afrikaans</div>
+            </div>
+          </div>
+          <button class="preset-btn" onclick="runPreset('Explain the main content of this document as if explaining to someone with no background in this field.')">💬 Explain Simply</button>
+          <button class="preset-btn" onclick="runPreset('Write a concise executive summary of this document suitable for senior management or leadership.')">🎯 Executive Summary</button>
+        </div>
+
+        <!-- Research group -->
+        <div style="font-size:10px;color:rgba(0,212,224,0.6);font-weight:700;letter-spacing:1px;margin-bottom:5px;">🔬 RESEARCH</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+          <button class="preset-btn" onclick="runPreset('Review the methodology or approach described in this document. Comment on its strengths, weaknesses and validity.')">🧪 Methodology</button>
+          <button class="preset-btn" onclick="runPreset('What gaps exist in the research or information presented in this document? What is missing or not addressed?')">📚 Research Gaps</button>
+          <button class="preset-btn" onclick="runPreset('Extract all numerical data, statistics, measurements and figures from this document and present them in a structured format.')">🔢 Extract Data</button>
+          <button class="preset-btn" onclick="runPreset('Identify all risks, limitations and potential issues raised or implied in this document.')">⚠️ Risks</button>
+          <button class="preset-btn" onclick="runPreset('Identify all claims in this document and assess which ones are well-supported by evidence and which need verification.')">✅ Fact Check</button>
+        </div>
+
+        <!-- Professional group -->
+        <div style="font-size:10px;color:rgba(0,212,224,0.6);font-weight:700;letter-spacing:1px;margin-bottom:5px;">💼 PROFESSIONAL</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+          <button class="preset-btn" onclick="runPreset('Based on this document, draft a professional report with introduction, findings, analysis and recommendations.')">📄 Draft Report</button>
+          <button class="preset-btn" onclick="runPreset('Based on this document, draft a professional email summarising the key information for a colleague or client.')">✉️ Draft Email</button>
+          <button class="preset-btn" onclick="runPreset('Extract all action items, tasks and next steps mentioned or implied in this document.')">📌 Action Items</button>
+          <button class="preset-btn" onclick="runPreset('Based on the analysis of this document, provide concrete recommendations and next steps.')">💡 Recommendations</button>
+          <button class="preset-btn" onclick="runPreset('Devise a structured implementation plan based on the content of this document.')">🗺️ Devise Plan</button>
+        </div>
+      </div>
+
+      <!-- Question input with mic -->
+      <div style="position:relative;margin-top:10px;">
+        <textarea id="question-input" placeholder="Ask a question about your document (e.g. 'Summarize the key findings')" data-rt-ph="question_ph" style="padding-right:50px;"></textarea>
+        <button id="mic-btn" onclick="toggleMic()" title="Speak your question"
+          style="position:absolute;right:10px;bottom:10px;width:34px;height:34px;border-radius:50%;border:none;background:rgba(0,212,224,0.15);color:#00d4e0;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+          🎤
+        </button>
+      </div>
+
+      <!-- Doc mode buttons — hidden in nodoc mode -->
+      <div id="doc-analyze-btns" style="display:flex;gap:10px;margin-top:12px;">
         <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()" style="flex:1;">🔬 DualMind (GPT + Claude)</button>
         <button class="analyze-btn" id="claude-btn" onclick="runClaudeOnly()" style="flex:1;background:linear-gradient(135deg,#7c3aed,#a78bfa);">🧠 Claude Only</button>
       </div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;text-align:center;">🔬 DualMind = best for up to 30 pages &nbsp;|&nbsp; 🧠 Claude = up to 200 pages</div>
+      <div id="doc-analyze-hint" style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;text-align:center;">🔬 DualMind = best for up to 30 pages &nbsp;|&nbsp; 🧠 Claude = up to 200 pages</div>
     </div>
 
-    <div id="results"></div>
   </div>
 </div>
+<div id="results" style="padding:20px 16px 60px;max-width:780px;margin:0 auto;min-height:20px;font-size:15px;"></div>
 
 <script>
 // ════════════════════════════════════════════════════════════
@@ -216,8 +326,8 @@ textarea#question-input{width:100%;min-height:80px;padding:14px;border-radius:10
 // since this is a standalone page. Covers 10 core languages.
 // ════════════════════════════════════════════════════════════
 var RT_DICT = {
-  en:{back_home:'🏠 Back to Home', gate_title:'Research / Professional Access', gate_desc:'Enter your Research access code (starts with RM-, RS-, or RY-) to unlock document analysis.', unlock_btn:'🚀 Unlock Research Mode', back_home_arrow:'← Back to Home', doc_analysis:'Document Analysis', attach_files:'📎 Attach files — PDF, photos, Excel, Word', select_pages:'📋 Select Page Range', clear_all:'🗑️ Clear All', from_lbl:'From', to_lbl:'To', max_pages:'Max 200 pages', question_ph:"Ask a question about your document (e.g. 'Summarize the key findings')", analyze_btn:'🔬 Analyze Document'},
-  fr:{back_home:'🏠 Retour à l\'accueil', gate_title:'Accès Recherche / Professionnel', gate_desc:'Entrez votre code d\'accès Recherche (commence par RM-, RS- ou RY-) pour débloquer l\'analyse de documents.', unlock_btn:'🚀 Débloquer le Mode Recherche', back_home_arrow:'← Retour à l\'accueil', doc_analysis:'Analyse de Document', attach_files:'📎 Joindre des fichiers — PDF, photos, Excel, Word', select_pages:'📋 Sélectionner la Plage de Pages', clear_all:'🗑️ Tout Effacer', from_lbl:'De', to_lbl:'À', max_pages:'Max 200 pages', question_ph:"Posez une question sur votre document (ex. 'Résumez les points clés')", analyze_btn:'🔬 Analyser le Document'},
+  en:{back_home:'🏠 Back to Home', gate_title:'Research / Professional Access', gate_desc:'Enter your Research access code (starts with RW-, RM-, RS-, or RY-) to unlock document analysis.', unlock_btn:'🚀 Unlock Research Mode', back_home_arrow:'← Back to Home', doc_analysis:'Document Analysis', attach_files:'📎 Attach files — PDF, photos, Excel, Word', select_pages:'📋 Select Page Range', clear_all:'🗑️ Clear All', from_lbl:'From', to_lbl:'To', max_pages:'Max 200 pages', question_ph:"Ask a question about your document (e.g. 'Summarize the key findings')", analyze_btn:'🔬 Analyze Document'},
+  fr:{back_home:'🏠 Retour à l\'accueil', gate_title:'Accès Recherche / Professionnel', gate_desc:'Entrez votre code d\'accès Recherche (commence par RW-, RM-, RS- ou RY-) pour débloquer l\'analyse de documents.', unlock_btn:'🚀 Débloquer le Mode Recherche', back_home_arrow:'← Retour à l\'accueil', doc_analysis:'Analyse de Document', attach_files:'📎 Joindre des fichiers — PDF, photos, Excel, Word', select_pages:'📋 Sélectionner la Plage de Pages', clear_all:'🗑️ Tout Effacer', from_lbl:'De', to_lbl:'À', max_pages:'Max 200 pages', question_ph:"Posez une question sur votre document (ex. 'Résumez les points clés')", analyze_btn:'🔬 Analyser le Document'},
   pt:{back_home:'🏠 Voltar ao Início', gate_title:'Acesso Pesquisa / Profissional', gate_desc:'Insira o seu código de acesso de Pesquisa (começa com RM-, RS- ou RY-) para desbloquear a análise de documentos.', unlock_btn:'🚀 Desbloquear Modo Pesquisa', back_home_arrow:'← Voltar ao Início', doc_analysis:'Análise de Documento', attach_files:'📎 Anexar ficheiros — PDF, fotos, Excel, Word', select_pages:'📋 Selecionar Intervalo de Páginas', clear_all:'🗑️ Limpar Tudo', from_lbl:'De', to_lbl:'Até', max_pages:'Máx. 30 páginas', question_ph:"Faça uma pergunta sobre o seu documento (ex. 'Resuma os principais resultados')", analyze_btn:'🔬 Analisar Documento'},
   sw:{back_home:'🏠 Rudi Nyumbani', gate_title:'Ufikiaji wa Utafiti / Kitaaluma', gate_desc:'Ingiza msimbo wako wa ufikiaji wa Utafiti (huanza na RM-, RS-, au RY-) ili kufungua uchambuzi wa hati.', unlock_btn:'🚀 Fungua Hali ya Utafiti', back_home_arrow:'← Rudi Nyumbani', doc_analysis:'Uchambuzi wa Hati', attach_files:'📎 Pakia faili — PDF, picha, Excel, Word', select_pages:'📋 Chagua Kurasa', clear_all:'🗑️ Futa Yote', from_lbl:'Kutoka', to_lbl:'Hadi', max_pages:'Upeo kurasa 30', question_ph:"Uliza swali kuhusu hati yako (mf. 'Fanya muhtasari wa matokeo muhimu')", analyze_btn:'🔬 Changanua Hati'},
   zu:{back_home:'🏠 Buyela Ekhaya', gate_title:'Ukufinyelela Kocwaningo / Ochwepheshe', gate_desc:'Faka ikhodi yakho yokufinyelela Ucwaningo (iqala ngo-RM-, RS-, noma RY-) ukuvula ukuhlaziya kwedokhumenti.', unlock_btn:'🚀 Vula Imodi Yocwaningo', back_home_arrow:'← Buyela Ekhaya', doc_analysis:'Ukuhlaziya Idokhumenti', attach_files:'📎 Faka amafayela — PDF, izithombe, Excel, Word', select_pages:'📋 Khetha Ibanga Lamakhasi', clear_all:'🗑️ Sula Konke', from_lbl:'Kusuka', to_lbl:'Kuya', max_pages:'Amakhasi angeqe 30', question_ph:"Buza umbuzo mayelana nedokhumenti yakho (isb. 'Shwepesha okutholakele okubalulekile')", analyze_btn:'🔬 Hlaziya Idokhumenti'},
@@ -367,15 +477,13 @@ window.addEventListener('load', function(){
   var pendingCode = urlParams.get('code') || sessionStorage.getItem('prof_pending_code');
 
   // DEBUG — shows in browser console so we can diagnose if auto-open still fails
-  console.log('[Research] full URL:', window.location.href);
-  console.log('[Research] ?code param:', urlParams.get('code'));
-  console.log('[Research] sessionStorage prof_pending_code:', sessionStorage.getItem('prof_pending_code'));
-  console.log('[Research] pendingCode resolved:', pendingCode);
+
+
+
 
   if(pendingCode){
     sessionStorage.removeItem('prof_pending_code');
     pendingCode = pendingCode.toUpperCase().trim();
-    console.log('[Research auto-open] will verify:', pendingCode);
 
     var inp   = document.getElementById('gate-code-input');
     var errEl = document.getElementById('gate-error');
@@ -386,7 +494,6 @@ window.addEventListener('load', function(){
       errEl.textContent   = '⏳ Verifying ' + pendingCode + '...';
       // Step 1: fill + wait 300ms (same as Learner)
       setTimeout(function(){
-        console.log('[Research auto-open] calling verifyGateDirect with:', pendingCode);
         verifyGateDirect(pendingCode);
       }, 300);
     } else {
@@ -687,14 +794,27 @@ async function runAnalysis(){
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({_appSecret: PROF_APP_SECRET, action:'analyze-document', question:question, images:images, docText:docText, code: sessionStorage.getItem('prof_verified_code')||''})
     });
+    if(!res.ok){
+      var errMsg2 = res.status === 524
+        ? '⏱ The analysis timed out. Try selecting fewer pages.'
+        : '⚠️ Server error ' + res.status + '. Please try again.';
+      resultsEl.innerHTML = '<div style="color:#ef4444;padding:16px;">' + errMsg2 + '</div>';
+  setTimeout(applyMathToResults, 200);
+      return;
+    }
     var data = await res.json();
     if(!data.ok){
       resultsEl.innerHTML = '<div style="color:#ef4444;padding:16px;">Error: ' + (data.error||'Unknown error') + '</div>';
+  setTimeout(applyMathToResults, 200);
       return;
     }
     renderResults(data);
   }catch(e){
-    resultsEl.innerHTML = '<div style="color:#ef4444;padding:16px;">Error: ' + e.message + '</div>';
+    var msgA = (e.message||'').toLowerCase().indexOf('json') !== -1
+      ? '⏱ The server response was invalid — this usually means the analysis timed out (error 524). Try selecting fewer pages, or use 🧠 Claude Only which handles large documents more reliably.'
+      : 'Error: ' + e.message;
+    resultsEl.innerHTML = '<div style="color:#ef4444;padding:16px;line-height:1.6;">' + msgA + '</div>';
+  setTimeout(applyMathToResults, 200);
   }finally{
     btn.disabled = false; btn.textContent = '🔬 Analyze Document';
   }
@@ -764,9 +884,18 @@ async function runClaudeOnly(){
         claudeOnly: true  // signals the worker to use Claude only, skip GPT
       })
     });
+    if(!res.ok){
+      var errMsg2 = res.status === 524
+        ? '⏱ The analysis timed out. Try selecting fewer pages.'
+        : '⚠️ Server error ' + res.status + '. Please try again.';
+      resultsEl.innerHTML = '<div style="color:#ef4444;padding:16px;">' + errMsg2 + '</div>';
+  setTimeout(applyMathToResults, 200);
+      return;
+    }
     var data = await res.json();
     if(!data.ok){
       resultsEl.innerHTML = '<div style="color:#ef4444;padding:16px;">Error: ' + (data.error||'Unknown error') + '</div>';
+  setTimeout(applyMathToResults, 200);
       return;
     }
     // Claude-only: show the claudeAnswer or mergedAnswer in a single clean panel
@@ -779,12 +908,20 @@ async function runClaudeOnly(){
         '<div class="download-row">' +
           '<button class="download-btn" onclick="downloadWord()">⬇️ Download Word</button>' +
           '<button class="download-btn" onclick="downloadPDF()">⬇️ Download PDF</button>' +
+          '<button class="download-btn" id="read-aloud-btn" onclick="toggleReadAloud()">🔊 Read Aloud</button>' +
         '</div>' +
       '</div>';
     if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([resultsEl]).catch(function(){});
-    setTimeout(function(){ resultsEl.scrollIntoView({behavior:'smooth', block:'start'}); }, 150);
+    resultsEl.style.display = 'block';
+  setTimeout(function(){
+    resultsEl.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 200);
   }catch(e){
-    resultsEl.innerHTML = '<div style="color:#ef4444;padding:16px;">Error: ' + e.message + '</div>';
+    var msg2 = (e.message||'').toLowerCase().indexOf('json') !== -1
+      ? '⏱ The server response was invalid — this usually means the analysis timed out. Try selecting fewer pages.'
+      : 'Error: ' + e.message;
+    resultsEl.innerHTML = '<div style="color:#ef4444;padding:16px;line-height:1.6;">' + msg2 + '</div>';
+  setTimeout(applyMathToResults, 200);
   }finally{
     btn.disabled = false; btn.textContent = '🧠 Claude Only';
     if(analyzeBtn) analyzeBtn.disabled = false;
@@ -793,8 +930,11 @@ async function runClaudeOnly(){
 
 function simpleMarkdown(text){
   if(!text) return '';
-  // Use marked.js (already loaded) for proper markdown including tables.
-  // Falls back to a basic converter if marked isn't available.
+  // Apply math notation first
+  if(typeof fixMath === 'function' && text.indexOf('saa-frac') === -1){
+    text = fixMath(text);
+  }
+  // Use marked.js for markdown
   if(window.marked){
     try{
       return marked.parse(text, {breaks:true, gfm:true});
@@ -855,21 +995,38 @@ function buildScorecardHTML(sc){
 function renderResults(data){
   lastResultData = data;
   var resultsEl = document.getElementById('results');
-  var scorecardHtml = buildScorecardHTML(data.scorecard);
+  if(!resultsEl) return;
+  var scorecardHtml = data.scorecard ? buildScorecardHTML(data.scorecard) : '';
+
+  var gptHtml  = data.gptAnswer    ? simpleMarkdown(data.gptAnswer)    : '';
+  var cldHtml  = data.claudeAnswer ? simpleMarkdown(data.claudeAnswer) : '';
+  var mrgHtml  = data.mergedAnswer ? simpleMarkdown(data.mergedAnswer) : (gptHtml || cldHtml);
+
+  // Build result panels — hide empty panels
+  var panels = '';
+  if(gptHtml)  panels += '<div class="result-panel gpt"><div class="result-panel-title" style="color:#1a56db;">🤖 GPT-4o</div>' + gptHtml + '</div>';
+  if(cldHtml)  panels += '<div class="result-panel claude"><div class="result-panel-title" style="color:#a78bfa;">🧠 Claude</div>' + cldHtml + '</div>';
+
+  // If only one panel, show full width
+  var gridStyle = (!gptHtml || !cldHtml) ? 'grid-template-columns:1fr;' : '';
 
   resultsEl.innerHTML =
-    '<div class="result-grid">' +
-      '<div class="result-panel gpt"><div class="result-panel-title" style="color:#1a56db;">🤖 GPT-4o</div>' + simpleMarkdown(data.gptAnswer) + '</div>' +
-      '<div class="result-panel claude"><div class="result-panel-title" style="color:#a78bfa;">🧠 Claude</div>' + simpleMarkdown(data.claudeAnswer) + '</div>' +
-    '</div>' +
-    '<div class="result-merged">' + scorecardHtml + '<div class="result-merged-title">📋 Verified Final Result</div>' +
-    '<div class="result-merged-body" id="merged-body-text">' + simpleMarkdown(data.mergedAnswer) + '</div>' +
+    '<div class="result-grid" style="' + gridStyle + '">' + panels + '</div>' +
+    '<div class="result-merged">' + scorecardHtml +
+    '<div class="result-merged-title">📋 Result</div>' +
+    '<div class="result-merged-body" id="merged-body-text">' + mrgHtml + '</div>' +
     '<div class="download-row">' +
       '<button class="download-btn" onclick="downloadWord()">⬇️ Download Word</button>' +
       '<button class="download-btn" onclick="downloadPDF()">⬇️ Download PDF</button>' +
+      '<button class="download-btn" id="read-aloud-btn2" onclick="toggleReadAloud()">🔊 Read Aloud</button>' +
     '</div></div>';
+
   if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([resultsEl]).catch(function(){});
-  setTimeout(function(){ resultsEl.scrollIntoView({behavior:'smooth', block:'start'}); }, 150);
+  setTimeout(applyMathToResults, 200);
+  resultsEl.style.display = 'block';
+  setTimeout(function(){
+    resultsEl.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 200);
 }
 
 function downloadWord(){
@@ -937,6 +1094,317 @@ function downloadPDF(){
 </script>
 <div id="toast" onclick="this.className='';clearTimeout(window._tt);" style="cursor:pointer;"></div>
 <script>
+
+// ── MATH NOTATION (same pipeline as learner/student) ────────────
+// Alias so simpleMarkdown can call fixMath
+function fixMath(s){ return fixMathResearch(s); }
+
+function fixMathResearch(s){
+  if(!s || typeof s !== 'string') return s;
+  // STEP 0: form-feed fix
+  s = s.replace(/([a-zA-Z])/g, function(m,c){ return '\f'+c; });
+  // STEP 1: \left \right → plain brackets
+  s = s.replace(/\\left\s*\(/g,'(').replace(/\\right\s*\)/g,')');
+  s = s.replace(/\\left\s*\[/g,'[').replace(/\\right\s*\]/g,']');
+  s = s.replace(/\\left\s*\|/g,'|').replace(/\\right\s*\|/g,'|');
+  s = s.replace(/\\bigg?\s*\|/g,'|');
+  // STEP 1c: strip slash artifacts
+  s = s.replace(/\\\//g,'').replace(/\\,/g,' ').replace(/\\;/g,' ').replace(/\\!/g,'');
+  // STEP 2: Greek/symbols → Unicode
+  var greek={'\\alpha':'α','\\beta':'β','\\gamma':'γ','\\delta':'δ',
+    '\\epsilon':'ε','\\theta':'θ','\\lambda':'λ','\\mu':'μ',
+    '\\pi':'π','\\sigma':'σ','\\phi':'φ','\\omega':'ω',
+    '\\Delta':'Δ','\\Sigma':'Σ','\\Omega':'Ω','\\infty':'∞',
+    '\\int':'∫','\\sum':'∑','\\prod':'∏','\\leq':'≤','\\geq':'≥',
+    '\\neq':'≠','\\approx':'≈','\\times':'×','\\div':'÷',
+    '\\pm':'±','\\cdot':'·','\\degree':'°','\\%':'%'};
+  Object.keys(greek).forEach(function(k){ s=s.split(k).join(greek[k]); });
+  // STEP 3: sqrt in all forms → √()
+  s = s.replace(/\\sqrt\{([^}]+)\}/g,'√($1)');
+  s = s.replace(/\bsqrt\{([^}]+)\}/g,'√($1)');
+  s = s.replace(/\\?sqrt\(([^()]+)\)/g,'√($1)');
+  s = s.replace(/\bsqrt\s+([A-Za-z0-9]+)/g,'√($1)');
+  // STEP 4: \frac{n}{d} → CSS horizontal bar
+  var _su={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  function _fhSup(t){
+    return t.replace(/([A-Za-z0-9])\^\{(-?\d+)\}/g,function(m,b,e){
+      return b+e.split('').map(function(c){return _su[c]||c;}).join('');
+    }).replace(/([A-Za-z0-9])\^(-?\d+)/g,function(m,b,e){
+      return b+e.split('').map(function(c){return _su[c]||c;}).join('');
+    });
+  }
+  function _fh(n,d){
+    return '<span style="display:inline-block;vertical-align:middle;text-align:center;margin:0 3px;line-height:1.2;">'+
+      '<span style="display:block;border-bottom:1.5px solid currentColor;padding:0 3px;font-size:0.9em;">'+_fhSup(n)+'</span>'+
+      '<span style="display:block;padding:0 3px;font-size:0.9em;">'+_fhSup(d)+'</span></span>';
+  }
+  for(var fi=0;fi<4;fi++){
+    s=s.replace(/\\frac\{((?:[^{}]|\{[^{}]*\})*)\}\{((?:[^{}]|\{[^{}]*\})*)\}/g,function(m,n,d){return _fh(n,d);});
+  }
+  // STEP 5: bare carets → Unicode superscripts
+  var _supU={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  function _toSup(exp){
+    exp=exp.replace(/^\{|\}$/g,'').trim();
+    if(/^-?\d+$/.test(exp)) return exp.split('').map(function(c){return _supU[c]||c;}).join('');
+    return '^('+exp+')';
+  }
+  s=s.replace(/(\([^()]*\))\s*\^\s*(\{[^}]+\}|[A-Za-z0-9][A-Za-z0-9\/]*)/g,function(m,b,e){ return b.trim()+_toSup(e); });
+  s=s.replace(/([A-Za-z0-9])\s*\^\s*(\{[^}]+\}|[A-Za-z0-9][A-Za-z0-9\/]*)/g,function(m,b,e){ return b+_toSup(e); });
+  // STEP 6: strip stray \( \) delimiters
+  s=s.replace(/\\\)/g,')').replace(/\\\(/g,'(');
+  return s;
+}
+
+// Apply fixMath to results content
+function applyMathToResults(){
+  var els = document.querySelectorAll('.result-text, .result-body, #results-area, .results-content, .gpt-answer, .claude-answer');
+  els.forEach(function(el){
+    if(el && !el.dataset.mathFixed){
+      el.innerHTML = fixMathResearch(el.innerHTML);
+      el.dataset.mathFixed = '1';
+    }
+  });
+}
+
+// ── RESEARCH MODE SWITCHING ──────────────────────────────────────
+var _researchMode = 'doc';
+function setResearchMode(mode){
+  _researchMode = mode;
+  var docMode = document.getElementById('research-doc-mode');
+  var nodocMode = document.getElementById('research-nodoc-mode');
+  var pdfPanel = document.getElementById('pdf-panel');
+  var tabDoc = document.getElementById('mode-tab-doc');
+  var tabNodoc = document.getElementById('mode-tab-nodoc');
+  var analyzeBtn = document.getElementById('analyze-btn');
+  var placeholder = document.getElementById('question-input');
+
+  if(mode === 'doc'){
+    if(docMode) docMode.style.display = 'block';
+    if(nodocMode) nodocMode.style.display = 'none';
+    if(tabDoc){ tabDoc.style.borderColor='rgba(0,212,224,0.5)'; tabDoc.style.background='rgba(0,212,224,0.12)'; tabDoc.style.color='#00d4e0'; }
+    if(tabNodoc){ tabNodoc.style.borderColor='rgba(255,255,255,0.1)'; tabNodoc.style.background='transparent'; tabNodoc.style.color='rgba(255,255,255,0.5)'; }
+    if(placeholder) placeholder.placeholder = "Ask a question about your document (e.g. 'Summarize the key findings')";
+    // Show doc buttons, hide nodoc buttons
+    var docBtns = document.getElementById('doc-analyze-btns');
+    var docHint = document.getElementById('doc-analyze-hint');
+    var nodocBtns2 = document.getElementById('nodoc-action-btns');
+    if(docBtns) docBtns.style.display = 'flex';
+    if(docHint) docHint.style.display = 'block';
+    if(nodocBtns2) nodocBtns2.style.display = 'none';
+    var presetCont2 = document.getElementById('preset-btns-container');
+    if(presetCont2) presetCont2.style.display = 'block';
+    var nodocBtns = document.getElementById('nodoc-action-btns');
+    if(nodocBtns) nodocBtns.style.display = 'none';
+    if(analyzeBtn) analyzeBtn.style.display = '';
+  } else {
+    if(docMode) docMode.style.display = 'none';
+    if(nodocMode) nodocMode.style.display = 'block';
+    if(pdfPanel) pdfPanel.style.display = 'none';
+    if(tabDoc){ tabDoc.style.borderColor='rgba(255,255,255,0.1)'; tabDoc.style.background='transparent'; tabDoc.style.color='rgba(255,255,255,0.5)'; }
+    if(tabNodoc){ tabNodoc.style.borderColor='rgba(124,58,237,0.5)'; tabNodoc.style.background='rgba(124,58,237,0.12)'; tabNodoc.style.color='#a78bfa'; }
+    if(placeholder) placeholder.placeholder = 'Ask anything — research questions, analysis, calculations, explanations...';
+    // Hide doc buttons, show nodoc buttons
+    var docBtns = document.getElementById('doc-analyze-btns');
+    var docHint = document.getElementById('doc-analyze-hint');
+    if(docBtns) docBtns.style.display = 'none';
+    if(docHint) docHint.style.display = 'none';
+    var nodocBtns = document.getElementById('nodoc-action-btns');
+    if(nodocBtns) nodocBtns.style.display = 'flex';
+    var presetCont = document.getElementById('preset-btns-container');
+    if(presetCont) presetCont.style.display = 'none';
+  }
+}
+
+// ── CLEAR ALL RESEARCH FILES ─────────────────────────────────────
+function clearAllResearchFiles(){
+  if(typeof clearAllFiles === 'function') clearAllFiles();
+  // Also reset preview and state
+  var preview = document.getElementById('files-preview');
+  if(preview) preview.innerHTML = '';
+  var pdfPanel = document.getElementById('pdf-panel');
+  if(pdfPanel) pdfPanel.style.display = 'none';
+  var attachInput = document.getElementById('attach-input');
+  if(attachInput) attachInput.value = '';
+  var cameraInput = document.getElementById('camera-input');
+  if(cameraInput) cameraInput.value = '';
+  toast('🗑️ All files removed', 'ok');
+}
+
+// ── PRESET BUTTON ACTIONS ────────────────────────────────────────
+function runPreset(question){
+  var inp = document.getElementById('question-input');
+  if(inp) inp.value = question;
+  if(inp) inp.scrollIntoView({behavior:'smooth', block:'center'});
+  // Don't auto-run — let user click the button
+}
+
+// ── WHAT IS MISSING — confidence check ───────────────────────────
+async function runWhatsMissing(){
+  // Check if there are uploaded files
+  if(_researchMode !== 'nodoc' && (!window._uploadedFiles || window._uploadedFiles.length === 0)){
+    toast('Please upload a document first to check what is missing', 'err'); return;
+  }
+  var missingQ = 'Analyse this document and identify: (1) What key information is missing that would make the analysis more complete and reliable? (2) What sections, data, or context are absent? (3) If you had to give a confidence score from 0-100% on the completeness of this document for professional analysis, what would it be and why? (4) List specific recommendations for what additional information should be provided to achieve above 90% confidence.';
+  runPreset(missingQ);
+}
+
+// Close translate menu when clicking outside
+document.addEventListener('click', function(e){
+  var menu = document.getElementById('translate-menu');
+  if(menu && !e.target.closest('#translate-menu') && !e.target.textContent.includes('Translate')){
+    menu.style.display = 'none';
+  }
+});
+
+// ── CAMERA INPUT HANDLER ─────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  var camInput = document.getElementById('camera-input');
+  if(camInput){
+    camInput.addEventListener('change', function(e){
+      var files = Array.from(e.target.files);
+      if(!files.length) return;
+      files.forEach(function(file){ processUploadedFile(file); });
+      toast('📷 Photo added — ' + files.length + ' image(s) ready', 'ok');
+    });
+  }
+});
+
+// ── MICROPHONE (Speech-to-Text) ──────────────────────────────────
+var _micActive = false;
+var _recognition = null;
+function toggleMic(){
+  var btn = document.getElementById('mic-btn');
+  if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)){
+    toast('Microphone not supported on this browser. Try Chrome.', 'err'); return;
+  }
+  if(_micActive){
+    if(_recognition) _recognition.stop();
+    _micActive = false;
+    if(btn){ btn.textContent = '🎤'; btn.style.background = 'rgba(0,212,224,0.15)'; btn.style.color = '#00d4e0'; }
+    return;
+  }
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  _recognition = new SpeechRecognition();
+  _recognition.continuous = false;
+  _recognition.interimResults = false;
+  _recognition.lang = 'en-US';
+  _recognition.onstart = function(){
+    _micActive = true;
+    if(btn){ btn.textContent = '🔴'; btn.style.background = 'rgba(239,68,68,0.2)'; btn.style.color = '#ef4444'; }
+    toast('🎤 Listening... speak your question', 'ok');
+  };
+  _recognition.onresult = function(e){
+    var transcript = e.results[0][0].transcript;
+    var inp = document.getElementById('question-input');
+    if(inp) inp.value = (inp.value ? inp.value + ' ' : '') + transcript;
+    toast('✅ Got: "' + transcript.slice(0,50) + (transcript.length>50?'...':'"'), 'ok');
+  };
+  _recognition.onerror = function(e){
+    toast('Microphone error: ' + e.error, 'err');
+  };
+  _recognition.onend = function(){
+    _micActive = false;
+    if(btn){ btn.textContent = '🎤'; btn.style.background = 'rgba(0,212,224,0.15)'; btn.style.color = '#00d4e0'; }
+  };
+  _recognition.start();
+}
+
+// ── READ ALOUD (Text-to-Speech) ──────────────────────────────────
+var _speaking = false;
+function toggleReadAloud(){
+  if(_speaking){
+    window.speechSynthesis.cancel();
+    _speaking = false;
+    var btn1 = document.getElementById('read-aloud-btn');
+    var btn2 = document.getElementById('read-aloud-btn2');
+    if(btn1) btn1.textContent = '🔊 Read Aloud';
+    if(btn2) btn2.textContent = '🔊 Read Aloud';
+    return;
+  }
+  // Get the result text to read
+  var resultsEl = document.getElementById('results-area') || document.querySelector('.results-content');
+  var text = resultsEl ? (resultsEl.innerText || resultsEl.textContent) : '';
+  text = text.replace(/[^\w\s.,!?;:()%-]/g,' ').trim();
+  if(!text){ toast('No results to read yet', 'err'); return; }
+  if(!window.speechSynthesis){ toast('Read aloud not supported on this browser', 'err'); return; }
+
+  var utterance = new SpeechSynthesisUtterance(text.slice(0, 5000));
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  utterance.lang = 'en-US';
+  utterance.onstart = function(){
+    _speaking = true;
+    var btn1 = document.getElementById('read-aloud-btn');
+    var btn2 = document.getElementById('read-aloud-btn2');
+    if(btn1) btn1.textContent = '⏹ Stop Reading';
+    if(btn2) btn2.textContent = '⏹ Stop Reading';
+  };
+  utterance.onend = utterance.onerror = function(){
+    _speaking = false;
+    var btn1 = document.getElementById('read-aloud-btn');
+    var btn2 = document.getElementById('read-aloud-btn2');
+    if(btn1) btn1.textContent = '🔊 Read Aloud';
+    if(btn2) btn2.textContent = '🔊 Read Aloud';
+  };
+  window.speechSynthesis.speak(utterance);
+  toast('🔊 Reading aloud... tap Stop to pause', 'ok');
+}
+
+// ── NO-DOC MODE: intercept runAnalysis ───────────────────────────
+var _origRunAnalysis = null;
+document.addEventListener('DOMContentLoaded', function(){
+  // Wrap runAnalysis to handle no-doc mode
+  if(typeof runAnalysis === 'function'){
+    _origRunAnalysis = runAnalysis;
+  }
+});
+
+// Override runAnalysis to handle no-doc mode
+// nodoc mode uses its own buttons — no click capture needed
+
+async function runNodocAnalysis(engine){
+  engine = engine || 'dual';
+  var question = (document.getElementById('question-input')||{}).value || '';
+  if(!question.trim()){ toast('Please type your question first', 'err'); return; }
+
+  // Disable all 3 buttons but only show spinner on clicked one
+  var btns = document.querySelectorAll('#nodoc-action-btns button');
+  var origTexts = Array.from(btns).map(function(b){ return b.textContent; });
+  btns.forEach(function(b){ b.disabled=true; });
+  // Find and fade only the clicked button
+  var clickedBtn = Array.from(btns).find(function(b){
+    return b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + engine + "'");
+  });
+  if(clickedBtn){ clickedBtn.style.opacity='0.6'; clickedBtn.textContent='⏳ Loading...'; }
+
+  var code = sessionStorage.getItem('prof_verified_code') || '';
+
+  try {
+    var resp = await fetch(MAIN_WORKER_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ _appSecret: MAIN_APP_SECRET, action:'nodoc-query', engine: engine, code, question: question.trim() })
+    });
+    var data = await resp.json();
+    if(data.error){ toast(data.error, 'err'); return; }
+    if(engine === 'dual'){
+      var merged = (data.gpt||'') + '\n\n---\n\n' + (data.claude||'');
+      renderResults({ gptAnswer: data.gpt||'—', claudeAnswer: data.claude||'—', mergedAnswer: merged });
+    } else if(engine === 'claude'){
+      renderResults({ gptAnswer: '', claudeAnswer: data.answer||'—', mergedAnswer: data.answer||'' });
+    } else {
+      renderResults({ gptAnswer: data.answer||'—', claudeAnswer: '', mergedAnswer: data.answer||'' });
+    }
+  } catch(e){
+    toast('Error: ' + e.message, 'err', 6000);
+  } finally {
+    btns.forEach(function(b,i){
+      b.disabled=false;
+      b.style.opacity='1';
+      b.textContent=origTexts[i];
+    });
+  }
+}
+
 function toast(msg, type, duration){
   type = type || ''; duration = duration || 3000;
   var el = document.getElementById('toast');
